@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "build": "tsx src/index.ts",
+    "run": ""
+  },
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "tsx": "^4.23.11",
+    "typescript": "^7.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0"
+  }
+}
