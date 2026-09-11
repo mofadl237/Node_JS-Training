@@ -7,6 +7,7 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "test": "nodemon  src/Restora_Tasks/workerThread/parent.js"
   }
 }

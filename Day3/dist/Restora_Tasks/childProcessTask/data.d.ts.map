@@ -1,0 +1,1 @@
+{"version":3,"file":"data.d.ts","sourceRoot":"","sources":["../../../src/Restora_Tasks/childProcessTask/data.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,OAAO;IACpB,EAAE,EAAC,MAAM,CAAC;IACV,YAAY,EAAC,MAAM,CAAC;IACpB,KAAK,EAAC,MAAM,CAAC;CAChB;AAED,MAAM,WAAW,aAAa;IAC5B,YAAY,EAAC,MAAM,CAAC;IACpB,KAAK,EAAC,MAAM,CAAC;CAEd;AACD,eAAO,MAAM,MAAM,EAAC,OAAO,EAoB1B,CAAC"}

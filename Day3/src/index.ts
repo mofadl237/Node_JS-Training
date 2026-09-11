@@ -94,42 +94,42 @@
 // };
 // // addUser({ username: "Ali", age: 30, email: "M@gmail.com" });
 
-import {EventEmitter} from 'events'
-import * as fs from 'fs';
+// import {EventEmitter} from 'events'
+// import * as fs from 'fs';
 
 
-const myEmitter = new EventEmitter();
-// const readStream= fs.createReadStream('restora.json');
-// const writeStream= fs.createWriteStream('restora.json');
+// const myEmitter = new EventEmitter();
+// // const readStream= fs.createReadStream('restora.json');
+// // const writeStream= fs.createWriteStream('restora.json');
 
-let order="#101";
+// let order="#101";
 
-const addOrder =(order:any)=>{
-console.log(order)
-}
+// const addOrder =(order:any)=>{
+// console.log(order)
+// }
 
-const analysisSales = (order:any)=>{
-console.log("Analysis : ", order)
-}
+// const analysisSales = (order:any)=>{
+// console.log("Analysis : ", order)
+// }
 
-const loggerOrder =(order:any)=>{
-console.log("Logger : ",order)
+// const loggerOrder =(order:any)=>{
+// console.log("Logger : ",order)
 
-}
+// }
 
-const cancelOrder = (order:any)=>{
-console.log("CANCEL : ",order)
+// const cancelOrder = (order:any)=>{
+// console.log("CANCEL : ",order)
 
-}
-myEmitter.on("createdOrder",addOrder)
-myEmitter.on("createdOrder",analysisSales)
-myEmitter.on("createdOrder",loggerOrder)
-myEmitter.once("cancelOrder",cancelOrder)
+// }
+// myEmitter.on("createdOrder",addOrder)
+// myEmitter.on("createdOrder",analysisSales)
+// myEmitter.on("createdOrder",loggerOrder)
+// myEmitter.once("cancelOrder",cancelOrder)
 
 
-myEmitter.emit('createdOrder',order)
+// myEmitter.emit('createdOrder',order)
 
-myEmitter.emit('cancelOrder',order)
-myEmitter.emit('cancelOrder',order)
-myEmitter.emit('cancelOrder',order)
-myEmitter.emit('cancelOrder',order)
+// myEmitter.emit('cancelOrder',order)
+// myEmitter.emit('cancelOrder',order)
+// myEmitter.emit('cancelOrder',order)
+// myEmitter.emit('cancelOrder',order)
