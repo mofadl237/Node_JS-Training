@@ -94,6 +94,10 @@
 // };
 // // addUser({ username: "Ali", age: 30, email: "M@gmail.com" });
 
+
+/***Event Emitter */
+
+
 // import {EventEmitter} from 'events'
 // import * as fs from 'fs';
 
