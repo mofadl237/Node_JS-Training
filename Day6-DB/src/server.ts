@@ -1,8 +1,10 @@
 import express from "express";
 import dotenv from "dotenv";
 import { Client ,Pool} from "pg";
-import { getUserServices } from "./services/users.services.js";
 import { routerUsers } from "./routers/users.routes.js";
+import { routerProfiles } from "./routers/profile.routes.js";
+import { routerPosts } from "./routers/post.routes.js";
+import { errorHandler, notFoundHandler } from "./shared/error.middleware.js";
 
 dotenv.config();
 
@@ -52,6 +54,14 @@ const client = new Client({
 // routing
 
 app.use('/api/users',routerUsers)
+app.use('/api/profiles',routerProfiles)
+app.use('/api/posts',routerPosts)
+
+// 404 + central error handling — registered AFTER the routers so every
+// unmatched route and every thrown AppError/Prisma error funnels through
+// the same JSON responses (see shared/error.middleware.ts).
+app.use(notFoundHandler)
+app.use(errorHandler)
 
 app.listen('3000',()=>{
   console.log("Server Listing 3000 ....");

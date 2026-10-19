@@ -1,0 +1,47 @@
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["users_module"]
+}
+
+// Model name is lowercase `users` to match the already-applied migration
+// (CREATE TABLE "users") and the existing generated client (prisma.users).
+// The previous capital-U rename broke `prisma validate` because the
+// Profile/Post relations still referenced `users`.
+model users {
+  id      Int      @id @default(autoincrement())
+  name    String?
+  email   String?  @unique
+  age     Int?
+  profile Profile?
+  posts   Post[]
+
+  @@schema("users_module")
+}
+
+model Profile {
+  id     Int     @id @default(autoincrement())
+  bio    String?
+  avatar String?
+  userId Int     @unique
+  user   users   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@schema("users_module")
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  authorId  Int
+  author    users    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@schema("users_module")
+}

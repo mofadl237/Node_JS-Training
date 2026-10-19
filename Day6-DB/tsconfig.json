@@ -40,5 +40,8 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-  }
+  },
+  // Only compile src/ — rootDir is ./src, so including the repo root
+  // (prisma7.config.ts etc.) makes tsc fail with TS6059 before any real check.
+  "include": ["src"]
 }
