@@ -16,13 +16,13 @@ app.use(express.json());
 // 2-Connect DB
 
 
-const client = new Client({
-  host: process.env.HOST,
-  port: parseInt(process.env.PORT||"5432") ,
-  user: process.env.USER,
-  password: process.env.PASSWORD,
-  database: process.env.DATABASE,
-});
+// const client = new Client({
+//   host: process.env.HOST,
+//   port: parseInt(process.env.PORT||"5432") ,
+//   user: process.env.USER,
+//   password: process.env.PASSWORD,
+//   database: process.env.DATABASE,
+// });
 
 // const pool =  new Pool({
 // host: process.env.HOST,

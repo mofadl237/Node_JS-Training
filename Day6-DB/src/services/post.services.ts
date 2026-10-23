@@ -26,7 +26,6 @@ import type {
 export function buildPostsWhere(options: GetPostsOptions): Prisma.PostWhereInput {
   const conditions: Prisma.PostWhereInput[] = [];
 
-  // search spans title OR content, case-insensitive.
   if (options.search !== undefined) {
     conditions.push({
       OR: [

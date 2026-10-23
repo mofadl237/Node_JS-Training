@@ -1,18 +1,41 @@
 {
+  "name": "day7-caching",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production-style restaurant API: Express 5 + Prisma 7 + Redis cache",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio",
+    "db:push": "prisma db push",
+    "db:format": "prisma format",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "^7.10.1",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.8",
+    "express": "^5.3.0",
+    "helmet": "^8.3.0",
+    "pg": "^8.23.1",
+    "redis": "^5.12.1"
+  },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/node": "^24.19.2",
+    "@types/pg": "^8.23.1",
     "nodemon": "^3.1.14",
     "prisma": "^7.10.1",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
-  },
-  "scripts": {
-    "dev": "tsx watch src/server.ts",
-    "start": "nodemon dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "dependencies": {
-    "dotenv": "^18.0.8",
-    "express": "^5.3.0"
   }
 }
