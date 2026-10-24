@@ -1,37 +1,81 @@
-import { ILoginData, IRegisterData } from "../../interfaces/auth";
+import { prisma } from "../../config/prisma.js";
+import { hashPassword, comparePassword } from "../../utils/password.js";
+import { signToken } from "../../utils/jwt.js";
+import { ConflictError, UnauthorizedError } from "../../shared/errors.js";
+import { IRegisterInput, ILoginInput, IAuthResponse } from "./types.js";
+import { UserRole } from "@prisma/client";
 
-export const registerService = (data:IRegisterData)=>{
-// spread Data
-// const {email,password,name} = data;
-// const userExisting = await prisma.user.findUnique({where:email})
-// if(userExisting){
-// throw new AppError('User Already Existing',400)
-// }
-// const hashPassword = await bcrypt.hash(password,10);
-// const user = await prisma.user.create({
-// data:{name,email,password:hashPassword,role:"PATIENT"} 
-// //blablabla بنضيف باقي ال Data كدا كدا هتيجي من الفرونت اصلا
-// },select:{id:true,name:true,email:true})
-// const token = jwt.sign({id:user.id}) //شوف الحته دي من ال Ai Completed 
-// return {user,token}
- 
-}
+export class AuthService {
+  async register(dto: IRegisterInput): Promise<IAuthResponse> {
+    const email = dto.email.toLowerCase().trim();
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
 
-export const loginServices=(data:ILoginData)=>{
-    // 1-parsing data 2-check email found 3-check success pass 4- return user and token 
-    // const {email,password} = data;
-    // const user= await prisma.user.findUnique({where:email});
-    // if(!user){
-    // throw new AppError("User Not Found",401);//Invalid Email Or Password ماتثقش في العميل صعبها عليها متاكدلوش ان فيه User بالايميل دا اصلا 
-    // }
-    // const isMatch = await bcrypt.compare(password,user.password);
-    // if(!isMatch){
-    // throw new AppError('Invalid Email Or Password',401)
-    // }
-    // const token= ai completed
-    // return{user,token}
+    if (existingUser) {
+      throw new ConflictError("Email already registered", "EMAIL_EXISTS");
+    }
 
-}
-export const getMe = ()=>{
-    
+    const hashedPassword = await hashPassword(dto.password);
+
+    const user = await prisma.user.create({
+      data: {
+        name: dto.name.trim(),
+        email,
+        password: hashedPassword,
+        phone: dto.phone?.trim() || null,
+        role: UserRole.PATIENT,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        phone: true,
+      },
+    });
+
+    const token = signToken({
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
+    return { user, token };
+  }
+
+  async login(dto: ILoginInput): Promise<IAuthResponse> {
+    const email = dto.email.toLowerCase().trim();
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new UnauthorizedError("Invalid email or password", "INVALID_CREDENTIALS");
+    }
+
+    const isPasswordValid = await comparePassword(dto.password, user.password);
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedError("Invalid email or password", "INVALID_CREDENTIALS");
+    }
+
+    const token = signToken({
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
+    return {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+      },
+      token,
+    };
+  }
 }

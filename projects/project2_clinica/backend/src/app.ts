@@ -38,6 +38,10 @@ app.get("/", (_req: Request, res: Response) => {
   });
 });
 
+import authRoutes from "./modules/auth/routes.js";
+
+app.use("/api/auth", authRoutes);
+
 app.use(notFoundHandler);
 app.use(errorHandler);
 

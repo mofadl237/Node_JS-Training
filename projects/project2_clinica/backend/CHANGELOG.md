@@ -49,3 +49,33 @@ This file documents all changes made to the Clinica backend architecture and set
 - No API endpoints implemented (only architecture, errors, config)
 - Frontend directory remains under backend as per structure
 - Project structure preserved
+
+## [Auth Module] - Production Style
+- Added env config loader with JWT/BCRYPT settings
+- Added password utils (bcrypt) and JWT utils (sign/verify)
+- Added unified API response helper
+- Added validation middleware using Zod (body/query/params)
+- Rewrote auth middleware with token verification, user lookup, proper errors
+- Added role middleware for authorization
+- Implemented auth module: routes/controllers/services/dtos with clean separation
+- Routes: POST /api/auth/register, POST /api/auth/login (public)
+- Security: passwords hashed with bcrypt, only safe user fields returned, generic "Invalid email or password" on login, public registration defaults to PATIENT
+- Mounted auth routes in app
+
+## [Auth Structure Adjustment]
+- Followed Day6-DB style: placed shared interfaces in src/interfaces/auth/IAuth.ts (I prefixed)
+- Auth module keeps routes/controllers/services/validation split (scalable). Using classes like Day6 style, instantiating in routes
+- Routes mounted as /api/auth/register and /api/auth/login
+- Passwords hashed with bcrypt, tokens with JWT, validation with Zod, centralized errors/responses
+
+## [Auth Types Cleanup]
+- Moved auth types to src/modules/auth/types.ts (I prefixed)
+- Removed duplicate interfaces (dtos/interfaces/auth) to avoid duplication
+- Keep module-local types.ts per module as requested
+
+## [Cleanup & Restructure]
+- Removed unused src/common folder
+- Moved auth to module style: service.ts, controller.ts, routes.ts, validation.ts, types.ts (no extra nested folders)
+- Utils moved to src/utils/ (password.ts, jwt.ts), interfaces kept in src/interfaces/auth/
+- Shared response in src/shared/response.ts, validation middleware in src/middlewares/
+- Followed existing architecture style, avoided over-nesting
