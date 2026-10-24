@@ -43,7 +43,7 @@ export async function updateUserController(req: Request, res: Response): Promise
   const id = parseUserIdParam(req.params["id"]);
   const data = parseUpdateUserBody(req.body);
   const user = await updateUserService(id, data);
-  res.status(200).json({ success: true, data: user });
+  res.status(200).json({ success: true,message: `User ${id} Update successfully` , data: user });
 }
 
 export async function deleteUserController(req: Request, res: Response): Promise<void> {

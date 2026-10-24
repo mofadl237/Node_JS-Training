@@ -42,7 +42,7 @@ export async function updateProductController(req: Request, res: Response): Prom
   const id = parseIdParam(req.params["id"], "Product");
   const data = parseUpdateProductBody(req.body);
   const product = await updateProductService(id, data);
-  res.status(200).json({ success: true, data: product });
+  res.status(200).json({ success: true,  message: `Product ${id} updated successfully`,data: product });
 }
 
 export async function deleteProductController(req: Request, res: Response): Promise<void> {
