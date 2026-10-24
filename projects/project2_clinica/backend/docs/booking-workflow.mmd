@@ -1,0 +1,17 @@
+flowchart TD
+    A[Patient selects doctor and active DoctorService] --> B[Patient requests desired start time]
+    B --> C[Load active DoctorService, validate doctor/service]
+    C --> D[Check requested interval = start to start+durationMinutes]
+    D --> E[Find active DoctorAvailability covering entire interval]
+    E --> F{Covers fully?}
+    F -->|No| G[Reject - outside availability]
+    F -->|Yes| H[Check for overlapping active appointments for doctor]
+    H --> I{Overlaps?}
+    I -->|Yes| J[Reject - time conflict]
+    I -->|No| K[Check overlapping appointments for same patient if policy requires]
+    K --> L[Start DB transaction with locking/constraints]
+    L --> M[Re-validate inside transaction]
+    M --> N[Create Appointment with snapshots priceAtBooking/durationMinutesAtBooking]
+    N --> O[Commit]
+    O --> P[Booking confirmed]
+    L -->|Constraint violation/race| Q[Rollback - handle conflict]

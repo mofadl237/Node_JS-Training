@@ -1,13 +1,143 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// Clinica - Database Schema
+// Prisma 7.x with PostgreSQL
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+enum UserRole {
+  PATIENT
+  DOCTOR
+  ADMIN
+}
+
+enum AppointmentStatus {
+  BOOKED
+  CANCELED
+  COMPLETED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole @default(PATIENT)
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctor       Doctor?
+  appointments Appointment[] @relation("PatientAppointments")
+
+  @@index([email])
+  @@index([role])
+}
+
+model Specialization {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  doctors Doctor[]
+
+  @@index([isActive])
+}
+
+model Doctor {
+  id                String         @id @default(cuid())
+  userId            String         @unique
+  user              User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  imageUrl          String?
+  specializationId  String
+  specialization    Specialization @relation(fields: [specializationId], references: [id], onDelete: Restrict)
+  bio               String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  availabilities DoctorAvailability[]
+  doctorServices DoctorService[]
+  appointments   Appointment[]
+
+  @@index([specializationId])
+  @@index([userId])
+}
+
+model ClinicService {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  doctorServices DoctorService[]
+
+  @@index([isActive])
+}
+
+model DoctorService {
+  id              String        @id @default(cuid())
+  doctorId        String
+  doctor          Doctor        @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  clinicServiceId String
+  clinicService   ClinicService @relation(fields: [clinicServiceId], references: [id], onDelete: Restrict)
+  price           Decimal       @db.Decimal(10, 2)
+  durationMinutes Int
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  appointments Appointment[]
+
+  @@unique([doctorId, clinicServiceId])
+  @@index([doctorId, isActive])
+  @@index([clinicServiceId, isActive])
+}
+
+model DoctorAvailability {
+  id        String   @id @default(cuid())
+  doctorId  String
+  doctor    Doctor   @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  startsAt  DateTime
+  endsAt    DateTime
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([doctorId, isActive, startsAt, endsAt])
+}
+
+model Appointment {
+  id                        String            @id @default(cuid())
+  patientId                 String
+  patient                   User              @relation("PatientAppointments", fields: [patientId], references: [id], onDelete: Restrict)
+  doctorId                  String
+  doctor                    Doctor            @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  doctorServiceId           String
+  doctorService             DoctorService     @relation(fields: [doctorServiceId], references: [id], onDelete: Restrict)
+  startsAt                  DateTime
+  endsAt                    DateTime
+  status                    AppointmentStatus @default(BOOKED)
+  priceAtBooking            Decimal           @db.Decimal(10, 2)
+  durationMinutesAtBooking  Int
+  serviceNameSnapshot       String?
+  doctorDisplayNameSnapshot String?
+  notes                     String?
+  reminderSent              Boolean           @default(false)
+  createdAt                 DateTime          @default(now())
+  updatedAt                 DateTime          @updatedAt
+
+  @@index([doctorId, status, startsAt, endsAt])
+  @@index([patientId, status, startsAt])
+  @@index([doctorServiceId])
 }

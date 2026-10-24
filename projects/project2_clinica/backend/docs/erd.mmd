@@ -1,0 +1,89 @@
+erDiagram
+    USER {
+        string id PK
+        string name
+        string email UK
+        string password
+        enum role
+        string phone
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    SPECIALIZATION {
+        string id PK
+        string name UK
+        string slug UK
+        string description
+        boolean isActive
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    DOCTOR {
+        string id PK
+        string userId UK FK
+        string specializationId FK
+        string imageUrl
+        string bio
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    CLINIC_SERVICE {
+        string id PK
+        string name UK
+        string slug UK
+        string description
+        boolean isActive
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    DOCTOR_SERVICE {
+        string id PK
+        string doctorId FK
+        string clinicServiceId FK
+        decimal price
+        int durationMinutes
+        boolean isActive
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    DOCTOR_AVAILABILITY {
+        string id PK
+        string doctorId FK
+        datetime startsAt
+        datetime endsAt
+        boolean isActive
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    APPOINTMENT {
+        string id PK
+        string patientId FK
+        string doctorId FK
+        string doctorServiceId FK
+        datetime startsAt
+        datetime endsAt
+        enum status
+        decimal priceAtBooking
+        int durationMinutesAtBooking
+        string serviceNameSnapshot
+        string doctorDisplayNameSnapshot
+        string notes
+        boolean reminderSent
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    USER ||--o| DOCTOR : "has profile"
+    USER ||--o{ APPOINTMENT : "patient appointments"
+    SPECIALIZATION ||--o{ DOCTOR : "doctors"
+    DOCTOR ||--o{ DOCTOR_AVAILABILITY : "availability periods"
+    DOCTOR ||--o{ DOCTOR_SERVICE : "offers"
+    DOCTOR ||--o{ APPOINTMENT : "doctor appointments"
+    CLINIC_SERVICE ||--o{ DOCTOR_SERVICE : "offered by doctors"
+    DOCTOR_SERVICE ||--o{ APPOINTMENT : "booked offering"
