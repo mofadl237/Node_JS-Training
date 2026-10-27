@@ -31,8 +31,16 @@ app.get("/", (_req, res) => {
 });
 import authRoutes from "./modules/auth/routes.js";
 import doctorsRoutes from "./modules/doctors/router.js";
+import specializationRoutes from "./modules/specialization/router.js";
+import clinicServiceRoutes from "./modules/clinicService/router.js";
+import doctorAvailabilityRoutes from "./modules/doctorAvailability/router.js";
+import doctorServiceRoutes from "./modules/doctorService/router.js";
 app.use("/api/auth", authRoutes);
 app.use("/api/doctors", doctorsRoutes);
+app.use("/api/specializations", specializationRoutes);
+app.use("/api/clinic-services", clinicServiceRoutes);
+app.use("/api/doctor-availabilities", doctorAvailabilityRoutes);
+app.use("/api/doctor-services", doctorServiceRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 export default app;

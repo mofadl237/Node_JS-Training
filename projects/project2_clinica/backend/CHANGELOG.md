@@ -101,3 +101,11 @@ This file documents all changes made to the Clinica backend architecture and set
 - Creating a doctor links to an existing user (must have role DOCTOR or be assignable) and to an existing active specialization; enforces unique doctor per user and referential checks
 - All responses use `ApiResponse`, errors use `AppError` via `next(error)`
 - Mounted doctors routes at `/api/doctors` in `app.ts`
+
+## [Specialization, ClinicService, DoctorAvailability, DoctorService Modules] - 2026-10-25
+- Implemented all four modules in existing pattern (`types.ts`, `validation.ts`, `service.ts`, `controller.ts`, `router.ts`)
+- `specializations` and `clinic-services`: ADMIN-only for create/update/delete, public-safe list/get
+- `doctor-availabilities`: ADMIN can manage any doctor; DOCTOR can manage own availability (validated via Doctor profile). Auth required for writes.
+- `doctor-services`: ADMIN can manage any doctor-service; DOCTOR can manage own doctor-services only. ClinicService catalog remains ADMIN-only as requested.
+- Field-level Zod validation with exact paths, all responses via `ApiResponse`, all errors via `AppError/next(error)`
+- Mounted routes: `/api/specializations`, `/api/clinic-services`, `/api/doctor-availabilities`, `/api/doctor-services` in `app.ts`

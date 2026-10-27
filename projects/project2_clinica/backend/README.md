@@ -31,9 +31,10 @@ Clinica is a clinic appointment management and booking platform built with TypeS
 
 ### Implemented Today / المطبّق حالياً
 - Database schema, seed data, and bilingual design docs (ERD + booking workflow)
-- Authentication module only: `POST /api/auth/register`, `POST /api/auth/login`
+- Authentication module: `POST /api/auth/register`, `POST /api/auth/login`
+- Modules implemented: `doctors`, `specializations`, `clinic-services`, `doctor-availabilities`, `doctor-services` (with role checks)
 - Shared infrastructure: error handling, validation, logging, Prisma client, JWT/password utils
-- All other module folders exist but are intentionally empty placeholders (no endpoints yet)
+- Remaining placeholders: `users`, `appointment` (folders exist but endpoints not implemented yet)
 
 ## 3) User Roles & Permissions / الأدوار والصلاحيات
 
@@ -120,13 +121,16 @@ The project currently uses `prisma db push` (no migration history).
 
 ## 8) API Roadmap (Proposed) / خارطة API المقترحة
 
-Organized by modules:
-- **Auth:** register/login (implemented); role guards available in middleware
-- **Specializations (Admin):** CRUD + activate/deactivate
-- **Clinic Services (Admin):** CRUD + activate/deactivate
-- **Doctors (Admin):** manage doctor profiles & link to user/specialization
-- **Doctor Services (Admin):** assign services with price/duration
-- **Doctor Availability (Admin):** manage intervals
+Implemented:
+- **Auth:** register/login
+- **Specializations:** CRUD (ADMIN) / list-get
+- **Clinic Services:** CRUD (ADMIN) / list-get
+- **Doctors:** CRUD (ADMIN) / list-get
+- **Doctor Services:** manage by ADMIN or own DOCTOR
+- **Doctor Availability:** manage by ADMIN or own DOCTOR
+
+Remaining:
+- **Users:** user management
 - **Appointments (Patient/Doctor/Admin):** get available slots (computed), create/cancel/complete
 - **Reports (Admin):** basic historical views
 

@@ -68,14 +68,18 @@
 - **Seed** — `prisma/seed.ts` مع بيانات أطباء/خدمات/مواعيد.
 - **Documentation** — ERD وBooking workflow وArchitecture review.
 
+### ✅ Modules implemented (مطابقين للنمط)
+
+- `modules/auth` — كامل (register/login)
+- `modules/doctors` — CRUD (ADMIN only for create/update/delete), list/get عام
+- `modules/specialization` — CRUD (ADMIN only for writes), list/get عام
+- `modules/clinicService` — CRUD (ADMIN only for writes), list/get عام
+- `modules/doctorAvailability` — إدارة فترات عمل؛ ADMIN يقدر يضيف لأي دكتور، DOCTOR يقدر يضيف/يعدل/يحذف لنفسه فقط
+- `modules/doctorService` — ربط خدمة بالعيادة بالدكتور مع السعر والمدة؛ ADMIN يقدر لأي دكتور، DOCTOR لنفسه فقط
+
 ### 🚧 Placeholders (ملفات موجودة وفاضية — كمّل فيها)
 
 - `src/modules/users/`
-- `src/modules/specialization/`
-- `src/modules/clinicService/`
-- `src/modules/doctors/`
-- `src/modules/doctorService/`
-- `src/modules/doctorAvailability/`
 - `src/modules/appointment/`
 
 كل موديول فيهم فيه: `router.ts`, `controller.ts`, `service.ts`, `validation.ts`, `types.ts`.
@@ -291,3 +295,5 @@ try {
 | 2026-10-25 | Seed يستخدم adapter + bcrypt + `SEED_PASSWORD` |
 | 2026-10-25 | إضافة npm scripts رسمية و`type: module` و`engines` |
 | 2026-10-25 | توثيق كل القواعد في `AGENTS.md` لمنع إعادة البناء |
+| 2026-10-25 | تحسين validation middleware لعرض اسم الحقل + details.errors، ودعم role اختياري في register |
+| 2026-10-25 | إضافة modules: doctors, specialization, clinicService, doctorAvailability, doctorService مع صلاحيات ADMIN/DOCTOR حسب القواعد |
