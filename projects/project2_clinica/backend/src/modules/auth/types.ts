@@ -5,6 +5,7 @@ export interface IRegisterInput {
   email: string;
   password: string;
   phone?: string;
+  role?: UserRole | `${UserRole}`;
 }
 
 export interface ILoginInput {

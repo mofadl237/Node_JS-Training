@@ -39,8 +39,10 @@ app.get("/", (_req: Request, res: Response) => {
 });
 
 import authRoutes from "./modules/auth/routes.js";
+import doctorsRoutes from "./modules/doctors/router.js";
 
 app.use("/api/auth", authRoutes);
+app.use("/api/doctors", doctorsRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

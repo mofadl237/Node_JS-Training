@@ -79,3 +79,25 @@ This file documents all changes made to the Clinica backend architecture and set
 - Utils moved to src/utils/ (password.ts, jwt.ts), interfaces kept in src/interfaces/auth/
 - Shared response in src/shared/response.ts, validation middleware in src/middlewares/
 - Followed existing architecture style, avoided over-nesting
+
+## [Tooling & Package Scripts] - 2026-10-25
+- Rewrote `backend/package.json` with project metadata, `type: module`, `engines`, and real npm scripts (`dev`, `build`, `start`, `typecheck`, `check`, Prisma/db commands)
+- Moved runtime packages (`@prisma/client`, `dotenv`) from `devDependencies` to `dependencies`
+- Added missing `@types/*` dev dependencies that were previously resolved from the Training root `node_modules`
+- Fixed `prisma/seed.ts`: uses the project's Prisma singleton (driver adapter + pool), bcrypt-hashed passwords, and `SEED_PASSWORD` support
+- Added `migrations.seed` to `prisma7.config.ts` so `npm run db:seed` runs `tsx prisma/seed.ts`
+- Removed stale `prisma/seed.mjs` (old generated client + old enum names) and the gitignored stale `src/generated/prisma` client; `@prisma/client` is now the single client source
+- Updated `README.md` setup/commands/current status and added root `AGENTS.md` as the project source of truth
+
+## [Validation & Auth Hardening] - 2026-10-25
+- Improved Zod validation middleware to report exact field paths and include `details.errors` in validation responses
+- Extended `AppError` with optional `details` passed through `errorHandler`
+- Auth registration now accepts optional `role` (PATIENT/DOCTOR/ADMIN) while still defaulting to PATIENT
+- Strengthened register/login validation messages with clearer field-level errors
+
+## [Doctors Module] - 2026-10-25
+- Implemented `modules/doctors` in the existing module pattern: `types.ts`, `validation.ts`, `service.ts`, `controller.ts`, `router.ts`
+- Only ADMIN can create/update/delete doctors; reading/listing available per project policy (public-safe list/get implemented)
+- Creating a doctor links to an existing user (must have role DOCTOR or be assignable) and to an existing active specialization; enforces unique doctor per user and referential checks
+- All responses use `ApiResponse`, errors use `AppError` via `next(error)`
+- Mounted doctors routes at `/api/doctors` in `app.ts`

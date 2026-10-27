@@ -7,19 +7,21 @@ export class AppError extends Error {
   public readonly statusCode: number;
   public readonly code: string;
   public readonly isOperational: boolean = true;
+  public readonly details?: unknown;
 
-  constructor(statusCode: number, message: string, code = 'APP_ERROR') {
+  constructor(statusCode: number, message: string, code = 'APP_ERROR', details?: unknown) {
     super(message);
     this.name = new.target.name;
     this.statusCode = statusCode;
     this.code = code;
+    this.details = details;
     Error.captureStackTrace?.(this, this.constructor);
   }
 }
 
 export class ValidationError extends AppError {
-  constructor(message: string, code = 'VALIDATION_ERROR') {
-    super(400, message, code);
+  constructor(message: string, code = 'VALIDATION_ERROR', details?: unknown) {
+    super(400, message, code, details);
   }
 }
 

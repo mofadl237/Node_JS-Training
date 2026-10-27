@@ -24,11 +24,16 @@ Clinica is a clinic appointment management and booking platform built with TypeS
 - History preservation
 
 ### Excluded (v1) / مستبعد حالياً
-- API implementation (this milestone is DB design/docs)
-- Frontend implementation
+- Frontend implementation (the `frontend/` app is still the Next.js starter template)
 - Payments, prescriptions, medical records, clinical diagnosis
 - Complex recurring schedules/exceptions/holidays (can extend later)
 - Full notification system (only `reminderSent` flag)
+
+### Implemented Today / المطبّق حالياً
+- Database schema, seed data, and bilingual design docs (ERD + booking workflow)
+- Authentication module only: `POST /api/auth/register`, `POST /api/auth/login`
+- Shared infrastructure: error handling, validation, logging, Prisma client, JWT/password utils
+- All other module folders exist but are intentionally empty placeholders (no endpoints yet)
 
 ## 3) User Roles & Permissions / الأدوار والصلاحيات
 
@@ -71,10 +76,10 @@ See [docs/erd.mmd](docs/erd.mmd), [docs/erd-en.md](docs/erd-en.md), [docs/erd-ar
 - **Runtime:** Node.js + TypeScript + Express.js
 - **ORM:** Prisma ORM v7.x
 - **DB:** PostgreSQL
-- **Client output:** `src/generated/prisma` (as configured)
-- **Structure:** Backend under `project2_clinica/backend/`, frontend under `backend/frontend/` (currently empty). Follow existing structure strictly.
+- **Client output:** default `@prisma/client` in `node_modules` (source of truth: `prisma/schema.prisma`)
+- **Structure:** Backend under `project2_clinica/backend/`, frontend under `project2_clinica/frontend/` (sibling, currently the Next.js starter template). Follow existing structure strictly.
 
-**Layers (future):** routes → controllers → services → validation → Prisma client. This milestone does **not** implement APIs.
+**Layers:** router → controller → service → validation → Prisma client. Only the auth module is implemented so far; the other module folders are placeholders.
 
 ## 7) Installation & Configuration / التثبيت والإعداد
 
@@ -88,17 +93,35 @@ See [docs/erd.mmd](docs/erd.mmd), [docs/erd-en.md](docs/erd-en.md), [docs/erd-ar
 cd backend
 npm install
 # Configure DATABASE_URL in .env
-npx prisma format
-npx prisma validate
-# npx prisma migrate dev  # only when DB ready and explicitly intended
+npm run prisma:validate
+npm run prisma:generate
+npm run typecheck
 ```
+
+### Development Commands
+| Command | Purpose |
+|---------|---------|
+| `npm run dev` | Start the API with hot reload (`tsx watch`) |
+| `npm run build` | Compile TypeScript to `dist/` |
+| `npm start` | Run the compiled server from `dist/` |
+| `npm run typecheck` | TypeScript check without emitting files |
+| `npm run check` | Typecheck + validate Prisma schema |
+| `npm run prisma:generate` | Regenerate Prisma Client from the schema |
+| `npm run prisma:validate` | Validate `prisma/schema.prisma` |
+| `npm run prisma:format` | Format the Prisma schema |
+| `npm run prisma:studio` | Open Prisma Studio |
+| `npm run db:push` | Sync the schema to the database (no migration files) |
+| `npm run db:seed` | Reset seed data and insert test records |
+
+**Seed data:** every seeded account uses `SEED_PASSWORD` or `Password123` by default (e.g. `admin@clinica.com`).
+The project currently uses `prisma db push` (no migration history).
 
 **Note:** Do not commit real credentials. `.env.example` present.
 
 ## 8) API Roadmap (Proposed) / خارطة API المقترحة
 
-Organized by modules (not implemented):
-- **Auth:** register/login/roles
+Organized by modules:
+- **Auth:** register/login (implemented); role guards available in middleware
 - **Specializations (Admin):** CRUD + activate/deactivate
 - **Clinic Services (Admin):** CRUD + activate/deactivate
 - **Doctors (Admin):** manage doctor profiles & link to user/specialization

@@ -1,8 +1,32 @@
 {
+  "name": "clinica-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Clinica clinic appointment booking API (Express + Prisma + PostgreSQL)",
+  "type": "module",
+  "main": "dist/server.js",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm run prisma:validate",
+    "prisma:generate": "prisma generate",
+    "prisma:validate": "prisma validate",
+    "prisma:format": "prisma format",
+    "prisma:studio": "prisma studio",
+    "db:push": "prisma db push",
+    "db:seed": "prisma db seed"
+  },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "^7.10.1",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
     "express": "^5.3.0",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
@@ -11,9 +35,12 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@prisma/client": "^7.10.1",
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
-    "dotenv": "^18.0.9",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^22.0.0",
     "nodemon": "^3.1.14",
     "prisma": "^7.10.1",
     "tsx": "^4.23.15",

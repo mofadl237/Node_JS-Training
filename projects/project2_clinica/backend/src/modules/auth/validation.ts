@@ -1,38 +1,42 @@
 import { z } from "zod";
+import { UserRole } from "@prisma/client";
 
 export const registerSchema = z.object({
   name: z
-    .string()
+    .string("name is required")
     .trim()
-    .min(2, "Name must be at least 2 characters")
-    .max(50, "Name must not exceed 50 characters"),
+    .min(2, "name must be at least 2 characters")
+    .max(50, "name must not exceed 50 characters"),
   email: z
-    .string()
+    .string("email is required")
     .trim()
-    .email("Please provide a valid email address")
+    .email("email must be a valid email address")
     .toLowerCase(),
   password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .max(128, "Password must not exceed 128 characters")
+    .string("password is required")
+    .min(8, "password must be at least 8 characters")
+    .max(128, "password must not exceed 128 characters")
     .regex(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+      "password must contain at least one uppercase letter, one lowercase letter, and one number"
     ),
   phone: z
     .string()
     .trim()
-    .regex(/^\+?[0-9]{10,15}$/, "Please provide a valid phone number")
+    .regex(/^\+?[0-9]{10,15}$/, "phone must be a valid phone number")
     .optional(),
+  role: z.nativeEnum(UserRole).optional(),
 });
 
 export const loginSchema = z.object({
   email: z
-    .string()
+    .string("email is required")
     .trim()
-    .email("Please provide a valid email address")
+    .email("email must be a valid email address")
     .toLowerCase(),
-  password: z.string().min(1, "Password is required"),
+  password: z
+    .string("password is required")
+    .min(1, "password is required"),
 });
 
 export type IRegisterInput = z.infer<typeof registerSchema>;

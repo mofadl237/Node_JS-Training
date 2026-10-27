@@ -14,11 +14,15 @@ export const notFoundHandler: RequestHandler = (req, res) => {
 export const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
   // 1) App operational errors
   if (err instanceof AppError) {
-    res.status(err.statusCode).json({
+    const response: Record<string, unknown> = {
       success: false,
       message: err.message,
       code: err.code,
-    });
+    };
+    if (err.details !== undefined) {
+      response.details = err.details;
+    }
+    res.status(err.statusCode).json(response);
     return;
   }
 

@@ -18,6 +18,7 @@ export class AuthService {
     }
 
     const hashedPassword = await hashPassword(dto.password);
+    const role = dto.role && Object.values(UserRole).includes(dto.role as UserRole) ? (dto.role as UserRole) : UserRole.PATIENT;
 
     const user = await prisma.user.create({
       data: {
@@ -25,7 +26,7 @@ export class AuthService {
         email,
         password: hashedPassword,
         phone: dto.phone?.trim() || null,
-        role: UserRole.PATIENT,
+        role,
       },
       select: {
         id: true,
