@@ -165,6 +165,35 @@ export class AppointmentService {
       throw new BadRequestError("Appointment start time must be in the future", "APPOINTMENT_IN_PAST");
     }
 
+    const requestedPatientId = dto.patientId?.trim();
+    let patientId = auth.userId;
+
+    if (auth.role === "ADMIN") {
+      if (!requestedPatientId) {
+        throw new BadRequestError(
+          "patientId is required when booking as an admin",
+          "VALIDATION_ERROR",
+        );
+      }
+
+      const patient = await prisma.user.findUnique({
+        where: { id: requestedPatientId },
+        select: { id: true, role: true },
+      });
+
+      if (!patient) {
+        throw new NotFoundError("Patient not found", "USER_NOT_FOUND");
+      }
+
+      if (patient.role !== "PATIENT") {
+        throw new BadRequestError("patientId must belong to a patient", "VALIDATION_ERROR");
+      }
+
+      patientId = patient.id;
+    } else if (requestedPatientId && requestedPatientId !== auth.userId) {
+      throw new ForbiddenError("Only an admin can book for another patient");
+    }
+
     const ds = await prisma.doctorService.findUnique({
       where: { id: dto.doctorServiceId },
       select: {
@@ -206,12 +235,12 @@ export class AppointmentService {
 
       return tx.appointment.create({
         data: {
-          patientId: auth.userId,
+          patientId,
           doctorId: ds.doctorId,
           doctorServiceId: ds.id,
           startsAt,
           endsAt,
-          status: "BOOKED",
+          status: "PENDING",
           priceAtBooking: ds.price,
           durationMinutesAtBooking: ds.durationMinutes,
           serviceNameSnapshot: ds.clinicService?.name ?? null,
@@ -221,8 +250,6 @@ export class AppointmentService {
         select: selectAppt,
       });
     });
-
-    void this.notifications.sendBookingConfirmation(appointment.id);
 
     return appointment as unknown as IAppointmentResponse;
   }
@@ -296,6 +323,64 @@ export class AppointmentService {
       data: { status: "CANCELED" },
       select: selectAppt,
     });
+  }
+
+  async confirm(id: string, auth: IAuthContext) {
+    if (auth.role !== "ADMIN") {
+      throw new ForbiddenError("Only an admin can confirm appointments", "FORBIDDEN");
+    }
+
+    const updated = await prisma.appointment.updateMany({
+      where: { id, status: "PENDING" },
+      data: { status: "BOOKED" },
+    });
+
+    if (updated.count === 0) {
+      const existing = await prisma.appointment.findUnique({
+        where: { id },
+        select: { status: true },
+      });
+
+      if (!existing) {
+        throw new NotFoundError("Appointment not found", "NOT_FOUND");
+      }
+
+      if (existing.status === "BOOKED") {
+        throw new BadRequestError("Appointment is already confirmed", "APPOINTMENT_ALREADY_CONFIRMED");
+      }
+
+      throw new BadRequestError(
+        "Only pending appointments can be confirmed",
+        "APPOINTMENT_CANNOT_BE_CONFIRMED",
+      );
+    }
+
+    const appointment = await prisma.appointment.findUnique({
+      where: { id },
+      select: selectAppt,
+    });
+
+    if (!appointment) {
+      throw new NotFoundError("Appointment not found", "NOT_FOUND");
+    }
+
+    void this.notifications.sendBookingConfirmation(id);
+
+    return appointment;
+  }
+
+  async remove(id: string, auth: IAuthContext) {
+    if (auth.role !== "ADMIN") {
+      throw new ForbiddenError("Only an admin can delete appointments", "FORBIDDEN");
+    }
+
+    const deleted = await prisma.appointment.deleteMany({ where: { id } });
+
+    if (deleted.count === 0) {
+      throw new NotFoundError("Appointment not found", "NOT_FOUND");
+    }
+
+    return { id };
   }
 
   private assertCanAccess(

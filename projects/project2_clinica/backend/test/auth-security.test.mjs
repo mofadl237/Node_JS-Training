@@ -127,7 +127,7 @@ test("public registration and profile updates cannot escalate roles", async (t) 
       const target = await register({ email });
       assert.equal(target.status, 201, JSON.stringify(target.body));
 
-      const adminLogin = await login(process.env.SEED_ADMIN_EMAIL || "admin@clinica.com");
+      const adminLogin = await login(process.env.SEED_ADMIN_EMAIL || "mohamedfadldev@gmail.com");
       assert.equal(adminLogin.status, 200, JSON.stringify(adminLogin.body));
 
       const res = await api("PATCH", `/api/users/${target.body.data.user.id}`, {

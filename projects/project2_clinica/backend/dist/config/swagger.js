@@ -575,7 +575,11 @@ const options = {
                         doctorServiceId: { type: "string" },
                         startsAt: { type: "string", format: "date-time", example: "2026-11-02T10:00:00.000Z" },
                         endsAt: { type: "string", format: "date-time", example: "2026-11-02T10:30:00.000Z" },
-                        status: { type: "string", enum: ["BOOKED", "COMPLETED", "CANCELED"], example: "BOOKED" },
+                        status: {
+                            type: "string",
+                            enum: ["PENDING", "BOOKED", "COMPLETED", "CANCELED"],
+                            example: "PENDING",
+                        },
                         priceAtBooking: { type: "string", example: "350.00" },
                         durationMinutesAtBooking: { type: "integer", example: 30 },
                         serviceNameSnapshot: { type: "string", nullable: true, example: "Initial Consultation" },
@@ -641,6 +645,11 @@ const options = {
                             example: "2026-11-02T10:00:00.000Z",
                             description: "Must be in the future and fully inside an active doctor availability window.",
                         },
+                        patientId: {
+                            type: "string",
+                            description: "Required for ADMIN bookings and must reference a PATIENT account. Patients cannot book for anyone else.",
+                            example: "cm3x9k2a10000abcd1234efgh",
+                        },
                         notes: { type: "string", maxLength: 1000, example: "First visit" },
                     },
                 },
@@ -648,7 +657,7 @@ const options = {
                     type: "object",
                     properties: {
                         success: { type: "boolean", example: true },
-                        message: { type: "string", example: "Appointment booked successfully" },
+                        message: { type: "string", example: "Appointment request submitted successfully" },
                         data: { $ref: "#/components/schemas/Appointment" },
                     },
                 },
@@ -1514,7 +1523,7 @@ const options = {
                         {
                             name: "status",
                             in: "query",
-                            schema: { type: "string", enum: ["BOOKED", "COMPLETED", "CANCELED"] },
+                            schema: { type: "string", enum: ["PENDING", "BOOKED", "COMPLETED", "CANCELED"] },
                         },
                         { name: "doctorId", in: "query", schema: { type: "string" } },
                         { name: "patientId", in: "query", schema: { type: "string" } },
@@ -1550,10 +1559,12 @@ const options = {
                 },
                 post: {
                     tags: ["Appointments"],
-                    summary: "Book an appointment",
-                    description: "The server derives end time, duration, and price from the doctor service. " +
+                    summary: "Request an appointment",
+                    description: "Creates a PENDING appointment request; the slot is held against double booking. " +
+                        "The server derives end time, duration, and price from the doctor service. " +
                         "The time must be in the future and fully inside an active availability window. " +
-                        "A confirmation email is sent asynchronously and never affects booking success.",
+                        "Admins must pass the target `patientId`; PATIENT/DOCTOR users can only book for themselves. " +
+                        "An ADMIN must confirm the request via `PATCH /api/appointments/{id}/confirm` before a confirmation email is sent.",
                     requestBody: {
                         required: true,
                         content: {
@@ -1564,18 +1575,20 @@ const options = {
                     },
                     responses: {
                         "201": {
-                            description: "Appointment booked.",
+                            description: "Appointment request submitted with PENDING status.",
                             content: {
                                 "application/json": { schema: { $ref: "#/components/schemas/AppointmentResponse" } },
                             },
                         },
                         "400": {
-                            description: "Validation failed, appointment is in the past, or the time is not covered by availability.",
+                            description: "Validation failed, appointment is in the past, the time is not covered by availability, " +
+                                "or `patientId` is missing/invalid for an admin booking.",
                             content: {
                                 "application/json": { schema: { $ref: "#/components/schemas/ErrorResponse" } },
                             },
                         },
                         "401": { $ref: "#/components/responses/Unauthorized" },
+                        "403": { $ref: "#/components/responses/Forbidden" },
                         "404": { $ref: "#/components/responses/NotFound" },
                         "409": {
                             description: "The doctor already has an active appointment at this time.",
@@ -1605,6 +1618,66 @@ const options = {
                             content: {
                                 "application/json": {
                                     schema: { $ref: "#/components/schemas/AppointmentDetailResponse" },
+                                },
+                            },
+                        },
+                        "401": { $ref: "#/components/responses/Unauthorized" },
+                        "403": { $ref: "#/components/responses/Forbidden" },
+                        "404": { $ref: "#/components/responses/NotFound" },
+                    },
+                },
+                delete: {
+                    tags: ["Appointments"],
+                    summary: "Delete an appointment (ADMIN)",
+                    description: "Permanently deletes the appointment row. Only ADMIN can delete. Prefer cancel for normal user flows because deletion cannot be undone.",
+                    responses: {
+                        "200": {
+                            description: "Deleted.",
+                            content: {
+                                "application/json": { schema: { $ref: "#/components/schemas/MessageResponse" } },
+                            },
+                        },
+                        "401": { $ref: "#/components/responses/Unauthorized" },
+                        "403": { $ref: "#/components/responses/Forbidden" },
+                        "404": { $ref: "#/components/responses/NotFound" },
+                    },
+                },
+            },
+            "/api/appointments/{id}/confirm": {
+                parameters: [{ $ref: "#/components/parameters/IdPath" }],
+                patch: {
+                    tags: ["Appointments"],
+                    summary: "Confirm a pending appointment (ADMIN)",
+                    description: "Only ADMIN can confirm. Moves the appointment from PENDING to BOOKED and sends the confirmation email " +
+                        "to `appointment.patient.email` (never to an admin account).",
+                    responses: {
+                        "200": {
+                            description: "Confirmed appointment.",
+                            content: {
+                                "application/json": { schema: { $ref: "#/components/schemas/AppointmentResponse" } },
+                            },
+                        },
+                        "400": {
+                            description: "The appointment is already confirmed or cannot be confirmed in its current status.",
+                            content: {
+                                "application/json": {
+                                    schema: { $ref: "#/components/schemas/ErrorResponse" },
+                                    examples: {
+                                        alreadyConfirmed: {
+                                            value: {
+                                                success: false,
+                                                message: "Appointment is already confirmed",
+                                                code: "APPOINTMENT_ALREADY_CONFIRMED",
+                                            },
+                                        },
+                                        cannotConfirm: {
+                                            value: {
+                                                success: false,
+                                                message: "Only pending appointments can be confirmed",
+                                                code: "APPOINTMENT_CANNOT_BE_CONFIRMED",
+                                            },
+                                        },
+                                    },
                                 },
                             },
                         },

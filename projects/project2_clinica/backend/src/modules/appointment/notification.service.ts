@@ -13,7 +13,7 @@ const selectNotification = {
   durationMinutesAtBooking: true,
   serviceNameSnapshot: true,
   doctorDisplayNameSnapshot: true,
-  patient: { select: { name: true, email: true } },
+  patient: { select: { name: true, email: true, role: true } },
   doctor: { select: { user: { select: { name: true } } } },
   doctorService: { select: { clinicService: { select: { name: true } } } },
 } as const;
@@ -28,7 +28,7 @@ type AppointmentNotificationRecord = {
   durationMinutesAtBooking: number;
   serviceNameSnapshot: string | null;
   doctorDisplayNameSnapshot: string | null;
-  patient: { name: string; email: string };
+  patient: { name: string; email: string; role: string };
   doctor: { user: { name: string } };
   doctorService: { clinicService: { name: string } };
 };
@@ -65,6 +65,7 @@ function formatDateTime(date: Date): string {
 }
 
 function statusLabel(status: string): string {
+  if (status === "PENDING") return "Pending confirmation";
   if (status === "BOOKED") return "Confirmed";
   if (status === "COMPLETED") return "Completed";
   if (status === "CANCELED") return "Cancelled";
@@ -183,8 +184,16 @@ export class AppointmentNotificationService {
         return false;
       }
 
+      if (appointment.patient.role !== "PATIENT") {
+        logger.warn("Booking confirmation skipped: recipient is not a patient", {
+          appointmentId,
+          role: appointment.patient.role,
+        });
+        return false;
+      }
+
       const heading = "Appointment confirmed";
-      const intro = "Your appointment has been booked successfully. Here are your appointment details:";
+      const intro = "Your appointment has been confirmed. Here are your appointment details:";
       const sent = await this.mailer({
         to: appointment.patient.email,
         subject: `${env.APP_NAME} - ${heading}`,
@@ -229,6 +238,7 @@ export class AppointmentNotificationService {
         status: "BOOKED",
         reminderSent: false,
         startsAt: { gte: now, lte: windowEnd },
+        patient: { role: "PATIENT" },
       },
       orderBy: { startsAt: "asc" },
       select: selectNotification,

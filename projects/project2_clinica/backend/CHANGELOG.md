@@ -174,5 +174,16 @@ This file documents all changes made to the Clinica backend architecture and set
 - Extended `src/config/env.ts` with `APP_NAME`, `APP_TIMEZONE`, email settings, and reminder settings; documented all options in `.env.example`.
 - Added Swagger/OpenAPI documentation in `src/config/swagger.ts` covering health, auth, users, doctors, specializations, clinic services, doctor availability, doctor services, and appointments (including booking/cancel rules). Served at `/api-docs` and `/api-docs.json` before Helmet CSP.
 - Added `test/appointment-notifications.test.mjs` covering reminder success/failure/skip behavior, `reminderSent` updates, escaping, and confirmation emails.
+- Changed the seeded admin email to `mohamedfadldev@gmail.com`, updated the existing local admin user, and aligned the tests' admin login default. Email recipients are always resolved from `Appointment.patientId` (`appointment.patient.email`), never from the admin account.
+- `POST /api/appointments` now accepts an optional `patientId`: ADMIN must provide an existing PATIENT id when booking on behalf of a patient; PATIENT/DOCTOR requests targeting another user get `403`; admins without `patientId` get `400`. Confirmation and reminder emails skip any appointment whose patient role is not `PATIENT`.
 - Installed dev type packages: `@types/nodemailer`, `@types/swagger-jsdoc`, `@types/swagger-ui-express`.
 - Verified: `npm run check`, `npm run build`, `auth-security` (`10/10`), `appointment-concurrency` (`10/10`), `appointment-notifications` (`5/5`), `/api-docs` + `/api-docs.json` smoke checks, and invalid timezone fallback behavior.
+
+## [Admin-Confirmed Booking Workflow + Delete] - 2026-10-27
+- Added `PENDING` to `AppointmentStatus` and made it the default; new bookings hold their slot but are not confirmed.
+- `POST /api/appointments` creates `PENDING` and no longer sends a confirmation email.
+- Added `PATCH /api/appointments/:id/confirm` (ADMIN only): `PENDING` → `BOOKED`, then sends the confirmation email to `appointment.patient.email`.
+- Added `DELETE /api/appointments/:id` (ADMIN only): permanent delete that releases the slot.
+- Updated availability/EXCLUDE behavior so `PENDING` blocks overlaps, while `CANCELED` does not.
+- Updated Swagger, README, AGENTS, and integration tests for the admin confirmation/delete flow.
+- Verified: `npm run check`, `npm run build`, `prisma db push`, all tests (`28/28`), and `/api-docs` + `/api-docs.json` smoke checks.

@@ -18,7 +18,7 @@ function makeAppointment(overrides = {}) {
     durationMinutesAtBooking: 30,
     serviceNameSnapshot: "Initial Consultation",
     doctorDisplayNameSnapshot: "Dr. Karim Fouad",
-    patient: { name: "Test <Patient>", email: "patient@example.com" },
+    patient: { name: "Test <Patient>", email: "patient@example.com", role: "PATIENT" },
     doctor: { user: { name: "Dr. Karim Fouad" } },
     doctorService: { clinicService: { name: "Initial Consultation" } },
     ...overrides,
@@ -80,6 +80,7 @@ test("reminder run sends once, updates reminderSent, and escapes HTML", async ()
   assert.equal(calls.findMany.length, 1);
   assert.equal(calls.findMany[0].where.status, "BOOKED");
   assert.equal(calls.findMany[0].where.reminderSent, false);
+  assert.deepEqual(calls.findMany[0].where.patient, { role: "PATIENT" });
   assert.equal(calls.findMany[0].where.startsAt.gte.getTime(), now.getTime());
   assert.equal(calls.findMany[0].where.startsAt.lte.getTime(), expectedWindowEnd.getTime());
   assert.deepEqual(calls.updateMany, [
@@ -133,6 +134,7 @@ test("booking confirmation sends the appointment snapshot details", async () => 
   assert.equal(result, true);
   assert.equal(calls.findUnique.length, 1);
   assert.equal(sent.length, 1);
+  assert.equal(sent[0].to, "patient@example.com");
   assert.match(sent[0].subject, /Appointment confirmed/);
   assert.match(sent[0].text, /Initial Consultation/);
   assert.match(sent[0].html, /Appointment confirmed/);
@@ -147,6 +149,23 @@ test("booking confirmation returns false for a missing appointment", async () =>
   }, true);
 
   const result = await service.sendBookingConfirmation("missing-id");
+
+  assert.equal(result, false);
+  assert.equal(mails, 0);
+});
+
+test("booking confirmation is never sent to a non-patient account", async () => {
+  const appointment = makeAppointment({
+    patient: { name: "Clinic Admin", email: "admin@clinica.com", role: "ADMIN" },
+  });
+  const { db } = makeDb([appointment]);
+  let mails = 0;
+  const service = new AppointmentNotificationService(db, async () => {
+    mails += 1;
+    return true;
+  }, true);
+
+  const result = await service.sendBookingConfirmation(appointment.id);
 
   assert.equal(result, false);
   assert.equal(mails, 0);

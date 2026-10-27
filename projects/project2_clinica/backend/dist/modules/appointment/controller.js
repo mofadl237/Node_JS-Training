@@ -39,7 +39,7 @@ export class AppointmentController {
         try {
             const auth = { userId: req.user.userId, role: req.user.role };
             const result = await this.service.create(req.body, auth);
-            return ApiResponse.created(res, "Appointment booked successfully", result);
+            return ApiResponse.created(res, "Appointment request submitted successfully", result);
         }
         catch (error) {
             next(error);
@@ -51,6 +51,28 @@ export class AppointmentController {
             const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
             const result = await this.service.cancel(id, auth);
             return ApiResponse.ok(res, "Appointment canceled successfully", result);
+        }
+        catch (error) {
+            next(error);
+        }
+    };
+    confirm = async (req, res, next) => {
+        try {
+            const auth = { userId: req.user.userId, role: req.user.role };
+            const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+            const result = await this.service.confirm(id, auth);
+            return ApiResponse.ok(res, "Appointment confirmed successfully", result);
+        }
+        catch (error) {
+            next(error);
+        }
+    };
+    remove = async (req, res, next) => {
+        try {
+            const auth = { userId: req.user.userId, role: req.user.role };
+            const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+            await this.service.remove(id, auth);
+            return ApiResponse.ok(res, "Appointment deleted successfully");
         }
         catch (error) {
             next(error);

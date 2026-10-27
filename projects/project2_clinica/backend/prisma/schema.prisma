@@ -16,6 +16,7 @@ enum UserRole {
 }
 
 enum AppointmentStatus {
+  PENDING
   BOOKED
   CANCELED
   COMPLETED
@@ -127,7 +128,7 @@ model Appointment {
   doctorService             DoctorService     @relation(fields: [doctorServiceId], references: [id], onDelete: Restrict)
   startsAt                  DateTime
   endsAt                    DateTime
-  status                    AppointmentStatus @default(BOOKED)
+  status                    AppointmentStatus @default(PENDING)
   priceAtBooking            Decimal           @db.Decimal(10, 2)
   durationMinutesAtBooking  Int
   serviceNameSnapshot       String?

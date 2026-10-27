@@ -1,6 +1,6 @@
 import { z } from "zod";
 const isValidDate = (value) => !isNaN(new Date(value).getTime());
-export const appointmentStatusSchema = z.enum(["BOOKED", "COMPLETED", "CANCELED"]);
+export const appointmentStatusSchema = z.enum(["PENDING", "BOOKED", "COMPLETED", "CANCELED"]);
 export const createAppointmentSchema = z.object({
     doctorServiceId: z.string("doctorServiceId is required").trim().min(1, "doctorServiceId is required"),
     startsAt: z
@@ -8,6 +8,7 @@ export const createAppointmentSchema = z.object({
         .trim()
         .min(1, "startsAt is required")
         .refine(isValidDate, "startsAt must be a valid ISO date"),
+    patientId: z.string("patientId must be a string").trim().min(1, "patientId must not be empty").optional(),
     notes: z.string().trim().max(1000, "notes must not exceed 1000 characters").optional(),
 });
 export const appointmentIdParamSchema = z.object({

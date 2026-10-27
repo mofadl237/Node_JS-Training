@@ -3,7 +3,7 @@ import { AppointmentStatus, UserRole } from "@prisma/client";
 import { prisma } from "../src/config/prisma.js";
 import { hashPassword } from "../src/utils/password.js";
 
-const seedPassword = process.env.SEED_PASSWORD ?? "Password123";
+const seedPassword = process.env.SEED_PASSWORD ?? "Mohamed237";
 
 async function main() {
   await prisma.appointment.deleteMany();
@@ -26,7 +26,7 @@ async function main() {
   const c2 = await prisma.clinicService.create({ data: { name: "Follow Up", slug: "follow-up", isActive: true } });
   const c3 = await prisma.clinicService.create({ data: { name: "Medical Checkup", slug: "medical-checkup", isActive: true } });
 
-  await prisma.user.create({ data: { name: "Clinic Admin", email: "admin@clinica.com", password, role: UserRole.ADMIN } });
+  await prisma.user.create({ data: { name: "Clinic Admin", email: "mohamedfadldev@gmail.com", password, role: UserRole.ADMIN } });
   const p1 = await prisma.user.create({ data: { name: "Ahmed Mohamed", email: "ahmed.mohamed@example.com", password, role: UserRole.PATIENT } });
   const p2 = await prisma.user.create({ data: { name: "Sara Hassan", email: "sara.hassan@example.com", password, role: UserRole.PATIENT } });
   await prisma.user.create({ data: { name: "Mohamed Ali", email: "mohamed.ali@example.com", password, role: UserRole.PATIENT } });

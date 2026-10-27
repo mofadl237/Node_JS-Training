@@ -20,7 +20,7 @@ Clinica is a clinic appointment management and booking platform built with TypeS
 - Dynamic ClinicService catalog + DoctorService (per-doctor pricing/duration)
 - DoctorAvailability periods (admin-controlled)
 - Appointment booking with snapshots (priceAtBooking, durationMinutesAtBooking)
-- Appointment lifecycle (BOOKED/CANCELED/COMPLETED)
+- Appointment lifecycle (PENDING/BOOKED/CANCELED/COMPLETED)
 - History preservation
 
 ### Excluded (v1) / مستبعد حالياً
@@ -111,7 +111,7 @@ npm run typecheck
 - Notifications are enabled only when `EMAIL_ENABLED` is not false and both `SMTP_USER` and `SMTP_PASS` are set.
 - `SMTP_HOST` defaults to `smtp.gmail.com`; `SMTP_PORT` defaults to `587`; `SMTP_SECURE` defaults to true only for port `465`.
 - `SMTP_FROM` defaults to `APP_NAME <SMTP_USER>`.
-- After a booking succeeds, the patient receives a confirmation email asynchronously.
+- After a booking succeeds, the patient receives a confirmation email asynchronously. The recipient is always `appointment.patient.email` (the `patientId` on the appointment); emails are never sent to ADMIN accounts.
 - A cron job runs at `REMINDER_CRON` (default `0 8 * * *`) in `REMINDER_TIMEZONE` and sends reminders for `BOOKED` appointments without `reminderSent`, from now through the end of tomorrow (server-local time). `reminderSent` becomes `true` only after a successful send.
 - Invalid cron expressions, invalid timezones (which fall back to `APP_TIMEZONE`/the server timezone), or missing SMTP credentials disable the reminder job without stopping the API.
 
@@ -130,7 +130,7 @@ npm run typecheck
 | `npm run db:push` | Sync the schema to the database (no migration files) |
 | `npm run db:seed` | Reset seed data and insert test records |
 
-**Seed data:** every seeded account uses `SEED_PASSWORD` or `Password123` by default (e.g. `admin@clinica.com`).
+**Seed data:** every seeded account uses `SEED_PASSWORD` or `Password123` by default (e.g. `mohamedfadldev@gmail.com`).
 The project currently uses `prisma db push` (no migration history).
 
 ### Tests
@@ -159,12 +159,14 @@ Implemented:
 - **Doctor Services:** manage by ADMIN or own DOCTOR
 - **Doctor Availability:** manage by ADMIN or own DOCTOR
 - **Appointments:**
-  - `GET /api/appointments?status=&doctorServiceId=&from=&to=&page=&limit=&sortBy=&sortOrder=` — scoped list (PATIENT: own, DOCTOR: own, ADMIN: all).
+  - `GET /api/appointments?status=&doctorServiceId=&from=&to=&page=&limit=&sortBy=&sortOrder=` — scoped list (PATIENT: own, DOCTOR: own, ADMIN: all); `status` accepts `PENDING`/`BOOKED`/`COMPLETED`/`CANCELED`.
   - `GET /api/appointments/:id` — detail, scoped per role.
   - `GET /api/appointments/availability?doctorServiceId=...&date=YYYY-MM-DD` — computed slots from active availability and service duration; excludes past and booked/overlapping intervals.
-  - `POST /api/appointments` — body `{ doctorServiceId, startsAt, notes? }`; server computes `endsAt`/price/duration.
-  - `PATCH /api/appointments/:id/cancel` — owner patient or ADMIN.
-  - Booking confirmation email + daily reminder job (`reminderSent` updated after successful delivery).
+  - `POST /api/appointments` — body `{ doctorServiceId, startsAt, patientId?, notes? }`; server computes `endsAt`/price/duration and creates a `PENDING` request that holds the slot. Patients/doctors can only book for themselves; ADMIN must pass a PATIENT `patientId`.
+  - `PATCH /api/appointments/:id/confirm` — ADMIN only; `PENDING` → `BOOKED` and sends the confirmation email to the patient.
+  - `PATCH /api/appointments/:id/cancel` — owner patient or ADMIN; soft cancel.
+  - `DELETE /api/appointments/:id` — ADMIN only; permanent delete that releases the slot.
+  - Booking confirmation email is sent only after ADMIN confirmation; the daily reminder job handles `BOOKED` appointments (`reminderSent` updated after successful delivery).
 - **API documentation:** Swagger UI at `/api-docs`; OpenAPI JSON at `/api-docs.json`.
 
 Remaining:

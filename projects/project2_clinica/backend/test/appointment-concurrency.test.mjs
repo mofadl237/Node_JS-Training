@@ -216,11 +216,101 @@ test("appointment booking rules, availability and concurrency", async (t) => {
       const otherGet = await api("GET", `/api/appointments/${id}`, { token: patientB.token });
       assert.equal(otherGet.status, 403, JSON.stringify(otherGet.body));
 
-      const adminToken = await login(process.env.SEED_ADMIN_EMAIL || "admin@clinica.com");
+      const adminToken = await login(process.env.SEED_ADMIN_EMAIL || "mohamedfadldev@gmail.com");
       const adminGet = await api("GET", `/api/appointments/${id}`, { token: adminToken });
       assert.equal(adminGet.status, 200, JSON.stringify(adminGet.body));
 
       await cancel(patientA.token, id);
+    });
+
+    await t.test("admin bookings use the requested patient and require patientId", async () => {
+      const adminToken = await login(process.env.SEED_ADMIN_EMAIL || "mohamedfadldev@gmail.com");
+      const target = slots[slots.length - 1];
+      const noPatient = await book(adminToken, ds.id, target.startsAt);
+
+      assert.equal(noPatient.status, 400, JSON.stringify(noPatient.body));
+      assert.equal(noPatient.body.code, "VALIDATION_ERROR");
+
+      const asPatientB = await api("POST", "/api/appointments", {
+        token: patientB.token,
+        body: {
+          doctorServiceId: ds.id,
+          startsAt: target.startsAt,
+          patientId: patientA.userId,
+        },
+      });
+      assert.equal(asPatientB.status, 403, JSON.stringify(asPatientB.body));
+      assert.equal(asPatientB.body.code, "FORBIDDEN");
+
+      const created = await api("POST", "/api/appointments", {
+        token: adminToken,
+        body: {
+          doctorServiceId: ds.id,
+          startsAt: target.startsAt,
+          patientId: patientA.userId,
+        },
+      });
+      assert.equal(created.status, 201, JSON.stringify(created.body));
+      assert.equal(created.body.data.patientId, patientA.userId);
+
+      const canceled = await cancel(adminToken, created.body.data.id);
+      assert.equal(canceled.status, 200, JSON.stringify(canceled.body));
+    });
+
+    await t.test("pending appointments are confirmed or deleted only by admin", async () => {
+      const adminToken = await login(process.env.SEED_ADMIN_EMAIL || "mohamedfadldev@gmail.com");
+      const target = slots[slots.length - 2];
+      const created = await book(patientA.token, ds.id, target.startsAt);
+
+      assert.equal(created.status, 201, JSON.stringify(created.body));
+      assert.equal(created.body.data.status, "PENDING");
+
+      const held = await availability(ds.id, tomorrowStr);
+      assert.equal(held.status, 200, JSON.stringify(held.body));
+      assert.equal(
+        held.body.data.slots.some((s) => s.startsAt === target.startsAt),
+        false,
+        "pending appointments must hold their slot",
+      );
+
+      const patientConfirm = await api("PATCH", `/api/appointments/${created.body.data.id}/confirm`, {
+        token: patientA.token,
+      });
+      assert.equal(patientConfirm.status, 403, JSON.stringify(patientConfirm.body));
+
+      const confirmed = await api("PATCH", `/api/appointments/${created.body.data.id}/confirm`, {
+        token: adminToken,
+      });
+      assert.equal(confirmed.status, 200, JSON.stringify(confirmed.body));
+      assert.equal(confirmed.body.data.status, "BOOKED");
+
+      const alreadyConfirmed = await api("PATCH", `/api/appointments/${created.body.data.id}/confirm`, {
+        token: adminToken,
+      });
+      assert.equal(alreadyConfirmed.status, 400, JSON.stringify(alreadyConfirmed.body));
+      assert.equal(alreadyConfirmed.body.code, "APPOINTMENT_ALREADY_CONFIRMED");
+
+      const patientDelete = await api("DELETE", `/api/appointments/${created.body.data.id}`, {
+        token: patientA.token,
+      });
+      assert.equal(patientDelete.status, 403, JSON.stringify(patientDelete.body));
+
+      const deleted = await api("DELETE", `/api/appointments/${created.body.data.id}`, {
+        token: adminToken,
+      });
+      assert.equal(deleted.status, 200, JSON.stringify(deleted.body));
+
+      const missing = await api("GET", `/api/appointments/${created.body.data.id}`, {
+        token: adminToken,
+      });
+      assert.equal(missing.status, 404, JSON.stringify(missing.body));
+
+      const released = await availability(ds.id, tomorrowStr);
+      assert.equal(
+        released.body.data.slots.some((s) => s.startsAt === target.startsAt),
+        true,
+        "deleting an appointment must release the slot",
+      );
     });
   } finally {
     await prisma.appointment.deleteMany({

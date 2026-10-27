@@ -1,6 +1,7 @@
 export interface ICreateAppointmentInput {
   doctorServiceId: string;
   startsAt: string | Date;
+  patientId?: string;
   notes?: string;
 }
 
