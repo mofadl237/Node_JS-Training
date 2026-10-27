@@ -20,7 +20,7 @@ export class DoctorServiceController {
             const auth = req.user ? { userId: req.user.userId, role: req.user.role } : undefined;
             const query = req.query;
             const result = await this.service.list(query, auth);
-            return ApiResponse.ok(res, "Doctor services fetched successfully", result);
+            return ApiResponse.paginated(res, "Doctor services fetched successfully", result.items, result.meta);
         }
         catch (error) {
             next(error);

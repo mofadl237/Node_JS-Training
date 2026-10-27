@@ -1,6 +1,9 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "../../config/prisma.js";
 import { ConflictError, NotFoundError } from "../../shared/errors.js";
+import { resolvePagination, toPaginatedResult } from "../../shared/pagination.js";
 import { ICreateSpecializationInput, ISpecializationResponse, IUpdateSpecializationInput } from "./types.js";
+import { IListSpecializationsQuery } from "./validation.js";
 
 const selectSpec = {
   id: true,
@@ -33,13 +36,33 @@ export class SpecializationService {
     return spec as ISpecializationResponse;
   }
 
-  async list(includeInactive = false): Promise<ISpecializationResponse[]> {
-    const specs = await prisma.specialization.findMany({
-      where: includeInactive ? {} : { isActive: true },
-      select: selectSpec,
-      orderBy: { name: "asc" },
-    });
-    return specs as ISpecializationResponse[];
+  async list(query: IListSpecializationsQuery = {} as IListSpecializationsQuery) {
+    const where: Prisma.SpecializationWhereInput = {
+      isActive: query.isActive === undefined ? true : query.isActive === "true",
+    };
+    if (query.q) {
+      where.OR = [
+        { name: { contains: query.q, mode: "insensitive" } },
+        { slug: { contains: query.q, mode: "insensitive" } },
+      ];
+    }
+
+    const pagination = resolvePagination(query.page, query.limit);
+    const sortBy = query.sortBy ?? "name";
+    const sortOrder = query.sortOrder ?? "asc";
+
+    const [specs, total] = await prisma.$transaction([
+      prisma.specialization.findMany({
+        where,
+        select: selectSpec,
+        orderBy: { [sortBy]: sortOrder },
+        skip: pagination.skip,
+        take: pagination.take,
+      }),
+      prisma.specialization.count({ where }),
+    ]);
+
+    return toPaginatedResult(specs as ISpecializationResponse[], total, pagination.page, pagination.limit);
   }
 
   async getById(id: string): Promise<ISpecializationResponse> {

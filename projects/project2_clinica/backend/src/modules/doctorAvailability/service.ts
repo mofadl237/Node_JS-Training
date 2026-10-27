@@ -1,6 +1,13 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "../../config/prisma.js";
 import { BadRequestError, ForbiddenError, NotFoundError } from "../../shared/errors.js";
-import { ICreateDoctorAvailabilityInput, IDoctorAvailabilityResponse, IUpdateDoctorAvailabilityInput } from "./types.js";
+import { resolvePagination, toPaginatedResult } from "../../shared/pagination.js";
+import {
+  ICreateDoctorAvailabilityInput,
+  IDoctorAvailabilityResponse,
+  IUpdateDoctorAvailabilityInput,
+} from "./types.js";
+import { IDoctorIdQuery } from "./validation.js";
 
 const selectAv = {
   id: true,
@@ -50,20 +57,45 @@ export class DoctorAvailabilityService {
     return av as IDoctorAvailabilityResponse;
   }
 
-  async list(query: { doctorId?: string }, auth?: { userId: string; role: string }): Promise<IDoctorAvailabilityResponse[]> {
-    const where: any = {};
-    if (query.doctorId) {
-      where.doctorId = query.doctorId;
-    } else if (auth?.role === "DOCTOR") {
+  async list(query: IDoctorIdQuery, auth?: { userId: string; role: string }) {
+    const where: Prisma.DoctorAvailabilityWhereInput = {};
+
+    if (auth?.role === "DOCTOR") {
       const own = await this.getDoctorIdForUser(auth.userId);
       if (own) where.doctorId = own;
+    } else if (query.doctorId) {
+      where.doctorId = query.doctorId;
     }
-    const items = await prisma.doctorAvailability.findMany({
-      where,
-      select: selectAv,
-      orderBy: { startsAt: "asc" },
-    });
-    return items as IDoctorAvailabilityResponse[];
+
+    if (query.isActive !== undefined) {
+      where.isActive = query.isActive === "true";
+    }
+
+    if (query.from && query.to) {
+      where.startsAt = { lte: new Date(query.to) };
+      where.endsAt = { gte: new Date(query.from) };
+    } else if (query.from) {
+      where.startsAt = { gte: new Date(query.from) };
+    } else if (query.to) {
+      where.endsAt = { lte: new Date(query.to) };
+    }
+
+    const pagination = resolvePagination(query.page, query.limit);
+    const sortBy = query.sortBy ?? "startsAt";
+    const sortOrder = query.sortOrder ?? "asc";
+
+    const [items, total] = await prisma.$transaction([
+      prisma.doctorAvailability.findMany({
+        where,
+        select: selectAv,
+        orderBy: { [sortBy]: sortOrder },
+        skip: pagination.skip,
+        take: pagination.take,
+      }),
+      prisma.doctorAvailability.count({ where }),
+    ]);
+
+    return toPaginatedResult(items as IDoctorAvailabilityResponse[], total, pagination.page, pagination.limit);
   }
 
   async getById(id: string): Promise<IDoctorAvailabilityResponse> {

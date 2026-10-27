@@ -1,5 +1,6 @@
 import { prisma } from "../../config/prisma.js";
 import { BadRequestError, ForbiddenError, NotFoundError } from "../../shared/errors.js";
+import { resolvePagination, toPaginatedResult } from "../../shared/pagination.js";
 const selectAv = {
     id: true,
     doctorId: true,
@@ -45,20 +46,41 @@ export class DoctorAvailabilityService {
     }
     async list(query, auth) {
         const where = {};
-        if (query.doctorId) {
-            where.doctorId = query.doctorId;
-        }
-        else if (auth?.role === "DOCTOR") {
+        if (auth?.role === "DOCTOR") {
             const own = await this.getDoctorIdForUser(auth.userId);
             if (own)
                 where.doctorId = own;
         }
-        const items = await prisma.doctorAvailability.findMany({
-            where,
-            select: selectAv,
-            orderBy: { startsAt: "asc" },
-        });
-        return items;
+        else if (query.doctorId) {
+            where.doctorId = query.doctorId;
+        }
+        if (query.isActive !== undefined) {
+            where.isActive = query.isActive === "true";
+        }
+        if (query.from && query.to) {
+            where.startsAt = { lte: new Date(query.to) };
+            where.endsAt = { gte: new Date(query.from) };
+        }
+        else if (query.from) {
+            where.startsAt = { gte: new Date(query.from) };
+        }
+        else if (query.to) {
+            where.endsAt = { lte: new Date(query.to) };
+        }
+        const pagination = resolvePagination(query.page, query.limit);
+        const sortBy = query.sortBy ?? "startsAt";
+        const sortOrder = query.sortOrder ?? "asc";
+        const [items, total] = await prisma.$transaction([
+            prisma.doctorAvailability.findMany({
+                where,
+                select: selectAv,
+                orderBy: { [sortBy]: sortOrder },
+                skip: pagination.skip,
+                take: pagination.take,
+            }),
+            prisma.doctorAvailability.count({ where }),
+        ]);
+        return toPaginatedResult(items, total, pagination.page, pagination.limit);
     }
     async getById(id) {
         const av = await prisma.doctorAvailability.findUnique({ where: { id }, select: selectAv });

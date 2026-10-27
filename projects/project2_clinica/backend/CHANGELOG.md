@@ -109,3 +109,52 @@ This file documents all changes made to the Clinica backend architecture and set
 - `doctor-services`: ADMIN can manage any doctor-service; DOCTOR can manage own doctor-services only. ClinicService catalog remains ADMIN-only as requested.
 - Field-level Zod validation with exact paths, all responses via `ApiResponse`, all errors via `AppError/next(error)`
 - Mounted routes: `/api/specializations`, `/api/clinic-services`, `/api/doctor-availabilities`, `/api/doctor-services` in `app.ts`
+
+## [Appointments - Concurrency Safe Booking] - 2026-10-25
+- Implemented `modules/appointment` (create with auth). Uses transaction + `SELECT ... FOR UPDATE` on Doctor row, validates active DoctorService, validates full coverage by active DoctorAvailability, creates with snapshots.
+- Added custom migration `prisma/migrations/20251027T120000_add_appointment_overlap_exclusion/migration.sql` with `btree_gist` and partial EXCLUDE constraint on `(doctorId, tsrange(startsAt, endsAt, '[)'))` WHERE `status <> 'CANCELED'` (allows adjacent bookings; blocks overlaps for BOOKED/COMPLETED).
+- Mapped PostgreSQL exclusion violation (23P01) to HTTP 409 `APPOINTMENT_CONFLICT` in Prisma error mapper.
+- Routes mounted at `/api/appointments`. Applied constraint directly to DB (existing schema uses db push; migration SQL added for traceability).
+
+## [Availability API + Booking Hardening + Users Module] - 2026-10-27
+- Added `GET /api/appointments/availability?doctorServiceId=...&date=YYYY-MM-DD`:
+  - Rejects invalid dates and days before today (`400 BAD_REQUEST`).
+  - Builds slots dynamically from active `DoctorAvailability` intervals using the doctor-service `durationMinutes` (no fixed slot system, no client-supplied duration).
+  - Excludes slots already ended today, slots overlapping active (`BOOKED`/`COMPLETED`) appointments, and keeps adjacent bookings available.
+  - Returns `{ date, doctorServiceId, doctorId, doctorName, durationMinutes, timezone, slots[] }` where each slot is `{ startsAt, endsAt }` in ISO-8601 UTC.
+- Hardened `POST /api/appointments`:
+  - `startsAt` must be a valid ISO date and strictly in the future at request time (`400 APPOINTMENT_IN_PAST`).
+  - Server computes `endsAt = startsAt + durationMinutes`; ignores client `endsAt`, price, and duration entirely.
+  - Requires the full interval inside one active `DoctorAvailability` (`400 AVAILABILITY_NOT_COVERED`).
+  - Requires active `DoctorService` and active `ClinicService`.
+  - Still uses transaction + `SELECT ... FOR UPDATE` on Doctor and the DB EXCLUDE constraint as the final guard; conflicts map to `409 APPOINTMENT_CONFLICT`.
+- Added `PATCH /api/appointments/:id/cancel` (owner patient or ADMIN); sets `status = CANCELED` so the interval becomes bookable again.
+- Implemented `modules/users` in the standard pattern:
+  - `GET /api/users/me` (auth), `GET /api/users` (ADMIN), `GET /api/users/:id` (ADMIN or self), `PATCH /api/users/:id` (ADMIN or self).
+  - Zod validation for params/body (`updateUserSchema` requires at least one field; password hashed via existing `hashPassword`).
+- Replaced the concurrency integration test with valid fixtures: availability is created for the tested doctor, and tests now assert real `201`/`409` outcomes.
+- Tests cover: past day rejection, past appointment rejection, overrun past working hours, booked slots hidden, adjacent booking allowed, cancel+rebook, concurrent same-slot (one `201` + one `409`), and availability-then-lost-race (`409`).
+
+## [Appointment List/Get + Paginated Lists] - 2026-10-27
+- Added appointment read endpoints:
+  - `GET /api/appointments?status=&doctorServiceId=&from=&to=&page=&limit=&sortBy=&sortOrder=` with role scoping (PATIENT: own, DOCTOR: own, ADMIN: all). Cross-scope filters return `403`.
+  - `GET /api/appointments/:id` with the same scoping.
+  - `from`/`to` use overlap semantics when both are provided (`startsAt <= to AND endsAt >= from`).
+- Added shared pagination helpers (`src/shared/pagination.ts`) and extended `ApiResponse` with optional `meta` plus `ApiResponse.paginated(...)`.
+- Converted all list endpoints to return `{ data: [], meta: { page, limit, total, totalPages } }` with Zod-validated query params:
+  - `users`: `q`, `role`, page/limit, sort by name/email/role/createdAt/updatedAt.
+  - `doctors`: added `q`, sort by createdAt/updatedAt/name.
+  - `specializations` / `clinic-services`: `q`, `isActive`, page/limit, sort.
+  - `doctor-availabilities`: `isActive`, `from`/`to` overlap, sort by startsAt/endsAt.
+  - `doctor-services`: `isActive`, page/limit, sort by createdAt/updatedAt/price/durationMinutes.
+- Default list behavior still hides inactive `specializations` and `clinic-services` unless `isActive=false` is requested.
+- Cancellation remains restricted to the owning PATIENT or ADMIN; DOCTOR cannot cancel another patient's appointment.
+- Extended the integration test with role-scoped list/get coverage (patient owner, other patient `403`, admin access).
+- Verified: `npm run typecheck`, `npm run prisma:validate`, `npm run build`, integration tests (`10/10`), and smoke checks for every list endpoint with `meta`.
+
+## [Auth Security Hardening] - 2026-10-27
+- Public `POST /api/auth/register` now rejects any `role` field with `400 VALIDATION_ERROR` and always creates a `PATIENT`.
+- Removed the optional `role` from the registration input type and service; role resolution no longer trusts client input.
+- `PATCH /api/users/:id` now accepts `role` only for `ADMIN`; non-admin users receive `403 FORBIDDEN` and the update is not partially applied.
+- Added `test/auth-security.test.mjs` covering: PATIENT-only registration, rejection of `role=ADMIN/DOCTOR/PATIENT`, login compatibility, self-promotion attempts, updating another user, and ADMIN-only role changes.
+- Verified: `npm run typecheck`, `npm run prisma:validate`, `npm run build`, `auth-security` tests (`10/10`), and the appointment integration suite (`10/10`).

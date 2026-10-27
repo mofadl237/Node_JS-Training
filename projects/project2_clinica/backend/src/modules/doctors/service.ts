@@ -1,7 +1,8 @@
 import { prisma } from "../../config/prisma.js";
 import { ConflictError, NotFoundError, BadRequestError } from "../../shared/errors.js";
+import { resolvePagination, toPaginatedResult } from "../../shared/pagination.js";
 import { ICreateDoctorInput, IDoctorResponse, IUpdateDoctorInput, IDoctorListQuery } from "./types.js";
-import { UserRole } from "@prisma/client";
+import { Prisma, UserRole } from "@prisma/client";
 import { hashPassword } from "../../utils/password.js";
 
 const doctorSelect = {
@@ -99,19 +100,38 @@ export class DoctorsService {
     return doctor as unknown as IDoctorResponse;
   }
 
-  async list(query: IDoctorListQuery = {}): Promise<IDoctorResponse[]> {
-    const where: any = {};
+  async list(query: IDoctorListQuery = {}) {
+    const where: Prisma.DoctorWhereInput = {};
     if (query.specializationId) {
       where.specializationId = query.specializationId;
     }
-    const doctors = await prisma.doctor.findMany({
-      where,
-      select: doctorSelect,
-      orderBy: { createdAt: "desc" },
-      take: query.limit ?? 50,
-      skip: query.page && query.limit ? (query.page - 1) * query.limit : 0,
-    });
-    return doctors as unknown as IDoctorResponse[];
+    if (query.q) {
+      where.user = {
+        OR: [
+          { name: { contains: query.q, mode: "insensitive" } },
+          { email: { contains: query.q, mode: "insensitive" } },
+        ],
+      };
+    }
+
+    const pagination = resolvePagination(query.page, query.limit);
+    const sortBy = query.sortBy ?? "createdAt";
+    const sortOrder = query.sortOrder ?? "desc";
+    const orderBy: Prisma.DoctorOrderByWithRelationInput =
+      sortBy === "name" ? { user: { name: sortOrder } } : { [sortBy]: sortOrder };
+
+    const [doctors, total] = await prisma.$transaction([
+      prisma.doctor.findMany({
+        where,
+        select: doctorSelect,
+        orderBy,
+        skip: pagination.skip,
+        take: pagination.take,
+      }),
+      prisma.doctor.count({ where }),
+    ]);
+
+    return toPaginatedResult(doctors as unknown as IDoctorResponse[], total, pagination.page, pagination.limit);
   }
 
   async getById(id: string): Promise<IDoctorResponse> {

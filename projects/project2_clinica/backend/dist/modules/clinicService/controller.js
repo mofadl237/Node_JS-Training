@@ -17,9 +17,8 @@ export class ClinicServiceController {
     list = async (req, res, next) => {
         try {
             const query = req.query;
-            const includeInactive = query.includeInactive === "true";
-            const result = await this.service.list(includeInactive);
-            return ApiResponse.ok(res, "Clinic services fetched successfully", result);
+            const result = await this.service.list(query);
+            return ApiResponse.paginated(res, "Clinic services fetched successfully", result.items, result.meta);
         }
         catch (error) {
             next(error);

@@ -28,7 +28,29 @@ export const updateDoctorAvailabilitySchema = z
 export const availabilityIdParamSchema = z.object({
     id: z.string("id is required").trim().min(1, "id is required"),
 });
-export const doctorIdQuerySchema = z.object({
+export const doctorIdQuerySchema = z
+    .object({
     doctorId: z.string().trim().min(1).optional(),
+    isActive: z.enum(["true", "false"]).optional(),
+    from: z
+        .string()
+        .trim()
+        .min(1)
+        .refine((v) => !isNaN(new Date(v).getTime()), "from must be a valid ISO date")
+        .optional(),
+    to: z
+        .string()
+        .trim()
+        .min(1)
+        .refine((v) => !isNaN(new Date(v).getTime()), "to must be a valid ISO date")
+        .optional(),
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().max(100).default(20),
+    sortBy: z.enum(["startsAt", "endsAt", "createdAt", "updatedAt"]).default("startsAt"),
+    sortOrder: z.enum(["asc", "desc"]).default("asc"),
+})
+    .refine((data) => !data.from || !data.to || new Date(data.from) <= new Date(data.to), {
+    message: "from must be before or equal to to",
+    path: ["from"],
 });
 //# sourceMappingURL=validation.js.map

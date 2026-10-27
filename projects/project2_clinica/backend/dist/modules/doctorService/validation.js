@@ -25,5 +25,10 @@ export const doctorServiceIdParamSchema = z.object({
 export const listDoctorServiceQuerySchema = z.object({
     doctorId: z.string().trim().min(1).optional(),
     clinicServiceId: z.string().trim().min(1).optional(),
+    isActive: z.enum(["true", "false"]).optional(),
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().max(100).default(20),
+    sortBy: z.enum(["createdAt", "updatedAt", "price", "durationMinutes"]).default("createdAt"),
+    sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
 //# sourceMappingURL=validation.js.map

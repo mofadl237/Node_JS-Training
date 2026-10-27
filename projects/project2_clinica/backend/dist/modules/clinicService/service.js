@@ -1,5 +1,6 @@
 import { prisma } from "../../config/prisma.js";
 import { ConflictError, NotFoundError } from "../../shared/errors.js";
+import { resolvePagination, toPaginatedResult } from "../../shared/pagination.js";
 const selectCs = {
     id: true,
     name: true,
@@ -29,13 +30,30 @@ export class ClinicServiceService {
         });
         return cs;
     }
-    async list(includeInactive = false) {
-        const items = await prisma.clinicService.findMany({
-            where: includeInactive ? {} : { isActive: true },
-            select: selectCs,
-            orderBy: { name: "asc" },
-        });
-        return items;
+    async list(query = {}) {
+        const where = {
+            isActive: query.isActive === undefined ? true : query.isActive === "true",
+        };
+        if (query.q) {
+            where.OR = [
+                { name: { contains: query.q, mode: "insensitive" } },
+                { slug: { contains: query.q, mode: "insensitive" } },
+            ];
+        }
+        const pagination = resolvePagination(query.page, query.limit);
+        const sortBy = query.sortBy ?? "name";
+        const sortOrder = query.sortOrder ?? "asc";
+        const [items, total] = await prisma.$transaction([
+            prisma.clinicService.findMany({
+                where,
+                select: selectCs,
+                orderBy: { [sortBy]: sortOrder },
+                skip: pagination.skip,
+                take: pagination.take,
+            }),
+            prisma.clinicService.count({ where }),
+        ]);
+        return toPaginatedResult(items, total, pagination.page, pagination.limit);
     }
     async getById(id) {
         const cs = await prisma.clinicService.findUnique({ where: { id }, select: selectCs });

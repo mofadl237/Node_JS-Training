@@ -1,6 +1,9 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "../../config/prisma.js";
 import { ConflictError, NotFoundError } from "../../shared/errors.js";
+import { resolvePagination, toPaginatedResult } from "../../shared/pagination.js";
 import { ICreateClinicServiceInput, IClinicServiceResponse, IUpdateClinicServiceInput } from "./types.js";
+import { IListClinicServicesQuery } from "./validation.js";
 
 const selectCs = {
   id: true,
@@ -33,13 +36,33 @@ export class ClinicServiceService {
     return cs as IClinicServiceResponse;
   }
 
-  async list(includeInactive = false): Promise<IClinicServiceResponse[]> {
-    const items = await prisma.clinicService.findMany({
-      where: includeInactive ? {} : { isActive: true },
-      select: selectCs,
-      orderBy: { name: "asc" },
-    });
-    return items as IClinicServiceResponse[];
+  async list(query: IListClinicServicesQuery = {} as IListClinicServicesQuery) {
+    const where: Prisma.ClinicServiceWhereInput = {
+      isActive: query.isActive === undefined ? true : query.isActive === "true",
+    };
+    if (query.q) {
+      where.OR = [
+        { name: { contains: query.q, mode: "insensitive" } },
+        { slug: { contains: query.q, mode: "insensitive" } },
+      ];
+    }
+
+    const pagination = resolvePagination(query.page, query.limit);
+    const sortBy = query.sortBy ?? "name";
+    const sortOrder = query.sortOrder ?? "asc";
+
+    const [items, total] = await prisma.$transaction([
+      prisma.clinicService.findMany({
+        where,
+        select: selectCs,
+        orderBy: { [sortBy]: sortOrder },
+        skip: pagination.skip,
+        take: pagination.take,
+      }),
+      prisma.clinicService.count({ where }),
+    ]);
+
+    return toPaginatedResult(items as IClinicServiceResponse[], total, pagination.page, pagination.limit);
   }
 
   async getById(id: string): Promise<IClinicServiceResponse> {

@@ -4,6 +4,9 @@ export function mapPrismaError(err) {
     if (!(err instanceof Prisma.PrismaClientKnownRequestError)) {
         return null;
     }
+    if (err.meta?.driverAdapterError?.cause?.originalCode === "23P01") {
+        return new ConflictError("Appointment time overlaps with an existing booking", "APPOINTMENT_CONFLICT");
+    }
     switch (err.code) {
         case 'P2002': {
             const target = err.meta?.target?.join(', ');

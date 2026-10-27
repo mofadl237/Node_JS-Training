@@ -32,9 +32,10 @@ Clinica is a clinic appointment management and booking platform built with TypeS
 ### Implemented Today / المطبّق حالياً
 - Database schema, seed data, and bilingual design docs (ERD + booking workflow)
 - Authentication module: `POST /api/auth/register`, `POST /api/auth/login`
-- Modules implemented: `doctors`, `specializations`, `clinic-services`, `doctor-availabilities`, `doctor-services` (with role checks)
+- Modules implemented: `doctors`, `specializations`, `clinic-services`, `doctor-availabilities`, `doctor-services`, `appointment`, `users`
+- All list endpoints support pagination, filtering, sorting, and return `meta`
 - Shared infrastructure: error handling, validation, logging, Prisma client, JWT/password utils
-- Remaining placeholders: `users`, `appointment` (folders exist but endpoints not implemented yet)
+- Remaining: frontend integration, payments, medical records, notifications
 
 ## 3) User Roles & Permissions / الأدوار والصلاحيات
 
@@ -80,7 +81,7 @@ See [docs/erd.mmd](docs/erd.mmd), [docs/erd-en.md](docs/erd-en.md), [docs/erd-ar
 - **Client output:** default `@prisma/client` in `node_modules` (source of truth: `prisma/schema.prisma`)
 - **Structure:** Backend under `project2_clinica/backend/`, frontend under `project2_clinica/frontend/` (sibling, currently the Next.js starter template). Follow existing structure strictly.
 
-**Layers:** router → controller → service → validation → Prisma client. Only the auth module is implemented so far; the other module folders are placeholders.
+**Layers:** router → controller → service → validation → Prisma client. Implemented modules: `auth`, `doctors`, `specialization`, `clinicService`, `doctorAvailability`, `doctorService`, `appointment`, `users`.
 
 ## 7) Installation & Configuration / التثبيت والإعداد
 
@@ -117,28 +118,58 @@ npm run typecheck
 **Seed data:** every seeded account uses `SEED_PASSWORD` or `Password123` by default (e.g. `admin@clinica.com`).
 The project currently uses `prisma db push` (no migration history).
 
+### Integration Tests
+The appointment booking/concurrency test needs a running server and a reachable test DB. It creates its own patient accounts and a working-availability window, then cleans up.
+```bash
+# terminal 1
+npm run build
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/clinica?schema=public" JWT_SECRET=testsecret PORT=4420 node dist/server.js
+
+# terminal 2
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/clinica?schema=public" TEST_PORT=4420 node --test test/appointment-concurrency.test.mjs
+```
+
 **Note:** Do not commit real credentials. `.env.example` present.
 
 ## 8) API Roadmap (Proposed) / خارطة API المقترحة
 
 Implemented:
-- **Auth:** register/login
+- **Auth:** register/login — public registration always creates `PATIENT` and rejects any `role` field; role changes via `PATCH /api/users/:id` are ADMIN-only.
+- **Users:** `GET /api/users/me`, `GET /api/users` (ADMIN), `GET /api/users/:id`, `PATCH /api/users/:id`
 - **Specializations:** CRUD (ADMIN) / list-get
 - **Clinic Services:** CRUD (ADMIN) / list-get
 - **Doctors:** CRUD (ADMIN) / list-get
 - **Doctor Services:** manage by ADMIN or own DOCTOR
 - **Doctor Availability:** manage by ADMIN or own DOCTOR
+- **Appointments:**
+  - `GET /api/appointments?status=&doctorServiceId=&from=&to=&page=&limit=&sortBy=&sortOrder=` — scoped list (PATIENT: own, DOCTOR: own, ADMIN: all).
+  - `GET /api/appointments/:id` — detail, scoped per role.
+  - `GET /api/appointments/availability?doctorServiceId=...&date=YYYY-MM-DD` — computed slots from active availability and service duration; excludes past and booked/overlapping intervals.
+  - `POST /api/appointments` — body `{ doctorServiceId, startsAt, notes? }`; server computes `endsAt`/price/duration.
+  - `PATCH /api/appointments/:id/cancel` — owner patient or ADMIN.
 
 Remaining:
-- **Users:** user management
-- **Appointments (Patient/Doctor/Admin):** get available slots (computed), create/cancel/complete
+- **Appointments:** complete/update status for Doctor/Admin
 - **Reports (Admin):** basic historical views
+
+### Pagination & list query contract
+Every list endpoint accepts:
+- `page` (default `1`), `limit` (default `20`, max `100`).
+- `sortBy` and `sortOrder` (`asc` / `desc`) with per-module allowed fields.
+- Module filters (e.g. `q`, `isActive`, `role`, `doctorId`, `specializationId`, `status`, `from`, `to`).
+
+Response keeps `data` as an array and adds:
+```json
+{ "success": true, "message": "...", "data": [], "meta": { "page": 1, "limit": 20, "total": 42, "totalPages": 3 } }
+```
 
 ## 9) Concurrency & Integrity Notes / ملاحظات التزامن والتكامل
 
-- **Transactions:** Booking must validate inside a transaction (re-check availability/overlaps).
-- **DB constraints:** Recommend PostgreSQL exclusion constraint on `appointment` time ranges for same doctor excluding CANCELED (if feasible). Also consider patient overlaps.
-- **Locking:** Consider row-level locks / advisory locks as appropriate.
+- **Transactions:** Booking validates inside a transaction (re-checks availability/overlaps).
+- **DB constraints:** PostgreSQL partial EXCLUDE constraint `appointment_no_overlap` on `(doctorId, tsrange(startsAt, endsAt, '[)')) WHERE status <> 'CANCELED'` blocks overlaps and allows adjacent bookings.
+- **Locking:** `SELECT ... FOR UPDATE` on the `Doctor` row serializes concurrent bookings for the same doctor.
+- **Conflict response:** exclusion violation (`23P01`) is mapped to `409 APPOINTMENT_CONFLICT`; availability checks alone are never trusted.
+- **Time:** API accepts/returns ISO-8601 UTC (`Z`). Availability request `date=YYYY-MM-DD` is interpreted in the server's local timezone; the response includes `timezone`. The server clock is the only authority for "future" checks.
 - **Snapshots:** Prevent corruption from catalog changes.
 - **Soft deletes:** Use `isActive` rather than hard delete when referenced.
 

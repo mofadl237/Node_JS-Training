@@ -1,5 +1,6 @@
 import { prisma } from "../../config/prisma.js";
 import { ConflictError, NotFoundError, BadRequestError } from "../../shared/errors.js";
+import { resolvePagination, toPaginatedResult } from "../../shared/pagination.js";
 import { UserRole } from "@prisma/client";
 import { hashPassword } from "../../utils/password.js";
 const doctorSelect = {
@@ -93,14 +94,29 @@ export class DoctorsService {
         if (query.specializationId) {
             where.specializationId = query.specializationId;
         }
-        const doctors = await prisma.doctor.findMany({
-            where,
-            select: doctorSelect,
-            orderBy: { createdAt: "desc" },
-            take: query.limit ?? 50,
-            skip: query.page && query.limit ? (query.page - 1) * query.limit : 0,
-        });
-        return doctors;
+        if (query.q) {
+            where.user = {
+                OR: [
+                    { name: { contains: query.q, mode: "insensitive" } },
+                    { email: { contains: query.q, mode: "insensitive" } },
+                ],
+            };
+        }
+        const pagination = resolvePagination(query.page, query.limit);
+        const sortBy = query.sortBy ?? "createdAt";
+        const sortOrder = query.sortOrder ?? "desc";
+        const orderBy = sortBy === "name" ? { user: { name: sortOrder } } : { [sortBy]: sortOrder };
+        const [doctors, total] = await prisma.$transaction([
+            prisma.doctor.findMany({
+                where,
+                select: doctorSelect,
+                orderBy,
+                skip: pagination.skip,
+                take: pagination.take,
+            }),
+            prisma.doctor.count({ where }),
+        ]);
+        return toPaginatedResult(doctors, total, pagination.page, pagination.limit);
     }
     async getById(id) {
         const doctor = await prisma.doctor.findUnique({

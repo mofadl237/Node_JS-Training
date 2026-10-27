@@ -46,6 +46,9 @@ export interface IDoctorResponse {
 
 export interface IDoctorListQuery {
   specializationId?: string;
+  q?: string;
   page?: number;
   limit?: number;
+  sortBy?: "createdAt" | "updatedAt" | "name";
+  sortOrder?: "asc" | "desc";
 }

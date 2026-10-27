@@ -44,6 +44,8 @@ import specializationRoutes from "./modules/specialization/router.js";
 import clinicServiceRoutes from "./modules/clinicService/router.js";
 import doctorAvailabilityRoutes from "./modules/doctorAvailability/router.js";
 import doctorServiceRoutes from "./modules/doctorService/router.js";
+import appointmentRoutes from "./modules/appointment/router.js";
+import userRoutes from "./modules/users/router.js";
 
 app.use("/api/auth", authRoutes);
 app.use("/api/doctors", doctorsRoutes);
@@ -51,6 +53,8 @@ app.use("/api/specializations", specializationRoutes);
 app.use("/api/clinic-services", clinicServiceRoutes);
 app.use("/api/doctor-availabilities", doctorAvailabilityRoutes);
 app.use("/api/doctor-services", doctorServiceRoutes);
+app.use("/api/appointments", appointmentRoutes);
+app.use("/api/users", userRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

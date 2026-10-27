@@ -1,5 +1,6 @@
 import { prisma } from "../../config/prisma.js";
 import { ConflictError, ForbiddenError, NotFoundError } from "../../shared/errors.js";
+import { resolvePagination, toPaginatedResult } from "../../shared/pagination.js";
 import { Prisma } from "@prisma/client";
 const selectDs = {
     id: true,
@@ -72,17 +73,32 @@ export class DoctorServiceService {
     }
     async list(query, auth) {
         const where = {};
-        if (query.doctorId)
-            where.doctorId = query.doctorId;
-        else if (auth?.role === "DOCTOR") {
+        if (auth?.role === "DOCTOR") {
             const own = await this.getDoctorIdForUser(auth.userId);
             if (own)
                 where.doctorId = own;
         }
+        else if (query.doctorId) {
+            where.doctorId = query.doctorId;
+        }
         if (query.clinicServiceId)
             where.clinicServiceId = query.clinicServiceId;
-        const items = await prisma.doctorService.findMany({ where, select: selectDs, orderBy: { createdAt: "desc" } });
-        return items;
+        if (query.isActive !== undefined)
+            where.isActive = query.isActive === "true";
+        const pagination = resolvePagination(query.page, query.limit);
+        const sortBy = query.sortBy ?? "createdAt";
+        const sortOrder = query.sortOrder ?? "desc";
+        const [items, total] = await prisma.$transaction([
+            prisma.doctorService.findMany({
+                where,
+                select: selectDs,
+                orderBy: { [sortBy]: sortOrder },
+                skip: pagination.skip,
+                take: pagination.take,
+            }),
+            prisma.doctorService.count({ where }),
+        ]);
+        return toPaginatedResult(items, total, pagination.page, pagination.limit);
     }
     async getById(id) {
         const ds = await prisma.doctorService.findUnique({ where: { id }, select: selectDs });

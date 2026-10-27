@@ -51,8 +51,11 @@ export const doctorIdParamSchema = z.object({
 
 export const listDoctorsQuerySchema = z.object({
   specializationId: z.string().trim().min(1).optional(),
-  page: z.coerce.number().int().positive().optional(),
-  limit: z.coerce.number().int().positive().max(100).optional(),
+  q: z.string().trim().min(1).max(100).optional(),
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(20),
+  sortBy: z.enum(["createdAt", "updatedAt", "name"]).default("createdAt"),
+  sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
 
 export type ICreateDoctorInput = z.infer<typeof createDoctorSchema>;

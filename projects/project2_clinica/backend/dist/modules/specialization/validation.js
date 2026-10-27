@@ -15,4 +15,12 @@ export const updateSpecializationSchema = z.object({
 export const specializationIdParamSchema = z.object({
     id: z.string("id is required").trim().min(1, "id is required"),
 });
+export const listSpecializationsQuerySchema = z.object({
+    q: z.string().trim().min(1).max(100).optional(),
+    isActive: z.enum(["true", "false"]).optional(),
+    page: z.coerce.number().int().positive().default(1),
+    limit: z.coerce.number().int().positive().max(100).default(20),
+    sortBy: z.enum(["name", "createdAt", "updatedAt"]).default("name"),
+    sortOrder: z.enum(["asc", "desc"]).default("asc"),
+});
 //# sourceMappingURL=validation.js.map

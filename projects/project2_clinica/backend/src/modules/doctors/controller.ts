@@ -22,7 +22,7 @@ export class DoctorsController {
     try {
       const query = req.query as any;
       const result = await this.doctorsService.list(query);
-      return ApiResponse.ok(res, "Doctors fetched successfully", result);
+      return ApiResponse.paginated(res, "Doctors fetched successfully", result.items, result.meta);
     } catch (error) {
       next(error);
     }

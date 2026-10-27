@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { UserRole } from "@prisma/client";
 
 export const registerSchema = z.object({
   name: z
@@ -25,7 +24,9 @@ export const registerSchema = z.object({
     .trim()
     .regex(/^\+?[0-9]{10,15}$/, "phone must be a valid phone number")
     .optional(),
-  role: z.nativeEnum(UserRole).optional(),
+  role: z
+    .never({ error: "role cannot be set during public registration" })
+    .optional(),
 });
 
 export const loginSchema = z.object({

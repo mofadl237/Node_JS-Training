@@ -2,13 +2,18 @@ import { Router } from "express";
 import { ClinicServiceController } from "./controller.js";
 import { authenticate } from "../../middlewares/auth.middleware.js";
 import { authorize } from "../../middlewares/role.middleware.js";
-import { validateBody, validateParams } from "../../middlewares/validate.middleware.js";
-import { clinicServiceIdParamSchema, createClinicServiceSchema, updateClinicServiceSchema } from "./validation.js";
+import { validateBody, validateParams, validateQuery } from "../../middlewares/validate.middleware.js";
+import {
+  clinicServiceIdParamSchema,
+  createClinicServiceSchema,
+  listClinicServicesQuerySchema,
+  updateClinicServiceSchema,
+} from "./validation.js";
 
 const router = Router();
 const controller = new ClinicServiceController();
 
-router.get("/", controller.list);
+router.get("/", validateQuery(listClinicServicesQuerySchema), controller.list);
 router.get("/:id", validateParams(clinicServiceIdParamSchema), controller.getById);
 
 router.post("/", authenticate, authorize("ADMIN"), validateBody(createClinicServiceSchema), controller.create);

@@ -14,14 +14,13 @@ export class AuthService {
             throw new ConflictError("Email already registered", "EMAIL_EXISTS");
         }
         const hashedPassword = await hashPassword(dto.password);
-        const role = dto.role && Object.values(UserRole).includes(dto.role) ? dto.role : UserRole.PATIENT;
         const user = await prisma.user.create({
             data: {
                 name: dto.name.trim(),
                 email,
                 password: hashedPassword,
                 phone: dto.phone?.trim() || null,
-                role,
+                role: UserRole.PATIENT,
             },
             select: {
                 id: true,

@@ -6,6 +6,10 @@ export function mapPrismaError(err: unknown): AppError | null {
     return null;
   }
 
+  if ((err.meta as any)?.driverAdapterError?.cause?.originalCode === "23P01") {
+    return new ConflictError("Appointment time overlaps with an existing booking", "APPOINTMENT_CONFLICT");
+  }
+
   switch (err.code) {
     case 'P2002': {
       const target = (err.meta?.target as string[] | undefined)?.join(', ');
