@@ -27,7 +27,7 @@ Clinica is a clinic appointment management and booking platform built with TypeS
 - Frontend implementation (the `frontend/` app is still the Next.js starter template)
 - Payments, prescriptions, medical records, clinical diagnosis
 - Complex recurring schedules/exceptions/holidays (can extend later)
-- Full notification system (only `reminderSent` flag)
+- SMS/push notifications (email confirmation and reminders are implemented)
 
 ### Implemented Today / المطبّق حالياً
 - Database schema, seed data, and bilingual design docs (ERD + booking workflow)
@@ -35,7 +35,9 @@ Clinica is a clinic appointment management and booking platform built with TypeS
 - Modules implemented: `doctors`, `specializations`, `clinic-services`, `doctor-availabilities`, `doctor-services`, `appointment`, `users`
 - All list endpoints support pagination, filtering, sorting, and return `meta`
 - Shared infrastructure: error handling, validation, logging, Prisma client, JWT/password utils
-- Remaining: frontend integration, payments, medical records, notifications
+- Email notifications: booking confirmation on successful booking + daily upcoming-appointment reminders with `reminderSent` tracking
+- API documentation: Swagger UI at `/api-docs` and OpenAPI JSON at `/api-docs.json`
+- Remaining: frontend integration, payments, medical records, SMS/push notifications
 
 ## 3) User Roles & Permissions / الأدوار والصلاحيات
 
@@ -83,6 +85,10 @@ See [docs/erd.mmd](docs/erd.mmd), [docs/erd-en.md](docs/erd-en.md), [docs/erd-ar
 
 **Layers:** router → controller → service → validation → Prisma client. Implemented modules: `auth`, `doctors`, `specialization`, `clinicService`, `doctorAvailability`, `doctorService`, `appointment`, `users`.
 
+**Notifications:** `src/config/email.ts` owns the nodemailer transporter; `modules/appointment/notification.service.ts` builds escaped HTML/text emails; `src/jobs/appointmentReminder.job.ts` runs a configurable cron job with overlap protection. Email failures are logged and never fail a booking.
+
+**API docs:** OpenAPI 3.0 spec in `src/config/swagger.ts`, served by Swagger UI. See `/api-docs` (UI) and `/api-docs.json` (raw spec).
+
 ## 7) Installation & Configuration / التثبيت والإعداد
 
 ### Prerequisites / المتطلبات
@@ -95,10 +101,19 @@ See [docs/erd.mmd](docs/erd.mmd), [docs/erd-en.md](docs/erd-en.md), [docs/erd-ar
 cd backend
 npm install
 # Configure DATABASE_URL in .env
+# Optional email/reminders: APP_TIMEZONE, SMTP_HOST/PORT/SECURE/USER/PASS/FROM, REMINDER_CRON
 npm run prisma:validate
 npm run prisma:generate
 npm run typecheck
 ```
+
+### Email & reminder configuration
+- Notifications are enabled only when `EMAIL_ENABLED` is not false and both `SMTP_USER` and `SMTP_PASS` are set.
+- `SMTP_HOST` defaults to `smtp.gmail.com`; `SMTP_PORT` defaults to `587`; `SMTP_SECURE` defaults to true only for port `465`.
+- `SMTP_FROM` defaults to `APP_NAME <SMTP_USER>`.
+- After a booking succeeds, the patient receives a confirmation email asynchronously.
+- A cron job runs at `REMINDER_CRON` (default `0 8 * * *`) in `REMINDER_TIMEZONE` and sends reminders for `BOOKED` appointments without `reminderSent`, from now through the end of tomorrow (server-local time). `reminderSent` becomes `true` only after a successful send.
+- Invalid cron expressions, invalid timezones (which fall back to `APP_TIMEZONE`/the server timezone), or missing SMTP credentials disable the reminder job without stopping the API.
 
 ### Development Commands
 | Command | Purpose |
@@ -118,15 +133,17 @@ npm run typecheck
 **Seed data:** every seeded account uses `SEED_PASSWORD` or `Password123` by default (e.g. `admin@clinica.com`).
 The project currently uses `prisma db push` (no migration history).
 
-### Integration Tests
-The appointment booking/concurrency test needs a running server and a reachable test DB. It creates its own patient accounts and a working-availability window, then cleans up.
+### Tests
+The API integration tests need a running server and a reachable test DB. `EMAIL_ENABLED=false` keeps tests from contacting SMTP. The notification unit tests use an injected fake mailer and do not send email.
 ```bash
 # terminal 1
 npm run build
-DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/clinica?schema=public" JWT_SECRET=testsecret PORT=4420 node dist/server.js
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/clinica?schema=public" JWT_SECRET=testsecret PORT=4420 EMAIL_ENABLED=false node dist/server.js
 
 # terminal 2
 DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/clinica?schema=public" TEST_PORT=4420 node --test test/appointment-concurrency.test.mjs
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/clinica?schema=public" TEST_PORT=4420 node --test test/auth-security.test.mjs
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/clinica?schema=public" node --test test/appointment-notifications.test.mjs
 ```
 
 **Note:** Do not commit real credentials. `.env.example` present.
@@ -147,6 +164,8 @@ Implemented:
   - `GET /api/appointments/availability?doctorServiceId=...&date=YYYY-MM-DD` — computed slots from active availability and service duration; excludes past and booked/overlapping intervals.
   - `POST /api/appointments` — body `{ doctorServiceId, startsAt, notes? }`; server computes `endsAt`/price/duration.
   - `PATCH /api/appointments/:id/cancel` — owner patient or ADMIN.
+  - Booking confirmation email + daily reminder job (`reminderSent` updated after successful delivery).
+- **API documentation:** Swagger UI at `/api-docs`; OpenAPI JSON at `/api-docs.json`.
 
 Remaining:
 - **Appointments:** complete/update status for Doctor/Admin
@@ -175,13 +194,13 @@ Response keeps `data` as an array and adds:
 
 ## 10) Limitations & Future Improvements / القيود والتحسينات المستقبلية
 - Recurring weekly availability, breaks, holidays/exceptions
-- Notifications/reminders (SMS/email)
+- SMS/push notifications (email confirmation/reminders are implemented)
+- Retry/outbox queue for email delivery
 - Payments
 - Audit logging
 - Advanced search/filters
-- Exclusion constraints/migrations for concurrency hardening
 - Multi-specialization per doctor (if business requires)
 
 ---
 
-**Architecture Review Summary:** Replaced enum-based specializations/services with dynamic tables; introduced `DoctorService` for per-doctor pricing/duration; switched to `DoctorAvailability` periods with duration-based, dynamically computed booking (no fixed slots). Snapshots preserve history. Concurrency strategy documented (transactions + DB-level constraints). Existing project structure preserved (frontend remains under backend, no restructuring). Schema validated with `prisma format`/`prisma validate`.
+**Architecture Review Summary:** Replaced enum-based specializations/services with dynamic tables; introduced `DoctorService` for per-doctor pricing/duration; switched to `DoctorAvailability` periods with duration-based, dynamically computed booking (no fixed slots). Snapshots preserve history. Concurrency strategy documented (transactions + DB-level constraints). Existing module structure preserved; the frontend remains a sibling Next.js app. Schema validated with `prisma format`/`prisma validate`.

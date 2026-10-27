@@ -3,9 +3,15 @@ import type { Server } from "http";
 import app from "./app.js";
 import { prisma } from "./config/prisma.js";
 import { logger } from "./utils/logger/index.js";
+import { isEmailConfigured } from "./config/email.js";
+import {
+  startAppointmentReminderJob,
+  stopAppointmentReminderJob,
+} from "./jobs/appointmentReminder.job.js";
 
 const PORT = Number(process.env.PORT) || 3000;
 let isShuttingDown = false;
+let reminderTask: ReturnType<typeof startAppointmentReminderJob> = null;
 
 const gracefulShutdown = async (server: Server, signal: string) => {
   if (isShuttingDown) return;
@@ -17,6 +23,10 @@ const gracefulShutdown = async (server: Server, signal: string) => {
     process.exit(1);
   }, 10000);
   forceTimeout.unref();
+
+  await stopAppointmentReminderJob(reminderTask).catch((error: any) => {
+    logger.error("Reminder job stop error", { error: error?.message });
+  });
 
   server.close(async (err) => {
     if (err) logger.error("HTTP server close error", { error: err.message });
@@ -35,6 +45,9 @@ const startServer = async () => {
   try {
     await prisma.$connect();
     logger.info("Database connected");
+    logger.info("Email delivery", { enabled: isEmailConfigured });
+
+    reminderTask = startAppointmentReminderJob();
 
     const server = app.listen(PORT, () => {
       logger.info("Server started", {
@@ -56,6 +69,7 @@ const startServer = async () => {
     });
   } catch (error: any) {
     logger.error("Failed to start server", { error: error?.message });
+    await stopAppointmentReminderJob(reminderTask).catch(() => {});
     await prisma.$disconnect().catch(() => {});
     process.exit(1);
   }

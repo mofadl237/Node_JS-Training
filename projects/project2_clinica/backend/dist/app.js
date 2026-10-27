@@ -3,8 +3,23 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger.js";
 import { errorHandler, notFoundHandler } from "./middlewares/error.middleware.js";
 const app = express();
+app.get("/api-docs.json", (_req, res) => {
+    res.status(200).json(swaggerSpec);
+});
+app.use("/api-docs", helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }), swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    customSiteTitle: "Clinica API Docs",
+    swaggerOptions: {
+        persistAuthorization: true,
+        displayRequestDuration: true,
+        filter: true,
+        tagsSorter: "alpha",
+        operationsSorter: "alpha",
+    },
+}));
 app.use(helmet());
 app.use(cors({
     origin: process.env.CORS_ORIGIN?.split(",").map((o) => o.trim()) || "*",

@@ -158,3 +158,21 @@ This file documents all changes made to the Clinica backend architecture and set
 - `PATCH /api/users/:id` now accepts `role` only for `ADMIN`; non-admin users receive `403 FORBIDDEN` and the update is not partially applied.
 - Added `test/auth-security.test.mjs` covering: PATIENT-only registration, rejection of `role=ADMIN/DOCTOR/PATIENT`, login compatibility, self-promotion attempts, updating another user, and ADMIN-only role changes.
 - Verified: `npm run typecheck`, `npm run prisma:validate`, `npm run build`, `auth-security` tests (`10/10`), and the appointment integration suite (`10/10`).
+
+## [Email Notifications + Reminder Job + Swagger] - 2026-10-27
+- Added nodemailer-based email infrastructure in `src/config/email.ts`:
+  - SMTP config from env (`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`).
+  - Safe no-op with a warning when `EMAIL_ENABLED=false` or SMTP credentials are missing.
+  - Connection/greeting/socket timeouts so a bad SMTP server cannot hang the app indefinitely.
+- Added `modules/appointment/notification.service.ts`:
+  - Booking confirmation email sent asynchronously after a successful booking; failures never fail the booking.
+  - Reminder emails for `BOOKED` appointments with `reminderSent=false` from now through the end of tomorrow (server-local time).
+  - Escaped HTML, text fallback, snapshot-based service/doctor names, duration, price, status, notes, appointment id, and timezone.
+  - `reminderSent` is updated to `true` only after successful delivery; concurrent runs are protected by a local guard and cron `noOverlap`.
+  - Constructor injection for the DB/mailer enables unit testing without SMTP.
+- Added `src/jobs/appointmentReminder.job.ts` with configurable `REMINDER_CRON` / `REMINDER_TIMEZONE`, cron validation, timezone validation with safe fallback, and graceful start/stop from `src/server.ts`. Cron scheduling errors disable the job instead of crashing the server.
+- Extended `src/config/env.ts` with `APP_NAME`, `APP_TIMEZONE`, email settings, and reminder settings; documented all options in `.env.example`.
+- Added Swagger/OpenAPI documentation in `src/config/swagger.ts` covering health, auth, users, doctors, specializations, clinic services, doctor availability, doctor services, and appointments (including booking/cancel rules). Served at `/api-docs` and `/api-docs.json` before Helmet CSP.
+- Added `test/appointment-notifications.test.mjs` covering reminder success/failure/skip behavior, `reminderSent` updates, escaping, and confirmation emails.
+- Installed dev type packages: `@types/nodemailer`, `@types/swagger-jsdoc`, `@types/swagger-ui-express`.
+- Verified: `npm run check`, `npm run build`, `auth-security` (`10/10`), `appointment-concurrency` (`10/10`), `appointment-notifications` (`5/5`), `/api-docs` + `/api-docs.json` smoke checks, and invalid timezone fallback behavior.

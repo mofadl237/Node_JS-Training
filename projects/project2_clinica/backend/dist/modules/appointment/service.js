@@ -1,6 +1,7 @@
 import { prisma } from "../../config/prisma.js";
 import { BadRequestError, ForbiddenError, NotFoundError } from "../../shared/errors.js";
 import { resolvePagination, toPaginatedResult } from "../../shared/pagination.js";
+import { AppointmentNotificationService } from "./notification.service.js";
 const selectAppt = {
     id: true,
     patientId: true,
@@ -45,6 +46,7 @@ function endOfDay(dateStr) {
     return new Date(`${dateStr}T23:59:59.999`);
 }
 export class AppointmentService {
+    notifications = new AppointmentNotificationService();
     async getAvailability(query) {
         const dayStart = startOfDay(query.date);
         const dayEnd = endOfDay(query.date);
@@ -174,6 +176,7 @@ export class AppointmentService {
                 select: selectAppt,
             });
         });
+        void this.notifications.sendBookingConfirmation(appointment.id);
         return appointment;
     }
     async list(query, auth) {

@@ -8,6 +8,7 @@ import {
   IListAppointmentsQuery,
 } from "./validation.js";
 import { IAppointmentResponse } from "./types.js";
+import { AppointmentNotificationService } from "./notification.service.js";
 
 const selectAppt = {
   id: true,
@@ -62,6 +63,8 @@ function endOfDay(dateStr: string) {
 }
 
 export class AppointmentService {
+  private notifications = new AppointmentNotificationService();
+
   async getAvailability(query: IAvailabilityQuery) {
     const dayStart = startOfDay(query.date);
     const dayEnd = endOfDay(query.date);
@@ -218,6 +221,8 @@ export class AppointmentService {
         select: selectAppt,
       });
     });
+
+    void this.notifications.sendBookingConfirmation(appointment.id);
 
     return appointment as unknown as IAppointmentResponse;
   }
