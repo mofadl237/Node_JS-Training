@@ -1,0 +1,3 @@
+primarySubcategoryId,nameAr,nameEn,slug,descriptionAr,productType,status,brand,isFeatured,sku,sizeValue,sizeUnit,sellingPrice,compareAtPrice,stockStatus,isPublished
+subcategory_id_here,زعتر بلدي,Baladi Thyme,baladi-thyme,زعتر بلدي مجفف ومطحون,FINISHED,ACTIVE,Om Eman,true,THYME-100G,100,G,45.50,55.00,IN_STOCK,true
+subcategory_id_here,نعناع بلدي,Baladi Mint,baladi-mint,نعناع بلدي مجفف,FINISHED,DRAFT,Om Eman,false,MINT-50G,50,G,30.00,,IN_STOCK,false

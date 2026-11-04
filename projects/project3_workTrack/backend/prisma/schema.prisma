@@ -1,0 +1,199 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ──────────────────────────────────────────────
+
+enum ERole {
+  ADMIN
+  HR
+  MANAGER
+}
+
+enum EEmployeeStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum EAttendanceType {
+  CHECK_IN
+  CHECK_OUT
+}
+
+enum EAttendanceSource {
+  MANUAL
+  CSV
+  SYSTEM
+}
+
+enum EAttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  HALF_DAY
+  ON_LEAVE
+}
+
+enum EUploadType {
+  EMPLOYEE_IMPORT
+  ATTENDANCE_IMPORT
+}
+
+// ─── Models ─────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      ERole     @default(HR)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  uploadedFiles  UploadedFile[]
+  attendanceLogs AttendanceLog[]
+  auditLogs      AuditLog[]
+
+  @@map("users")
+}
+
+model Department {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  employees Employee[]
+
+  @@map("departments")
+}
+
+model Employee {
+  id           String         @id @default(uuid())
+  employeeCode String         @unique
+  firstName    String
+  lastName     String
+  email        String?        @unique
+  phone        String?
+  departmentId String
+  jobTitle     String?
+  status       EEmployeeStatus @default(ACTIVE)
+  hireDate     DateTime
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  department        Department         @relation(fields: [departmentId], references: [id])
+  employeeShifts    EmployeeShift[]
+  attendanceLogs    AttendanceLog[]
+  attendanceRecords AttendanceRecord[]
+
+  @@map("employees")
+}
+
+model Shift {
+  id                   String   @id @default(uuid())
+  name                 String
+  startTime            String   // e.g. "09:00"
+  endTime              String   // e.g. "17:00"
+  graceMinutes         Int      @default(15)
+  expectedHours        Float    @default(8)
+  overtimeAfterMinutes Int      @default(0)
+  isNightShift         Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  employeeShifts    EmployeeShift[]
+  attendanceRecords AttendanceRecord[]
+
+  @@map("shifts")
+}
+
+model EmployeeShift {
+  id         String    @id @default(uuid())
+  employeeId String
+  shiftId    String
+  startDate  DateTime
+  endDate    DateTime?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+  shift    Shift    @relation(fields: [shiftId], references: [id])
+
+  @@map("employee_shifts")
+}
+
+model AttendanceLog {
+  id          String           @id @default(uuid())
+  employeeId  String
+  type        EAttendanceType
+  timestamp   DateTime
+  source      EAttendanceSource @default(MANUAL)
+  createdById String?
+  createdAt   DateTime         @default(now())
+
+  employee  Employee @relation(fields: [employeeId], references: [id])
+  createdBy User?    @relation(fields: [createdById], references: [id])
+
+  @@map("attendance_logs")
+}
+
+model AttendanceRecord {
+  id                String           @id @default(uuid())
+  employeeId        String
+  shiftId           String?
+  date              DateTime
+  checkIn           DateTime?
+  checkOut          DateTime?
+  status            EAttendanceStatus @default(PRESENT)
+  workingMinutes    Int              @default(0)
+  lateMinutes       Int              @default(0)
+  earlyLeaveMinutes Int              @default(0)
+  overtimeMinutes   Int              @default(0)
+  notes             String?
+  processedAt       DateTime?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+  shift    Shift?   @relation(fields: [shiftId], references: [id])
+
+  @@unique([employeeId, date])
+  @@map("attendance_records")
+}
+
+model UploadedFile {
+  id           String     @id @default(uuid())
+  fileName     String
+  originalName String
+  type         EUploadType
+  uploadedById String
+  totalRows    Int        @default(0)
+  successRows  Int        @default(0)
+  failedRows   Int        @default(0)
+  createdAt    DateTime   @default(now())
+
+  uploadedBy User @relation(fields: [uploadedById], references: [id])
+
+  @@map("uploaded_files")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  details   Json?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}

@@ -1,0 +1,1175 @@
+// Om Eman - MVP Database Schema
+// Prisma 7.x + PostgreSQL
+//
+// This is a deliberately reduced MVP schema. It keeps the original naming
+// conventions (cuid ids, Decimal money, explicit onDelete, section comments)
+// while removing inventory, purchasing, returns/refunds, finance, resellers,
+// reviews, loyalty, attributes, articles, and full RBAC.
+//
+// Money is always Decimal(18, 4). The only currency is EGP and it is stored in
+// SystemSetting, not in a Currency model.
+//
+// The original schema.prisma is untouched. This file lives in prisma/mvp/ and
+// is intended to be reviewed before replacing the full schema.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum ELanguage {
+  AR
+  EN
+}
+
+enum EEmployeeStatus {
+  ACTIVE
+  DISABLED
+  REMOVED
+}
+
+enum EEmployeeRole {
+  OWNER
+  ADMIN
+  STAFF
+}
+
+enum ECustomerStatus {
+  ACTIVE
+  BLOCKED
+  MERGED
+}
+
+enum EAuditResult {
+  SUCCESS
+  FAILURE
+  DENIED
+}
+
+enum ECartStatus {
+  ACTIVE
+  MERGED
+  CHECKED_OUT
+  ABANDONED
+}
+
+enum EProductType {
+  FINISHED
+  PREDEFINED_BUNDLE
+}
+
+enum EProductStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum EStockStatus {
+  IN_STOCK
+  OUT_OF_STOCK
+}
+
+enum ESizeUnit {
+  G
+  KG
+  ML
+  L
+  PIECE
+  PACK
+  OTHER
+}
+
+enum EOrderStatus {
+  RECEIVED
+  CONFIRMED
+  PREPARING
+  SHIPPED
+  DELIVERED
+  CANCELED
+  FAILED_DELIVERY
+}
+
+enum EInvoiceStatus {
+  ISSUED
+  VOID
+}
+
+enum EPaymentMethod {
+  ONLINE_TRANSFER
+  COD
+}
+
+enum EPaymentStatus {
+  PENDING
+  PROOF_UPLOADED
+  CONFIRMED
+  REJECTED
+  CANCELED
+}
+
+enum EShipmentStatus {
+  PENDING
+  PREPARING
+  PICKED_UP
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  FAILED
+  CANCELED
+}
+
+enum EPromotionType {
+  PRODUCT_DISCOUNT
+  CATEGORY_DISCOUNT
+  STOREWIDE_DISCOUNT
+  COUPON
+  FREE_SHIPPING
+}
+
+enum EDiscountType {
+  FIXED
+  PERCENTAGE
+}
+
+enum EPromotionScope {
+  ORDER
+  PRODUCT
+  PACKAGE
+  CATEGORY
+  SUBCATEGORY
+  SHIPPING
+}
+
+enum ENotificationRecipientType {
+  CUSTOMER
+  EMPLOYEE
+}
+
+enum ENotificationChannel {
+  EMAIL
+  DASHBOARD
+  WHATSAPP
+  SMS
+}
+
+enum ENotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  READ
+  CANCELED
+}
+
+enum ENotificationType {
+  ORDER_CONFIRMATION
+  ORDER_STATUS
+  PAYMENT
+  SHIPMENT
+  SYSTEM
+}
+
+enum EContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum EMarketingEventName {
+  VIEW_CONTENT
+  SEARCH
+  ADD_TO_CART
+  INITIATE_CHECKOUT
+  PURCHASE
+}
+
+enum EMarketingEventStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+}
+
+// ---------------------------------------------------------------------------
+// Employees and audit
+// ---------------------------------------------------------------------------
+
+model Employee {
+  id           String          @id @default(cuid())
+  fullName     String
+  email        String          @unique
+  phone        String?
+  passwordHash String
+  role         EEmployeeRole   @default(STAFF)
+  status       EEmployeeStatus @default(ACTIVE)
+  lastLoginAt  DateTime?
+  disabledAt   DateTime?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  auditLogs             AuditLog[]              @relation("AuditActorEmployee")
+  invoicesIssued        Invoice[]               @relation("InvoiceIssuedBy")
+  paymentsConfirmed     Payment[]               @relation("PaymentConfirmedBy")
+  orderStatusChanges    OrderStatusHistory[]    @relation("OrderStatusChangedBy")
+  shipmentStatusChanges ShipmentStatusHistory[] @relation("ShipmentStatusChangedBy")
+  notifications         Notification[]          @relation("NotificationEmployee")
+
+  @@index([status])
+}
+
+// Append-only audit trail. Employee actors are never hard-deleted.
+model AuditLog {
+  id              String       @id @default(cuid())
+  actorEmployeeId String?
+  actorCustomerId String?
+  action          String
+  module          String
+  entityType      String?
+  entityId        String?
+  result          EAuditResult @default(SUCCESS)
+  reason          String?
+  oldValues       Json?
+  newValues       Json?
+  ipAddress       String?
+  userAgent       String?
+  createdAt       DateTime     @default(now())
+
+  actorEmployee Employee? @relation("AuditActorEmployee", fields: [actorEmployeeId], references: [id], onDelete: Restrict)
+  actorCustomer Customer? @relation("AuditActorCustomer", fields: [actorCustomerId], references: [id], onDelete: SetNull)
+
+  @@index([module, createdAt])
+  @@index([entityType, entityId])
+  @@index([actorEmployeeId, createdAt])
+  @@index([actorCustomerId, createdAt])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Customers, carts, wishlist
+// ---------------------------------------------------------------------------
+
+model Customer {
+  id                   String          @id @default(cuid())
+  phone                String          @unique
+  email                String?
+  passwordHash         String?
+  firstName            String?
+  lastName             String?
+  status               ECustomerStatus @default(ACTIVE)
+  isGuest              Boolean         @default(true)
+  emailVerifiedAt      DateTime?
+  phoneVerifiedAt      DateTime?
+  claimedAt            DateTime?
+  lastLoginAt          DateTime?
+  mergedIntoCustomerId String?
+
+  // Cached order statistics. The source of truth is Order where
+  // Order.status = DELIVERED. The application updates these values in the same
+  // transaction that marks an order delivered.
+  completedOrdersCount Int       @default(0)
+  totalSpent           Decimal   @default(0) @db.Decimal(18, 4)
+  firstOrderAt         DateTime?
+  lastOrderAt          DateTime?
+  marketingConsent     Boolean   @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  mergedIntoCustomer Customer?  @relation("CustomerMerge", fields: [mergedIntoCustomerId], references: [id], onDelete: SetNull)
+  mergedCustomers    Customer[] @relation("CustomerMerge")
+
+  addresses            CustomerAddress[]
+  carts                Cart[]
+  wishlistItems        WishlistItem[]
+  orders               Order[]
+  coupons              Coupon[]
+  promotionRedemptions PromotionRedemption[]
+  searchLogs           SearchLog[]
+  marketingEvents      MarketingEvent[]
+  notifications        Notification[]        @relation("NotificationCustomer")
+  auditLogs            AuditLog[]            @relation("AuditActorCustomer")
+
+  @@index([email])
+  @@index([status])
+  @@index([mergedIntoCustomerId])
+  @@index([completedOrdersCount, lastOrderAt])
+}
+
+model CustomerAddress {
+  id          String   @id @default(cuid())
+  customerId  String
+  label       String?
+  governorate String
+  city        String
+  district    String?
+  street      String
+  building    String?
+  floor       String?
+  landmark    String?
+  latitude    Decimal? @db.Decimal(10, 7)
+  longitude   Decimal? @db.Decimal(10, 7)
+  isDefault   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  customer       Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  orderSnapshots OrderAddressSnapshot[]
+
+  @@index([customerId, isDefault])
+  @@index([governorate, city, district])
+}
+
+model Cart {
+  id               String      @id @default(cuid())
+  customerId       String?
+  guestToken       String?     @unique
+  status           ECartStatus @default(ACTIVE)
+  mergedIntoCartId String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  customer       Customer?  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  mergedIntoCart Cart?      @relation("CartMerge", fields: [mergedIntoCartId], references: [id], onDelete: SetNull)
+  mergedCarts    Cart[]     @relation("CartMerge")
+  items          CartItem[]
+
+  @@index([customerId, status])
+  @@index([mergedIntoCartId])
+}
+
+model CartItem {
+  id               String   @id @default(cuid())
+  cartId           String
+  productPackageId String
+  quantity         Decimal  @db.Decimal(18, 4)
+  priceAtAdd       Decimal? @db.Decimal(18, 4)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  cart           Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productPackage ProductPackage @relation(fields: [productPackageId], references: [id], onDelete: Restrict)
+
+  @@unique([cartId, productPackageId])
+  @@index([productPackageId])
+}
+
+model WishlistItem {
+  id               String   @id @default(cuid())
+  customerId       String
+  productPackageId String
+  createdAt        DateTime @default(now())
+
+  customer       Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  productPackage ProductPackage @relation(fields: [productPackageId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, productPackageId])
+  @@index([productPackageId])
+}
+
+// ---------------------------------------------------------------------------
+// Catalog
+// ---------------------------------------------------------------------------
+
+model Category {
+  id            String   @id @default(cuid())
+  nameAr        String
+  nameEn        String?
+  slug          String   @unique
+  descriptionAr String?
+  descriptionEn String?
+  imageUrl      String?
+  sortOrder     Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  subcategories    Subcategory[]
+  promotionTargets PromotionTarget[]
+
+  @@index([isActive, sortOrder])
+}
+
+model Subcategory {
+  id            String   @id @default(cuid())
+  categoryId    String
+  nameAr        String
+  nameEn        String?
+  slug          String   @unique
+  descriptionAr String?
+  descriptionEn String?
+  imageUrl      String?
+  sortOrder     Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  category         Category          @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  products         Product[]         @relation("PrimarySubcategory")
+  promotionTargets PromotionTarget[]
+
+  @@index([categoryId, isActive, sortOrder])
+}
+
+model Product {
+  id                     String         @id @default(cuid())
+  primarySubcategoryId   String
+  nameAr                 String
+  nameEn                 String?
+  slug                   String         @unique
+  descriptionAr          String?
+  descriptionEn          String?
+  productType            EProductType   @default(FINISHED)
+  status                 EProductStatus @default(DRAFT)
+  brand                  String?
+  searchNameArNormalized String?
+  searchNameEnNormalized String?
+  searchKeywords         String?
+
+  // Combined normalized blob: names + aliases + keywords + brand +
+  // category/subcategory names. Maintained by the application service whenever
+  // the product, aliases, or category names change.
+  searchText String?
+
+  isFeatured  Boolean   @default(false)
+  publishedAt DateTime?
+  archivedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  primarySubcategory Subcategory              @relation("PrimarySubcategory", fields: [primarySubcategoryId], references: [id], onDelete: Restrict)
+  images             ProductImage[]
+  aliases            ProductAlias[]
+  packages           ProductPackage[]
+  bundleComponents   ProductBundleComponent[] @relation("BundleParentProduct")
+  orderItems         OrderItem[]
+  promotionTargets   PromotionTarget[]
+  searchLogsClicked  SearchLog[]              @relation("SearchLogClickedProduct")
+  marketingEvents    MarketingEvent[]
+
+  @@index([primarySubcategoryId, status])
+  @@index([productType, status])
+  @@index([status, publishedAt])
+  @@index([isFeatured, status])
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  url       String
+  altAr     String?
+  altEn     String?
+  sortOrder Int      @default(0)
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, sortOrder])
+}
+
+// Many names per product: nicknames, dialect names, misspellings, English
+// names, and brand-less names. Two products may share an alias.
+model ProductAlias {
+  id              String    @id @default(cuid())
+  productId       String
+  alias           String
+  language        ELanguage
+  normalizedAlias String
+  weight          Int       @default(1)
+  isSearchable    Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, normalizedAlias])
+  @@index([normalizedAlias])
+}
+
+model ProductPackage {
+  id           String    @id @default(cuid())
+  productId    String
+  sku          String    @unique
+  barcode      String?   @unique
+  nameAr       String?
+  nameEn       String?
+  sizeValue    Decimal   @db.Decimal(18, 4)
+  sizeUnit     ESizeUnit
+  sellingPrice Decimal   @db.Decimal(18, 4)
+
+  // Display-only original price. sellingPrice is always what the customer pays.
+  // When set, compareAtPrice must be greater than sellingPrice (SQL CHECK).
+  compareAtPrice Decimal?  @db.Decimal(18, 4)
+  saleEndsAt     DateTime?
+
+  // Manual availability. There is no inventory system in the MVP.
+  stockStatus EStockStatus @default(IN_STOCK)
+
+  isActive    Boolean  @default(true)
+  isPublished Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  product          Product                  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  cartItems        CartItem[]
+  wishlistItems    WishlistItem[]
+  orderItems       OrderItem[]
+  invoiceLines     InvoiceLine[]
+  bundleComponents ProductBundleComponent[] @relation("BundleComponentPackage")
+  promotionTargets PromotionTarget[]
+  marketingEvents  MarketingEvent[]
+
+  @@index([productId, isActive])
+  @@index([isPublished, isActive])
+  @@index([stockStatus, isPublished, isActive])
+}
+
+// A predefined bundle is a Product with productType = PREDEFINED_BUNDLE and
+// exactly one ProductPackage. Components carry no price.
+// A bundle is out of stock if any component is OUT_OF_STOCK (app-level rule).
+// Bundles cannot contain other bundles; enforced by a SQL trigger.
+model ProductBundleComponent {
+  id                 String   @id @default(cuid())
+  bundleProductId    String
+  componentPackageId String
+  quantity           Decimal  @db.Decimal(18, 4)
+  sortOrder          Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  bundleProduct    Product        @relation("BundleParentProduct", fields: [bundleProductId], references: [id], onDelete: Cascade)
+  componentPackage ProductPackage @relation("BundleComponentPackage", fields: [componentPackageId], references: [id], onDelete: Restrict)
+
+  @@unique([bundleProductId, componentPackageId])
+  @@index([componentPackageId])
+}
+
+// ---------------------------------------------------------------------------
+// Search
+// ---------------------------------------------------------------------------
+
+model SearchSynonym {
+  id             String    @id @default(cuid())
+  groupKey       String
+  term           String
+  normalizedTerm String
+  language       ELanguage
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([groupKey, normalizedTerm])
+  @@index([normalizedTerm])
+}
+
+model SearchLog {
+  id               String   @id @default(cuid())
+  rawQuery         String
+  normalizedQuery  String
+  resultCount      Int
+  customerId       String?
+  sessionId        String?
+  clickedProductId String?
+  createdAt        DateTime @default(now())
+
+  customer       Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  clickedProduct Product?  @relation("SearchLogClickedProduct", fields: [clickedProductId], references: [id], onDelete: SetNull)
+
+  @@index([normalizedQuery])
+  @@index([resultCount, createdAt])
+  @@index([customerId, createdAt])
+  @@index([clickedProductId])
+}
+
+// ---------------------------------------------------------------------------
+// Orders, invoices
+// ---------------------------------------------------------------------------
+
+model Order {
+  id            String         @id @default(cuid())
+  orderNumber   String         @unique
+  customerId    String
+  status        EOrderStatus   @default(RECEIVED)
+  // Cached derived value. The source of truth is the Payment rows.
+  paymentStatus EPaymentStatus @default(PENDING)
+
+  placedAt     DateTime  @default(now())
+  confirmedAt  DateTime?
+  preparedAt   DateTime?
+  shippedAt    DateTime?
+  deliveredAt  DateTime?
+  canceledAt   DateTime?
+  cancelReason String?
+
+  subtotal      Decimal @default(0) @db.Decimal(18, 4)
+  discountTotal Decimal @default(0) @db.Decimal(18, 4)
+  shippingTotal Decimal @default(0) @db.Decimal(18, 4)
+  taxTotal      Decimal @default(0) @db.Decimal(18, 4)
+  grandTotal    Decimal @default(0) @db.Decimal(18, 4)
+
+  customerNotes String?
+  internalNotes String?
+
+  // Meta attribution for server-side events. The access token is env-only.
+  fbp             String?
+  fbc             String?
+  clientIp        String?
+  clientUserAgent String?
+  eventSourceUrl  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customer             Customer              @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  items                OrderItem[]
+  statusHistory        OrderStatusHistory[]
+  addressSnapshot      OrderAddressSnapshot?
+  invoice              Invoice?
+  payments             Payment[]
+  shipments            Shipment[]
+  promotionRedemptions PromotionRedemption[]
+  marketingEvents      MarketingEvent[]
+
+  @@index([customerId, placedAt])
+  @@index([customerId, status, deliveredAt])
+  @@index([status, placedAt])
+  @@index([paymentStatus, placedAt])
+  @@index([placedAt])
+  @@index([deliveredAt])
+}
+
+model OrderItem {
+  id                    String   @id @default(cuid())
+  orderId               String
+  productId             String?
+  productPackageId      String?
+  productNameArSnapshot String
+  productNameEnSnapshot String?
+  packageNameArSnapshot String?
+  packageNameEnSnapshot String?
+  skuSnapshot           String
+  quantity              Decimal  @db.Decimal(18, 4)
+  unitPrice             Decimal  @db.Decimal(18, 4)
+  discountAmount        Decimal  @default(0) @db.Decimal(18, 4)
+  taxRateSnapshot       Decimal? @db.Decimal(9, 6)
+  taxAmount             Decimal  @default(0) @db.Decimal(18, 4)
+  lineTotal             Decimal  @db.Decimal(18, 4)
+
+  // Bundle contents at purchase time: component name, sku, quantity, normal
+  // unit price, normalTotal, and savings. Keeps old invoices correct.
+  bundleSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order                Order                 @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product              Product?              @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productPackage       ProductPackage?       @relation(fields: [productPackageId], references: [id], onDelete: SetNull)
+  invoiceLines         InvoiceLine[]
+  promotionRedemptions PromotionRedemption[]
+
+  @@index([orderId])
+  @@index([productId])
+  @@index([productPackageId])
+}
+
+model OrderStatusHistory {
+  id                  String        @id @default(cuid())
+  orderId             String
+  fromStatus          EOrderStatus?
+  toStatus            EOrderStatus
+  changedByEmployeeId String?
+  notes               String?
+  createdAt           DateTime      @default(now())
+
+  order             Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  changedByEmployee Employee? @relation("OrderStatusChangedBy", fields: [changedByEmployeeId], references: [id], onDelete: Restrict)
+
+  @@index([orderId, createdAt])
+  @@index([changedByEmployeeId])
+}
+
+model OrderAddressSnapshot {
+  id              String   @id @default(cuid())
+  orderId         String   @unique
+  recipientName   String
+  phone           String
+  governorate     String
+  city            String
+  district        String?
+  street          String
+  building        String?
+  floor           String?
+  landmark        String?
+  latitude        Decimal? @db.Decimal(10, 7)
+  longitude       Decimal? @db.Decimal(10, 7)
+  sourceAddressId String?
+  createdAt       DateTime @default(now())
+
+  order         Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  sourceAddress CustomerAddress? @relation(fields: [sourceAddressId], references: [id], onDelete: SetNull)
+
+  @@index([sourceAddressId])
+}
+
+// invoiceNumber is generated from DocumentSequence inside the same transaction
+// that creates the invoice, so numbers are sequential with no gaps.
+// The PDF is generated by the backend from Invoice + InvoiceLine snapshot
+// values only; amounts are never recomputed from current prices.
+model Invoice {
+  id                 String         @id @default(cuid())
+  invoiceNumber      String         @unique
+  orderId            String         @unique
+  status             EInvoiceStatus @default(ISSUED)
+  issuedAt           DateTime       @default(now())
+  issuedByEmployeeId String?
+  sellerName         String
+  sellerTaxNumber    String?
+  customerName       String
+  customerPhone      String
+  customerEmail      String?
+  addressSnapshot    Json?
+  subtotal           Decimal        @db.Decimal(18, 4)
+  discountTotal      Decimal        @default(0) @db.Decimal(18, 4)
+  shippingTotal      Decimal        @default(0) @db.Decimal(18, 4)
+  taxTotal           Decimal        @default(0) @db.Decimal(18, 4)
+  grandTotal         Decimal        @db.Decimal(18, 4)
+  taxRateSnapshot    Decimal?       @db.Decimal(9, 6)
+  taxAmount          Decimal        @default(0) @db.Decimal(18, 4)
+  notes              String?
+  voidedAt           DateTime?
+  voidReason         String?
+  pdfUrl             String?
+  pdfGeneratedAt     DateTime?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  order    Order         @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  issuedBy Employee?     @relation("InvoiceIssuedBy", fields: [issuedByEmployeeId], references: [id], onDelete: Restrict)
+  lines    InvoiceLine[]
+
+  @@index([issuedAt])
+  @@index([status])
+  @@index([issuedByEmployeeId])
+}
+
+model InvoiceLine {
+  id               String   @id @default(cuid())
+  invoiceId        String
+  orderItemId      String?
+  productPackageId String?
+  descriptionAr    String
+  descriptionEn    String?
+  sku              String
+  quantity         Decimal  @db.Decimal(18, 4)
+  unitPrice        Decimal  @db.Decimal(18, 4)
+  discountAmount   Decimal  @default(0) @db.Decimal(18, 4)
+  taxRate          Decimal? @db.Decimal(9, 6)
+  taxAmount        Decimal  @default(0) @db.Decimal(18, 4)
+  lineTotal        Decimal  @db.Decimal(18, 4)
+  createdAt        DateTime @default(now())
+
+  invoice        Invoice         @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  orderItem      OrderItem?      @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
+  productPackage ProductPackage? @relation(fields: [productPackageId], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId])
+  @@index([orderItemId])
+  @@index([productPackageId])
+}
+
+// ---------------------------------------------------------------------------
+// Payments
+// ---------------------------------------------------------------------------
+
+// ONLINE_TRANSFER covers InstaPay/bank transfer. The customer uploads a proof
+// image and an employee verifies it manually. For COD, the payment is confirmed
+// when the carrier hands over the money (see Shipment.codSettledAt).
+model Payment {
+  id                    String         @id @default(cuid())
+  orderId               String
+  method                EPaymentMethod
+  status                EPaymentStatus @default(PENDING)
+  amount                Decimal        @db.Decimal(18, 4)
+  proofImageUrl         String?
+  proofUploadedAt       DateTime?
+  confirmedAt           DateTime?
+  confirmedByEmployeeId String?
+  rejectionReason       String?
+  transactionReference  String?
+  notes                 String?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  confirmedBy Employee? @relation("PaymentConfirmedBy", fields: [confirmedByEmployeeId], references: [id], onDelete: Restrict)
+
+  @@index([orderId, status])
+  @@index([confirmedByEmployeeId])
+  @@index([status, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Shipping
+// ---------------------------------------------------------------------------
+
+model ShippingCarrier {
+  id            String   @id @default(cuid())
+  name          String
+  code          String   @unique
+  contactPerson String?
+  phone         String?
+  email         String?
+  isActive      Boolean  @default(true)
+  supportsApi   Boolean  @default(false)
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  shipments Shipment[]
+  tariffs   ShippingTariff[]
+
+  @@index([isActive])
+}
+
+model ShippingTariff {
+  id          String   @id @default(cuid())
+  carrierId   String
+  governorate String
+  city        String?
+  baseCost    Decimal  @db.Decimal(18, 4)
+  etaMinDays  Int
+  etaMaxDays  Int
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  carrier ShippingCarrier @relation(fields: [carrierId], references: [id], onDelete: Cascade)
+
+  @@index([carrierId, governorate, city, isActive])
+}
+
+// "Carrier delivered but has not paid me yet" =
+// status = DELIVERED AND codSettledAt IS NULL.
+model Shipment {
+  id                     String          @id @default(cuid())
+  shipmentNumber         String          @unique
+  orderId                String
+  carrierId              String
+  trackingNumber         String?
+  status                 EShipmentStatus @default(PENDING)
+  expectedCost           Decimal?        @db.Decimal(18, 4)
+  actualCost             Decimal?        @db.Decimal(18, 4)
+  codAmount              Decimal?        @db.Decimal(18, 4)
+  codCollected           Decimal?        @db.Decimal(18, 4)
+  codSettledAt           DateTime?
+  codSettlementReference String?
+  shippedAt              DateTime?
+  deliveredAt            DateTime?
+  etaMinDays             Int?
+  etaMaxDays             Int?
+  notes                  String?
+  createdAt              DateTime        @default(now())
+  updatedAt              DateTime        @updatedAt
+
+  order         Order                   @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  carrier       ShippingCarrier         @relation(fields: [carrierId], references: [id], onDelete: Restrict)
+  statusHistory ShipmentStatusHistory[]
+
+  @@index([orderId])
+  @@index([carrierId, status])
+  @@index([trackingNumber])
+  @@index([deliveredAt])
+  @@index([status, codSettledAt])
+}
+
+model ShipmentStatusHistory {
+  id                  String           @id @default(cuid())
+  shipmentId          String
+  fromStatus          EShipmentStatus?
+  toStatus            EShipmentStatus
+  changedByEmployeeId String?
+  notes               String?
+  createdAt           DateTime         @default(now())
+
+  shipment          Shipment  @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  changedByEmployee Employee? @relation("ShipmentStatusChangedBy", fields: [changedByEmployeeId], references: [id], onDelete: Restrict)
+
+  @@index([shipmentId, createdAt])
+  @@index([changedByEmployeeId])
+}
+
+// ---------------------------------------------------------------------------
+// Promotions, coupons, customer targeting
+// ---------------------------------------------------------------------------
+
+model Promotion {
+  id                     String         @id @default(cuid())
+  name                   String
+  description            String?
+  promotionType          EPromotionType
+  discountType           EDiscountType
+  value                  Decimal        @db.Decimal(18, 4)
+  maxDiscountAmount      Decimal?       @db.Decimal(18, 4)
+  minOrderValue          Decimal?       @db.Decimal(18, 4)
+  startsAt               DateTime
+  endsAt                 DateTime?
+  usageLimitTotal        Int?
+  usageLimitPerCustomer  Int?
+  combinationRules       Json?
+  allowOnDiscountedItems Boolean        @default(false)
+
+  // Customer-audience targeting, based on cached Customer statistics.
+  audienceMinOrders Int?
+  audienceMaxOrders Int?
+  audienceMinSpent  Decimal? @db.Decimal(18, 4)
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  targets     PromotionTarget[]
+  coupons     Coupon[]
+  redemptions PromotionRedemption[]
+
+  @@index([isActive, startsAt, endsAt])
+  @@index([promotionType])
+}
+
+model PromotionTarget {
+  id               String          @id @default(cuid())
+  promotionId      String
+  scope            EPromotionScope
+  productId        String?
+  productPackageId String?
+  categoryId       String?
+  subcategoryId    String?
+  createdAt        DateTime        @default(now())
+
+  promotion      Promotion       @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  product        Product?        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productPackage ProductPackage? @relation(fields: [productPackageId], references: [id], onDelete: Cascade)
+  category       Category?       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  subcategory    Subcategory?    @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
+
+  @@index([promotionId])
+  @@index([productId])
+  @@index([productPackageId])
+  @@index([categoryId])
+  @@index([subcategoryId])
+}
+
+model Coupon {
+  id               String    @id @default(cuid())
+  promotionId      String
+  code             String    @unique
+  customerId       String?
+  usageLimit       Int?
+  perCustomerLimit Int?
+  startsAt         DateTime?
+  endsAt           DateTime?
+  isActive         Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  promotion   Promotion             @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  customer    Customer?             @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  redemptions PromotionRedemption[]
+
+  @@index([promotionId])
+  @@index([customerId])
+}
+
+// PromotionRedemption is the single source for display and usage-limit
+// enforcement. OrderDiscount was intentionally removed.
+model PromotionRedemption {
+  id             String   @id @default(cuid())
+  promotionId    String
+  couponId       String?
+  orderId        String
+  orderItemId    String?
+  customerId     String
+  discountAmount Decimal  @db.Decimal(18, 4)
+  rulesSnapshot  Json?
+  redeemedAt     DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  promotion Promotion  @relation(fields: [promotionId], references: [id], onDelete: Restrict)
+  coupon    Coupon?    @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  order     Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderItem OrderItem? @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
+  customer  Customer   @relation(fields: [customerId], references: [id], onDelete: Restrict)
+
+  @@index([promotionId, redeemedAt])
+  @@index([customerId, redeemedAt])
+  @@index([orderId])
+  @@index([couponId])
+  @@index([orderItemId])
+}
+
+// ---------------------------------------------------------------------------
+// Marketing / Meta Pixel + Conversions API
+// ---------------------------------------------------------------------------
+
+// eventId is shared between the browser Pixel and server-side CAPI for
+// deduplication. The Pixel ID is stored in SystemSetting. The CAPI access token
+// lives in environment variables and must never be stored in the database.
+// Events for customers with marketingConsent = false are stored as SKIPPED.
+model MarketingEvent {
+  id               String                @id @default(cuid())
+  eventName        EMarketingEventName
+  eventId          String                @unique
+  customerId       String?
+  sessionId        String?
+  orderId          String?
+  productId        String?
+  productPackageId String?
+  value            Decimal?              @db.Decimal(18, 4)
+  contentIds       Json?
+  searchString     String?
+  fbp              String?
+  fbc              String?
+  clientIp         String?
+  clientUserAgent  String?
+  eventSourceUrl   String?
+  // SHA-256 hashed email/phone only. Never raw values.
+  hashedUserData   Json?
+  status           EMarketingEventStatus @default(PENDING)
+  attempts         Int                   @default(0)
+  lastError        String?
+  sentAt           DateTime?
+  occurredAt       DateTime              @default(now())
+  createdAt        DateTime              @default(now())
+
+  customer       Customer?       @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  order          Order?          @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  product        Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productPackage ProductPackage? @relation(fields: [productPackageId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([eventName, occurredAt])
+  @@index([customerId, occurredAt])
+  @@index([orderId])
+  @@index([productId])
+  @@index([productPackageId])
+}
+
+// ---------------------------------------------------------------------------
+// Content
+// ---------------------------------------------------------------------------
+
+model Banner {
+  id             String    @id @default(cuid())
+  titleAr        String
+  titleEn        String?
+  imageUrl       String
+  mobileImageUrl String?
+  linkUrl        String?
+  startsAt       DateTime?
+  endsAt         DateTime?
+  sortOrder      Int       @default(0)
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([isActive, sortOrder])
+  @@index([startsAt, endsAt])
+}
+
+model StaticPage {
+  id               String         @id @default(cuid())
+  slug             String         @unique
+  titleAr          String
+  titleEn          String?
+  bodyAr           String
+  bodyEn           String?
+  status           EContentStatus @default(DRAFT)
+  seoTitleAr       String?
+  seoTitleEn       String?
+  seoDescriptionAr String?
+  seoDescriptionEn String?
+  canonicalUrl     String?
+  publishedAt      DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([status, publishedAt])
+}
+
+model Faq {
+  id         String   @id @default(cuid())
+  questionAr String
+  questionEn String?
+  answerAr   String
+  answerEn   String?
+  category   String?
+  sortOrder  Int      @default(0)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+// ---------------------------------------------------------------------------
+// Notifications, settings, document sequences
+// ---------------------------------------------------------------------------
+
+model Notification {
+  id               String                     @id @default(cuid())
+  recipientType    ENotificationRecipientType
+  customerId       String?
+  employeeId       String?
+  channel          ENotificationChannel
+  notificationType ENotificationType
+  title            String
+  body             String
+  status           ENotificationStatus        @default(PENDING)
+  idempotencyKey   String?                    @unique
+  sentAt           DateTime?
+  readAt           DateTime?
+  metadata         Json?
+  createdAt        DateTime                   @default(now())
+  updatedAt        DateTime                   @updatedAt
+
+  customer Customer? @relation("NotificationCustomer", fields: [customerId], references: [id], onDelete: Cascade)
+  employee Employee? @relation("NotificationEmployee", fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([recipientType, status, createdAt])
+  @@index([customerId, createdAt])
+  @@index([employeeId, createdAt])
+}
+
+// SystemSetting stores EGP currency code, the single tax rate, the Meta Pixel
+// ID, and other owner-managed configuration. The CAPI access token is env-only.
+model SystemSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       Json
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model DocumentSequence {
+  id           String   @id @default(cuid())
+  documentType String
+  year         Int
+  prefix       String?
+  nextNumber   Int      @default(1)
+  padding      Int      @default(6)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([documentType, year])
+}

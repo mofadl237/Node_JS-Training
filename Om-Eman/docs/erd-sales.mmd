@@ -1,0 +1,48 @@
+erDiagram
+    CUSTOMER ||--o{ ORDER : places
+    CUSTOMER ||--o{ CART : owns
+    CART ||--|{ CART_ITEM : items
+    CART_ITEM ||--o{ CART_ITEM_BUNDLE_COMPONENT : components
+    CART_ITEM }o--o| PRODUCT : product
+    CART_ITEM }o--o| PRODUCT_PACKAGE : package
+
+    ORDER ||--|{ ORDER_ITEM : items
+    ORDER_ITEM }o--o| PRODUCT : product
+    ORDER_ITEM }o--o| PRODUCT_PACKAGE : package
+    ORDER_ITEM ||--o{ ORDER_ITEM_BUNDLE_COMPONENT : components
+    ORDER ||--o{ ORDER_DISCOUNT : discounts
+    ORDER_DISCOUNT }o--o| PROMOTION : promotion
+    ORDER_DISCOUNT }o--o| COUPON : coupon
+    ORDER ||--o{ ORDER_STATUS_HISTORY : history
+    ORDER ||--o| ORDER_ADDRESS_SNAPSHOT : address_snapshot
+
+    ORDER ||--o| INVOICE : invoice
+    INVOICE ||--|{ INVOICE_LINE : lines
+    ORDER ||--o{ PAYMENT : payments
+    PAYMENT ||--o{ PAYMENT_ATTEMPT : attempts
+    PAYMENT ||--o{ PAYMENT_PROOF : proofs
+    ORDER ||--o{ REFUND : refunds
+    REFUND }o--o| PAYMENT : payment
+
+    ORDER ||--o{ CUSTOMER_RETURN : returns
+    CUSTOMER_RETURN ||--|{ CUSTOMER_RETURN_ITEM : items
+    CUSTOMER_RETURN_ITEM }o--|| ORDER_ITEM : order_item
+    CUSTOMER_RETURN_ITEM }o--o| STOCK_MOVEMENT : restock_movement
+
+    ORDER ||--o{ SHIPMENT : shipments
+    SHIPPING_CARRIER ||--o{ SHIPMENT : carries
+    SHIPPING_CARRIER ||--o{ SHIPPING_TARIFF : tariffs
+    SHIPMENT ||--o{ SHIPMENT_STATUS_HISTORY : history
+    SHIPMENT ||--o{ SHIPMENT_DELIVERY_ATTEMPT : attempts
+    SHIPPING_CARRIER ||--o{ CARRIER_REMITTANCE : remits
+    CARRIER_REMITTANCE ||--|{ CARRIER_REMITTANCE_LINE : lines
+
+    ORDER ||--o{ ORDER_FULFILLMENT : fulfillments
+    ORDER_FULFILLMENT ||--|{ ORDER_FULFILLMENT_ALLOCATION : allocations
+    ORDER_FULFILLMENT }o--o| RESELLER : reseller_source
+    ORDER_FULFILLMENT ||--o| RESELLER_FULFILLMENT_CONFIRMATION : confirmation
+
+    PROMOTION ||--o{ PROMOTION_TARGET : targets
+    PROMOTION ||--o{ COUPON : coupons
+    PROMOTION ||--o{ PROMOTION_REDEMPTION : redemptions
+    COUPON ||--o{ PROMOTION_REDEMPTION : redemptions

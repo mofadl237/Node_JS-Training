@@ -1,0 +1,27 @@
+erDiagram
+    EMPLOYEE ||--o{ EMPLOYEE_ROLE : has
+    ROLE ||--o{ EMPLOYEE_ROLE : assigned
+    ROLE ||--o{ ROLE_PERMISSION : grants
+    PERMISSION ||--o{ ROLE_PERMISSION : permission
+    EMPLOYEE ||--o{ LOGIN_ATTEMPT : attempts
+    EMPLOYEE ||--o{ AUDIT_LOG : actor
+    EMPLOYEE ||--o{ AUDIT_LOG : target_actor
+
+    CUSTOMER ||--o{ CUSTOMER_ADDRESS : addresses
+    CUSTOMER ||--o{ CUSTOMER_ACTIVITY_EVENT : activity
+    CUSTOMER ||--o| CUSTOMER_LOYALTY : loyalty
+    LOYALTY_LEVEL ||--o{ CUSTOMER_LOYALTY : level
+    CUSTOMER_LOYALTY ||--o{ LOYALTY_EVENT : events
+    CUSTOMER_LOYALTY ||--o{ LOYALTY_QUALIFICATION : qualifications
+    LOYALTY_LEVEL ||--o{ LOYALTY_QUALIFICATION : qualifies_for
+
+    PRODUCT_REVIEW ||--o{ REVIEW_MODERATION_HISTORY : history
+    STORE_REVIEW ||--o{ REVIEW_MODERATION_HISTORY : history
+    CUSTOMER ||--o{ PRODUCT_REVIEW : writes
+    CUSTOMER ||--o{ STORE_REVIEW : writes
+
+    HOMEPAGE_SECTION ||--o{ BANNER : banners
+    ARTICLE }o--o| EMPLOYEE : authored_by
+
+    NOTIFICATION ||--o{ NOTIFICATION_DELIVERY_ATTEMPT : deliveries
+    ATTACHMENT ||--o{ ATTACHMENT_VERSION : versions

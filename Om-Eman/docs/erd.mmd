@@ -1,0 +1,74 @@
+erDiagram
+    CUSTOMER ||--o{ ORDER : places
+    CUSTOMER ||--o{ CUSTOMER_ADDRESS : has
+    CUSTOMER ||--o| CART : owns
+    CUSTOMER ||--o| CUSTOMER_LOYALTY : enrolled_in
+    CUSTOMER ||--o{ PRODUCT_REVIEW : writes
+    CUSTOMER ||--o{ STORE_REVIEW : writes
+
+    ORDER ||--|{ ORDER_ITEM : contains
+    ORDER ||--o{ ORDER_STATUS_HISTORY : tracks
+    ORDER ||--o| ORDER_ADDRESS_SNAPSHOT : freezes
+    ORDER ||--o| INVOICE : billed_by
+    ORDER ||--o{ PAYMENT : paid_by
+    ORDER ||--o{ REFUND : refunded_by
+    ORDER ||--o{ SHIPMENT : shipped_by
+    ORDER ||--o{ CUSTOMER_RETURN : returned_by
+    ORDER ||--o{ ORDER_FULFILLMENT : fulfilled_by
+
+    ORDER_ITEM }o--o| PRODUCT : references
+    ORDER_ITEM }o--o| PRODUCT_PACKAGE : references
+    ORDER_ITEM ||--o{ ORDER_ITEM_BUNDLE_COMPONENT : expands_to
+
+    PRODUCT }o--|| CATEGORY : belongs_to
+    PRODUCT ||--o{ PRODUCT_PACKAGE : packaged_as
+    PRODUCT ||--o{ PRODUCT_IMAGE : has
+    PRODUCT ||--o{ PRODUCT_ALIAS : known_as
+    PRODUCT_PACKAGE ||--o| INVENTORY_ITEM : stocked_as
+    PRODUCT ||--o{ PRODUCT_BUNDLE_COMPONENT : parent_of
+
+    INVENTORY_ITEM ||--o{ INVENTORY_LOT : tracked_in
+    INVENTORY_ITEM ||--o{ STOCK_BALANCE : balanced_by
+    INVENTORY_ITEM ||--o{ STOCK_MOVEMENT_LINE : moved_by
+    INVENTORY_ITEM ||--o{ STOCK_RESERVATION : reserved_by
+    INVENTORY_ITEM ||--o{ REORDER_POLICY : reordered_by
+    STOCK_MOVEMENT ||--|{ STOCK_MOVEMENT_LINE : contains
+    INVENTORY_LOT ||--o{ STOCK_MOVEMENT_LINE : sourced_from
+
+    SUPPLIER ||--o{ PURCHASE_ORDER : receives
+    SUPPLIER ||--o{ SUPPLIER_INVOICE : invoices
+    SUPPLIER ||--o{ SUPPLIER_PAYMENT : paid_by
+    SUPPLIER ||--o{ SUPPLIER_LEDGER_ENTRY : ledger
+    PURCHASE_ORDER ||--|{ PURCHASE_ORDER_LINE : contains
+    PURCHASE_ORDER ||--o{ GOODS_RECEIPT : received_by
+    GOODS_RECEIPT ||--|{ GOODS_RECEIPT_LINE : contains
+    GOODS_RECEIPT_LINE ||--o| INVENTORY_LOT : creates
+    SUPPLIER_INVOICE ||--|{ SUPPLIER_INVOICE_LINE : contains
+    SUPPLIER_INVOICE ||--o{ LANDED_COST_ALLOCATION : allocates
+    SUPPLIER_PAYMENT ||--o{ SUPPLIER_PAYMENT_ALLOCATION : settles
+
+    RESELLER ||--o{ RESELLER_ADDRESS : located_at
+    RESELLER ||--o{ RESELLER_PRODUCT : assortments
+    RESELLER_PRODUCT ||--o{ RESELLER_PACKAGE_AVAILABILITY : availability
+    RESELLER ||--o{ RESELLER_SUPPLY : receives
+    RESELLER ||--o{ RESELLER_STOCK_MOVEMENT : custody
+    RESELLER ||--o{ RESELLER_STOCK_BALANCE : holds
+    RESELLER ||--o{ RESELLER_ACCOUNT_ENTRY : account
+    RESELLER ||--o{ RESELLER_PAYMENT : pays
+    RESELLER ||--o{ RESELLER_STOCK_RECONCILIATION : reconciles
+    ORDER_FULFILLMENT }o--o| RESELLER : fulfilled_from
+
+    FINANCIAL_ACCOUNT ||--o{ FINANCIAL_ACCOUNT_ENTRY : records
+    FINANCIAL_ACCOUNT ||--o{ EXPENSE_PAYMENT : pays
+    EXPENSE_CATEGORY ||--o{ EXPENSE : classifies
+    RECURRING_EXPENSE ||--o{ EXPENSE : generates
+
+    EMPLOYEE ||--o{ EMPLOYEE_ROLE : assigned
+    ROLE ||--o{ EMPLOYEE_ROLE : grants
+    ROLE ||--o{ ROLE_PERMISSION : contains
+    PERMISSION ||--o{ ROLE_PERMISSION : granted
+    EMPLOYEE ||--o{ AUDIT_LOG : acts_in
+
+    PROMOTION ||--o{ PROMOTION_TARGET : targets
+    PROMOTION ||--o{ COUPON : offers
+    PROMOTION ||--o{ PROMOTION_REDEMPTION : redeemed

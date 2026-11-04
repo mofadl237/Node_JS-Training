@@ -1,0 +1,46 @@
+erDiagram
+    CATEGORY ||--o{ SUBCATEGORY : contains
+    CATEGORY ||--o{ PRODUCT : classifies
+    PRODUCT ||--o{ PRODUCT_SUBCATEGORY : cross_listed
+    SUBCATEGORY ||--o{ PRODUCT_SUBCATEGORY : includes
+    PRODUCT ||--o{ PRODUCT_IMAGE : has
+    PRODUCT ||--o{ PRODUCT_ALIAS : known_as
+    PRODUCT ||--o{ PRODUCT_ATTRIBUTE_VALUE : described_by
+    PRODUCT_ATTRIBUTE ||--o{ PRODUCT_ATTRIBUTE_VALUE : values
+    PRODUCT ||--o{ PRODUCT_PACKAGE : packaged_as
+    PRODUCT ||--o{ PRODUCT_BUNDLE_COMPONENT : bundle_parent
+    PRODUCT ||--o{ PRODUCT_BUNDLE_COMPONENT : bundle_component
+
+    UNIT_OF_MEASURE ||--o{ PRODUCT : base_unit
+    UNIT_OF_MEASURE ||--o{ UNIT_CONVERSION : from
+    UNIT_OF_MEASURE ||--o{ UNIT_CONVERSION : to
+
+    WAREHOUSE ||--o{ WAREHOUSE_LOCATION : contains
+    WAREHOUSE ||--o{ INVENTORY_LOT : stores
+    WAREHOUSE_LOCATION ||--o{ STOCK_BALANCE : holds
+    WAREHOUSE_LOCATION ||--o{ STOCK_MOVEMENT_LINE : at
+
+    PRODUCT_PACKAGE ||--o| INVENTORY_ITEM : stocked_as
+    INVENTORY_ITEM ||--o{ INVENTORY_LOT : lots
+    INVENTORY_ITEM ||--o{ STOCK_BALANCE : balances
+    INVENTORY_ITEM ||--o{ STOCK_MOVEMENT_LINE : movements
+    INVENTORY_ITEM ||--o{ STOCK_RESERVATION : reservations
+    INVENTORY_ITEM ||--o{ REORDER_POLICY : policies
+    INVENTORY_ITEM ||--o| INVENTORY_ITEM_COST_REFERENCE : cost_reference
+
+    STOCK_MOVEMENT ||--|{ STOCK_MOVEMENT_LINE : lines
+    STOCK_MOVEMENT ||--o| STOCK_MOVEMENT : reverses
+    STOCK_MOVEMENT_LINE }o--o| INVENTORY_LOT : lot
+    STOCK_RESERVATION }o--o| INVENTORY_LOT : lot
+
+    STOCK_TRANSFER ||--|{ STOCK_TRANSFER_LINE : lines
+    STOCK_COUNT_SESSION ||--|{ STOCK_COUNT_LINE : lines
+    STOCK_COUNT_LINE ||--o| STOCK_MOVEMENT : adjustment
+
+    PRODUCTION_BATCH ||--|{ PRODUCTION_INPUT_LINE : consumes
+    PRODUCTION_BATCH ||--|{ PRODUCTION_OUTPUT_LINE : produces
+    PRODUCTION_BATCH ||--|{ PRODUCTION_LOSS_LINE : loses
+    INVENTORY_LOT ||--o{ PRODUCTION_INPUT_LINE : input
+    INVENTORY_LOT ||--o{ PRODUCTION_OUTPUT_LINE : output
+
+    INVENTORY_LOT ||--o{ EXPIRY_ALERT : alerts
