@@ -1,0 +1,23 @@
+import { Router } from "express";
+import { ERole } from "@prisma/client";
+import { authenticate } from "../../middlewares/auth.middleware.js";
+import { authorize } from "../../middlewares/role.middleware.js";
+import { validateBody, validateParams, validateQuery, } from "../../middlewares/validate.middleware.js";
+import { AttendanceAutomationController, AttendanceLogController, AttendanceRecordController, } from "./controller.js";
+import { attendanceLogIdParamSchema, attendanceRecordIdParamSchema, createAttendanceLogSchema, createAttendanceRecordSchema, listAttendanceLogsQuerySchema, listAttendanceRecordsQuerySchema, processAttendanceSchema, updateAttendanceRecordSchema, } from "./validation.js";
+const router = Router();
+const automationController = new AttendanceAutomationController();
+const logController = new AttendanceLogController();
+const recordController = new AttendanceRecordController();
+router.get("/logs", authenticate, validateQuery(listAttendanceLogsQuerySchema), logController.list);
+router.get("/logs/:id", authenticate, validateParams(attendanceLogIdParamSchema), logController.getById);
+router.get("/records", authenticate, validateQuery(listAttendanceRecordsQuerySchema), recordController.list);
+router.get("/records/:id", authenticate, validateParams(attendanceRecordIdParamSchema), recordController.getById);
+router.post("/process", authenticate, authorize(ERole.ADMIN, ERole.HR), validateBody(processAttendanceSchema), automationController.process);
+router.post("/logs", authenticate, authorize(ERole.ADMIN, ERole.HR), validateBody(createAttendanceLogSchema), logController.create);
+router.post("/records", authenticate, authorize(ERole.ADMIN, ERole.HR), validateBody(createAttendanceRecordSchema), recordController.create);
+router.patch("/records/:id", authenticate, authorize(ERole.ADMIN, ERole.HR), validateParams(attendanceRecordIdParamSchema), validateBody(updateAttendanceRecordSchema), recordController.update);
+router.delete("/logs/:id", authenticate, authorize(ERole.ADMIN, ERole.HR), validateParams(attendanceLogIdParamSchema), logController.remove);
+router.delete("/records/:id", authenticate, authorize(ERole.ADMIN, ERole.HR), validateParams(attendanceRecordIdParamSchema), recordController.remove);
+export default router;
+//# sourceMappingURL=routes.js.map

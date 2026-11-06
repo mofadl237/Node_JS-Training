@@ -4,6 +4,7 @@ import { env } from "./config/env.js";
 import { prisma } from "./config/prisma.js";
 import { connectRedis, disconnectRedis } from "./config/redis.js";
 import { isEmailConfigured } from "./config/email.js";
+import { startAttendanceAutomation, stopAttendanceAutomation, } from "./jobs/attendance/index.js";
 import { logger } from "./utils/logger/index.js";
 const SHUTDOWN_TIMEOUT_MS = 10_000;
 let server = null;
@@ -33,6 +34,15 @@ const shutdown = async (signal, exitCode = 0) => {
             await closeServer(server);
             logger.info("HTTP server closed");
         }
+        try {
+            await stopAttendanceAutomation();
+            logger.info("Attendance automation stopped");
+        }
+        catch (error) {
+            logger.error("Failed to stop attendance automation", {
+                error: error instanceof Error ? error.message : String(error),
+            });
+        }
         await disconnectRedis();
         logger.info("Redis disconnected");
         await prisma.$disconnect();
@@ -54,6 +64,14 @@ const startServer = async () => {
         try {
             await connectRedis();
             logger.info("Redis connected");
+            try {
+                startAttendanceAutomation();
+            }
+            catch (error) {
+                logger.error("Failed to start attendance automation", {
+                    error: error instanceof Error ? error.message : String(error),
+                });
+            }
         }
         catch (error) {
             logger.warn("Redis unavailable; continuing without Redis", {

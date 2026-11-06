@@ -109,6 +109,11 @@ async function main(): Promise<void> {
     },
   });
 
+  await prisma.user.update({
+    where: { id: manager.id },
+    data: { departmentId: engineering.id },
+  });
+
   const morningShift = await prisma.shift.create({
     data: {
       name: "Morning Shift",

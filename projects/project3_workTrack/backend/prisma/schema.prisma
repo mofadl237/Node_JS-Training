@@ -43,22 +43,65 @@ enum EUploadType {
   ATTENDANCE_IMPORT
 }
 
+enum ELeaveType {
+  ANNUAL
+  SICK
+  UNPAID
+  ABSENCE
+  OFFICIAL_HOLIDAY
+  WEEKEND
+  CUSTOM
+}
+
+enum ELeaveScope {
+  ALL
+  DEPARTMENT
+  EMPLOYEE
+}
+
+enum ELeaveRecurrence {
+  NONE
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
 // ─── Models ─────────────────────────────────────────────
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      ERole     @default(HR)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  password     String
+  role         ERole    @default(HR)
+  departmentId String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
+  department     Department?     @relation(fields: [departmentId], references: [id])
+  refreshTokens  RefreshToken[]
   uploadedFiles  UploadedFile[]
   attendanceLogs AttendanceLog[]
   auditLogs      AuditLog[]
+  createdLeaves  Leave[]
 
+  @@index([departmentId])
   @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
 }
 
 model Department {
@@ -69,28 +112,31 @@ model Department {
   updatedAt   DateTime @updatedAt
 
   employees Employee[]
+  leaves    Leave[]
+  users     User[]
 
   @@map("departments")
 }
 
 model Employee {
-  id           String         @id @default(uuid())
-  employeeCode String         @unique
+  id           String          @id @default(uuid())
+  employeeCode String          @unique
   firstName    String
   lastName     String
-  email        String?        @unique
+  email        String?         @unique
   phone        String?
   departmentId String
   jobTitle     String?
   status       EEmployeeStatus @default(ACTIVE)
   hireDate     DateTime
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 
   department        Department         @relation(fields: [departmentId], references: [id])
   employeeShifts    EmployeeShift[]
   attendanceLogs    AttendanceLog[]
   attendanceRecords AttendanceRecord[]
+  leaves            Leave[]
 
   @@map("employees")
 }
@@ -98,8 +144,8 @@ model Employee {
 model Shift {
   id                   String   @id @default(uuid())
   name                 String
-  startTime            String   // e.g. "09:00"
-  endTime              String   // e.g. "17:00"
+  startTime            String // e.g. "09:00"
+  endTime              String // e.g. "17:00"
   graceMinutes         Int      @default(15)
   expectedHours        Float    @default(8)
   overtimeAfterMinutes Int      @default(0)
@@ -130,13 +176,13 @@ model EmployeeShift {
 }
 
 model AttendanceLog {
-  id          String           @id @default(uuid())
+  id          String            @id @default(uuid())
   employeeId  String
   type        EAttendanceType
   timestamp   DateTime
   source      EAttendanceSource @default(MANUAL)
   createdById String?
-  createdAt   DateTime         @default(now())
+  createdAt   DateTime          @default(now())
 
   employee  Employee @relation(fields: [employeeId], references: [id])
   createdBy User?    @relation(fields: [createdById], references: [id])
@@ -145,21 +191,21 @@ model AttendanceLog {
 }
 
 model AttendanceRecord {
-  id                String           @id @default(uuid())
+  id                String            @id @default(uuid())
   employeeId        String
   shiftId           String?
   date              DateTime
   checkIn           DateTime?
   checkOut          DateTime?
   status            EAttendanceStatus @default(PRESENT)
-  workingMinutes    Int              @default(0)
-  lateMinutes       Int              @default(0)
-  earlyLeaveMinutes Int              @default(0)
-  overtimeMinutes   Int              @default(0)
+  workingMinutes    Int               @default(0)
+  lateMinutes       Int               @default(0)
+  earlyLeaveMinutes Int               @default(0)
+  overtimeMinutes   Int               @default(0)
   notes             String?
   processedAt       DateTime?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id])
   shift    Shift?   @relation(fields: [shiftId], references: [id])
@@ -169,15 +215,15 @@ model AttendanceRecord {
 }
 
 model UploadedFile {
-  id           String     @id @default(uuid())
+  id           String      @id @default(uuid())
   fileName     String
   originalName String
   type         EUploadType
   uploadedById String
-  totalRows    Int        @default(0)
-  successRows  Int        @default(0)
-  failedRows   Int        @default(0)
-  createdAt    DateTime   @default(now())
+  totalRows    Int         @default(0)
+  successRows  Int         @default(0)
+  failedRows   Int         @default(0)
+  createdAt    DateTime    @default(now())
 
   uploadedBy User @relation(fields: [uploadedById], references: [id])
 
@@ -196,4 +242,36 @@ model AuditLog {
   user User? @relation(fields: [userId], references: [id])
 
   @@map("audit_logs")
+}
+
+model Leave {
+  id                   String           @id @default(uuid())
+  name                 String
+  description          String?
+  type                 ELeaveType
+  scope                ELeaveScope      @default(ALL)
+  employeeId           String?
+  departmentId         String?
+  startDate            DateTime
+  endDate              DateTime?
+  isPaid               Boolean          @default(true)
+  isDeductible         Boolean          @default(false)
+  isActive             Boolean          @default(true)
+  recurrence           ELeaveRecurrence @default(NONE)
+  recurrenceDayOfWeek  Int?
+  recurrenceDayOfMonth Int?
+  recurrenceMonth      Int?
+  recurrenceDay        Int?
+  createdById          String?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  employee   Employee?   @relation(fields: [employeeId], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
+  createdBy  User?       @relation(fields: [createdById], references: [id])
+
+  @@index([startDate, endDate])
+  @@index([employeeId])
+  @@index([departmentId])
+  @@map("leaves")
 }

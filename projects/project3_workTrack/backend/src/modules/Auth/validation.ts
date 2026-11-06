@@ -1,0 +1,49 @@
+import { z } from "zod";
+
+export const registerSchema = z.object({
+  name: z
+    .string("name is required")
+    .trim()
+    .min(2, "name must be at least 2 characters")
+    .max(50, "name must not exceed 50 characters"),
+  email: z
+    .string("email is required")
+    .trim()
+    .email("email must be a valid email address")
+    .toLowerCase(),
+  password: z
+    .string("password is required")
+    .min(8, "password must be at least 8 characters")
+    .max(128, "password must not exceed 128 characters")
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+      "password must contain at least one uppercase letter, one lowercase letter, and one number",
+    ),
+  role: z
+    .never({ error: "role cannot be set during public registration" })
+    .optional(),
+});
+
+export const loginSchema = z.object({
+  email: z
+    .string("email is required")
+    .trim()
+    .email("email must be a valid email address")
+    .toLowerCase(),
+  password: z.string("password is required").min(1, "password is required"),
+});
+
+const refreshTokenSchema = z.string("refreshToken is required").trim().min(20, "refreshToken is required");
+
+export const refreshTokenBodySchema = z.object({
+  refreshToken: refreshTokenSchema,
+});
+
+export const logoutBodySchema = z.object({
+  refreshToken: refreshTokenSchema,
+});
+
+export type IRegisterInput = z.infer<typeof registerSchema>;
+export type ILoginInput = z.infer<typeof loginSchema>;
+export type IRefreshTokenBody = z.infer<typeof refreshTokenBodySchema>;
+export type ILogoutBody = z.infer<typeof logoutBodySchema>;

@@ -42,6 +42,7 @@ export const env = {
   DATABASE_URL: getEnv("DATABASE_URL"),
   JWT_SECRET: getEnv("JWT_SECRET", false) || "change_me_in_production_use_long_random_string",
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "7d",
+  REFRESH_TOKEN_TTL_DAYS: getNumber("REFRESH_TOKEN_TTL_DAYS", 30),
   BCRYPT_SALT_ROUNDS: getNumber("BCRYPT_SALT_ROUNDS", 12),
   CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
   APP_NAME: process.env.APP_NAME || "WorkTrack HR",
@@ -62,6 +63,12 @@ export const env = {
   UPLOAD_DIR: process.env.UPLOAD_DIR || "uploads",
   REMINDER_CRON: process.env.REMINDER_CRON || "0 8 * * *",
   REMINDER_TIMEZONE: resolveTimeZone("REMINDER_TIMEZONE", appTimeZone),
+  ATTENDANCE_AUTO_ENABLED: getBoolean("ATTENDANCE_AUTO_ENABLED", true),
+  ATTENDANCE_CRON: process.env.ATTENDANCE_CRON || "0 2 * * *",
+  ATTENDANCE_TIMEZONE: resolveTimeZone("ATTENDANCE_TIMEZONE", appTimeZone),
+  ATTENDANCE_LOOKBACK_DAYS: getNumber("ATTENDANCE_LOOKBACK_DAYS", 1),
+  ATTENDANCE_WORKER_CONCURRENCY: getNumber("ATTENDANCE_WORKER_CONCURRENCY", 1),
+  ATTENDANCE_BATCH_SIZE: getNumber("ATTENDANCE_BATCH_SIZE", 100),
 } as const;
 
 export type Env = typeof env;

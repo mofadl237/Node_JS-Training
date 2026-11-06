@@ -1,8 +1,10 @@
 import type { ErrorRequestHandler, Request, RequestHandler } from "express";
+import multer from "multer";
 import { AppError, PayloadTooLargeError, ServiceUnavailableError } from "../shared/errors.js";
 import {
   isPrismaInitializationError,
   isPrismaRustPanicError,
+  isPrismaUnknownRequestError,
   isPrismaValidationError,
   mapPrismaError,
 } from "../shared/errors/prisma-error.mapper.js";
@@ -49,16 +51,54 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
     return;
   }
 
+  // أخطاء Multer بتيجي مش من كلاس AppError، فبنحولها لشكل الخطأ الموحد.
+  if (err instanceof multer.MulterError) {
+    if (err.code === "LIMIT_FILE_SIZE") {
+      res.status(413).json({
+        success: false,
+        message: "CSV file is too large. Maximum size is 5MB",
+        code: "FILE_TOO_LARGE",
+      });
+      return;
+    }
+
+    if (err.code === "LIMIT_UNEXPECTED_FILE") {
+      res.status(400).json({
+        success: false,
+        message: "Unexpected file field. Use the 'file' field",
+        code: "UNEXPECTED_FILE",
+      });
+      return;
+    }
+
+    res.status(400).json({
+      success: false,
+      message: err.message,
+      code: "UPLOAD_ERROR",
+    });
+    return;
+  }
+
   const mappedError = mapPrismaError(err);
   if (mappedError) {
-    if (isProduction() && mappedError.statusCode >= 500) {
-      logger.error("Mapped Prisma error", { ...requestContext(req), error: mappedError.message });
+    if (mappedError.statusCode >= 500) {
+      logger.error("Mapped Prisma error", {
+        ...requestContext(req),
+        error: mappedError.message,
+        code: mappedError.code,
+      });
     }
-    res.status(mappedError.statusCode).json({
+
+    const response: Record<string, unknown> = {
       success: false,
       message: mappedError.message,
       code: mappedError.code,
-    });
+    };
+    if (mappedError.details !== undefined) {
+      response.details = mappedError.details;
+    }
+
+    res.status(mappedError.statusCode).json(response);
     return;
   }
 
@@ -82,6 +122,19 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
       success: false,
       message: unavailable.message,
       code: unavailable.code,
+    });
+    return;
+  }
+
+  if (isPrismaUnknownRequestError(err)) {
+    logger.error("Unknown database error", {
+      ...requestContext(req),
+      error: err.message,
+    });
+    res.status(500).json({
+      success: false,
+      message: "Database error occurred",
+      code: "DB_ERROR",
     });
     return;
   }
