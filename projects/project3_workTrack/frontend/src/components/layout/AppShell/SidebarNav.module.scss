@@ -1,0 +1,104 @@
+@use "../../../styles" as *;
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.groupLabel {
+  margin: 0;
+  padding-inline: 12px;
+  color: var(--color-ink-soft);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.link {
+  position: relative;
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  padding: 10px 12px;
+  color: var(--color-ink-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+
+  &:hover {
+    color: var(--color-ink);
+    background: var(--color-surface-sunken);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.active {
+  color: var(--color-brand);
+  background: var(--color-brand-soft);
+
+  &::before {
+    position: absolute;
+    inset-block: 9px;
+    inset-inline-start: 0;
+    width: 3px;
+    background: var(--color-brand);
+    border-radius: var(--radius-pill);
+    content: "";
+  }
+
+  &:hover {
+    color: var(--color-brand);
+    background: var(--color-brand-soft);
+  }
+}
+
+.icon {
+  display: grid;
+  flex: none;
+  width: 22px;
+  color: currentcolor;
+  place-items: center;
+}
+
+.label {
+  @include truncate;
+}
+
+.collapsed {
+  .groupLabel,
+  .label {
+    display: none;
+  }
+
+  .link {
+    justify-content: center;
+    padding-inline: 0;
+  }
+
+  .active::before {
+    inset-block: 7px;
+  }
+}

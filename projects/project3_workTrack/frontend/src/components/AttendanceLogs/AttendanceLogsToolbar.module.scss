@@ -1,0 +1,35 @@
+@use "../../styles" as *;
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-end;
+  padding: 16px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  @include fade-up(520ms, 70ms);
+}
+
+.toolbar > :first-child {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+.select {
+  flex: 0 1 150px;
+  min-width: 130px;
+}
+
+@include respond("md") {
+  .toolbar {
+    align-items: stretch;
+  }
+
+  .toolbar > :first-child,
+  .select {
+    flex-basis: 100%;
+  }
+}

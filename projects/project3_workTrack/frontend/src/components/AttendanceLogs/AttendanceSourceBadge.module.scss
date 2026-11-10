@@ -1,0 +1,13 @@
+@use "../../styles" as *;
+
+.sourceBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 9px;
+  color: var(--color-ink-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-pill);
+}

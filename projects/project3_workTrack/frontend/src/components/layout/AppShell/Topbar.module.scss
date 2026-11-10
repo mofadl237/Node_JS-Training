@@ -1,0 +1,95 @@
+@use "../../../styles" as *;
+
+.topbar {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 30;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 76px;
+  padding: 14px clamp(18px, 3vw, 34px);
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  border-block-end: 1px solid var(--color-border);
+  backdrop-filter: blur(14px);
+}
+
+.start {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+}
+
+.menuButton {
+  @include icon-button;
+
+  display: none;
+  flex: none;
+  width: 42px;
+  height: 42px;
+  color: var(--color-ink-muted);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  &:hover {
+    color: var(--color-brand);
+    background: var(--color-brand-soft);
+  }
+}
+
+.titleGroup {
+  min-width: 0;
+}
+
+.eyebrow {
+  margin: 0 0 2px;
+  color: var(--color-ink-soft);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  @include truncate;
+
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+@include respond("lg") {
+  .menuButton {
+    display: inline-flex;
+  }
+}
+
+@include respond("sm") {
+  .topbar {
+    min-height: 66px;
+    padding: 10px 14px;
+  }
+
+  .eyebrow {
+    display: none;
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+
+  .actions {
+    gap: 6px;
+  }
+}

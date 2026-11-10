@@ -1,0 +1,56 @@
+@use "../../../styles" as *;
+
+.toggle {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 12px;
+  color: var(--color-ink-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    color: var(--color-brand);
+    background: var(--color-brand-soft);
+    border-color: rgba(15, 76, 70, 0.18);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+
+  &:disabled {
+    cursor: wait;
+    opacity: 0.65;
+  }
+}
+
+.name {
+  line-height: 1;
+}
+
+.code {
+  display: inline-grid;
+  min-width: 27px;
+  padding: 3px 5px;
+  color: var(--color-brand);
+  font-size: 0.64rem;
+  letter-spacing: 0.04em;
+  background: var(--color-brand-soft);
+  border-radius: 6px;
+  place-items: center;
+}
+
+@include respond("sm") {
+  .name {
+    display: none;
+  }
+}

@@ -1,0 +1,71 @@
+@use "./breakpoints" as *;
+@use "./tokens" as *;
+
+@mixin focus-ring($color: $color-brand) {
+  outline: 3px solid rgba($color, 0.24);
+  outline-offset: 3px;
+}
+
+@mixin surface-card($radius: $radius-lg) {
+  background: $color-surface-raised;
+  border: 1px solid $color-border;
+  border-radius: $radius;
+  box-shadow: $shadow-sm;
+}
+
+@mixin accent-card($accent) {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba($accent, 0.24);
+
+  &::before {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    height: 3px;
+    background: $accent;
+    content: "";
+  }
+}
+
+@mixin icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,128 @@
+@use "../../../styles" as *;
+
+.sidebar {
+  position: sticky;
+  inset-block-start: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  height: 100svh;
+  padding: 22px 16px 16px;
+  overflow: hidden auto;
+  background: var(--color-surface-raised);
+  border-inline-end: 1px solid var(--color-border);
+}
+
+.header {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding-inline: 6px;
+}
+
+.brand {
+  min-width: 0;
+}
+
+.close {
+  @include icon-button;
+
+  display: none;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  color: var(--color-ink-muted);
+  background: var(--color-surface-sunken);
+  border-radius: 50%;
+
+  &:hover {
+    color: var(--color-brand);
+    background: var(--color-brand-soft);
+  }
+}
+
+.footer {
+  padding-block-start: 12px;
+  margin-block-start: auto;
+  border-block-start: 1px solid var(--color-border);
+}
+
+.collapse {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  padding: 10px 12px;
+  color: var(--color-ink-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+
+  &:hover {
+    color: var(--color-brand);
+    background: var(--color-brand-soft);
+    border-color: rgba(15, 76, 70, 0.18);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.collapseLabel {
+  @include truncate;
+}
+
+.collapsed {
+  .header {
+    justify-content: center;
+  }
+
+  .collapseLabel {
+    display: none;
+  }
+
+  .collapse {
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    margin-inline: auto;
+    border-radius: 50%;
+  }
+}
+
+@include respond("lg") {
+  .sidebar {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: -100%;
+    z-index: 50;
+    width: min(300px, 86vw);
+    height: 100svh;
+    box-shadow: var(--shadow-lg);
+    transition: inset-inline-start var(--transition-base);
+  }
+
+  .sidebar.mobileOpen {
+    inset-inline-start: 0;
+  }
+
+  .close {
+    display: inline-flex;
+  }
+
+  .collapse {
+    display: none;
+  }
+}

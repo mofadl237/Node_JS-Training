@@ -1,0 +1,74 @@
+@use "../../styles" as *;
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.eyebrow {
+  width: 110px;
+  height: 10px;
+}
+
+.title {
+  width: min(320px, 70%);
+  height: 32px;
+  border-radius: var(--radius-sm);
+}
+
+.description {
+  width: min(560px, 90%);
+  height: 14px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 26px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+}
+
+.cardTitle {
+  width: 150px;
+  height: 18px;
+}
+
+.cardDescription {
+  width: min(480px, 90%);
+  height: 14px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding-block-start: 20px;
+  border-block-start: 1px solid var(--color-border);
+}
+
+.stat {
+  height: 54px;
+  border-radius: var(--radius-sm);
+}
+
+@include respond("lg") {
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@include respond("sm") {
+  .stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

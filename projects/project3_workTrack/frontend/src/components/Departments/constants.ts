@@ -1,0 +1,1 @@
+export const DEPARTMENTS_PAGE_SIZE = 10;

@@ -47,25 +47,25 @@
   - Loading / Empty / Error / Forbidden states.
 
 ### 3. أول CRUD
-- [ ] **7. Departments**
+- [x] **7. Departments**
   - List + Create + Edit + Delete.
   - دي أول وحدة نختبر فيها الجداول والفورمات والـ pagination.
 
-- [ ] **8. Employees List**
+- [x] **8. Employees List**
   - Filters + pagination + sorting.
 
-- [ ] **9. Employee Form + Details**
+- [x] **9. Employee Form + Details**
   - Create / Edit.
   - صفحة تفاصيل الموظف.
 
 ### 4. الحضور
-- [ ] **10. Attendance Logs**
+- [x] **10. Attendance Logs**
   - List + filters.
 
-- [ ] **11. Attendance Records**
+- [x] **11. Attendance Records**
   - List + filters + create/update/delete.
 
-- [ ] **12. Attendance Process**
+- [x] **12. Attendance Process**
   - زر manual process.
   - عرض حالة النجاح/الفشل.
 

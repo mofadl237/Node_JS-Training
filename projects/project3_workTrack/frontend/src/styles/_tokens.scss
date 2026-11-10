@@ -1,0 +1,39 @@
+$color-ink: #1c2522;
+$color-ink-muted: #5f6b66;
+$color-ink-soft: #7d8782;
+$color-surface: #f7f4ed;
+$color-surface-raised: #fffdf8;
+$color-surface-sunken: #eee9df;
+$color-border: #ded8cb;
+$color-border-strong: #c8c0b1;
+$color-brand: #0f4c46;
+$color-brand-strong: #0a3834;
+$color-brand-soft: #d8e8e3;
+$color-accent: #c9772d;
+$color-accent-soft: #f3e0cb;
+$color-clay: #a75d4a;
+$color-clay-soft: #f1dcd5;
+$color-success: #167a5a;
+$color-success-soft: #dff3ea;
+$color-danger: #b23a32;
+$color-danger-soft: #f8e2df;
+$color-warning: #9a6a1f;
+$color-warning-soft: #f7ecd8;
+$color-info: #2f6f8f;
+$color-info-soft: #dcecf3;
+
+$font-sans: var(--font-manrope), "Segoe UI", sans-serif;
+$font-display: var(--font-fraunces), Georgia, serif;
+
+$radius-sm: 10px;
+$radius-md: 14px;
+$radius-lg: 22px;
+$radius-xl: 30px;
+$radius-pill: 999px;
+
+$shadow-sm: 0 1px 2px rgba(28, 37, 34, 0.05);
+$shadow-md: 0 18px 45px rgba(28, 37, 34, 0.08);
+$shadow-lg: 0 34px 90px rgba(28, 37, 34, 0.14);
+
+$transition-fast: 160ms ease;
+$transition-base: 240ms ease;

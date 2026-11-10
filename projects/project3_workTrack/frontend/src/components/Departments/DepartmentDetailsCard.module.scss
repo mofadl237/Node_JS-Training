@@ -1,0 +1,102 @@
+@use "../../styles" as *;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: clamp(20px, 3vw, 30px);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.heading {
+  margin: 0;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.description {
+  max-width: 70ch;
+  margin: 0;
+  color: var(--color-ink-muted);
+  font-size: 0.92rem;
+  line-height: 1.8;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding-block-start: 20px;
+  border-block-start: 1px solid var(--color-border);
+}
+
+.stat {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.icon {
+  display: grid;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  color: var(--color-brand);
+  background: var(--color-brand-soft);
+  border-radius: var(--radius-sm);
+  place-items: center;
+}
+
+.label {
+  margin: 0;
+  color: var(--color-ink-soft);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.value {
+  margin: 4px 0 0;
+  color: var(--color-ink);
+  font-size: 0.92rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.hint {
+  margin: 4px 0 0;
+  color: var(--color-ink-soft);
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.skeletonValue {
+  width: 48px;
+  height: 18px;
+  margin-block-start: 6px;
+}
+
+@include respond("lg") {
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@include respond("sm") {
+  .stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

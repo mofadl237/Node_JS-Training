@@ -1,0 +1,65 @@
+@use "../../../styles" as *;
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  color: var(--color-ink);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.select {
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 14px;
+  color: var(--color-ink);
+  font-size: 0.92rem;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+
+  &:focus-visible {
+    border-color: var(--color-brand);
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(15, 76, 70, 0.1);
+  }
+}
+
+.invalid {
+  border-color: rgba(178, 58, 50, 0.56);
+
+  &:focus-visible {
+    border-color: var(--color-danger);
+    box-shadow: 0 0 0 4px rgba(178, 58, 50, 0.1);
+  }
+}
+
+.error,
+.hint {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.error {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.hint {
+  color: var(--color-ink-soft);
+}
+
+@include respond("sm") {
+  .select {
+    min-height: 50px;
+  }
+}

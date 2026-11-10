@@ -1,0 +1,68 @@
+@use "../../../styles" as *;
+
+.brand {
+  display: inline-flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.mark {
+  display: grid;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  color: var(--color-surface-raised);
+  background: var(--color-brand);
+  border-radius: 14px;
+  box-shadow: 0 8px 18px rgba(15, 76, 70, 0.18);
+  place-items: center;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  line-height: 1.1;
+}
+
+.name {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.tagline {
+  color: var(--color-ink-soft);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.light {
+  .mark {
+    color: var(--color-surface);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: none;
+  }
+
+  .name {
+    color: var(--color-surface-raised);
+  }
+
+  .tagline {
+    color: rgba(247, 244, 237, 0.6);
+  }
+}
+
+@include respond("sm") {
+  .mark {
+    width: 40px;
+    height: 40px;
+  }
+
+  .name {
+    font-size: 0.98rem;
+  }
+}

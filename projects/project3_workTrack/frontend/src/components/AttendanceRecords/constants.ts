@@ -1,0 +1,1 @@
+export const ATTENDANCE_RECORDS_PAGE_SIZE = 20;

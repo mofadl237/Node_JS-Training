@@ -1,0 +1,126 @@
+@use "../../../styles" as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  padding: 20px;
+  overflow-y: auto;
+  background: rgba(7, 16, 14, 0.58);
+  backdrop-filter: blur(4px);
+  place-items: center;
+  animation: fade-in 180ms ease both;
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 640px);
+  max-height: min(90svh, 820px);
+  overflow: hidden;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  animation: float-in 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.sm {
+  width: min(100%, 460px);
+}
+
+.header {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24px 24px 0;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.description {
+  max-width: 52ch;
+  margin: 0;
+  color: var(--color-ink-muted);
+  font-size: 0.86rem;
+  line-height: 1.65;
+}
+
+.close {
+  @include icon-button;
+
+  flex: none;
+  width: 36px;
+  height: 36px;
+  color: var(--color-ink-soft);
+  border-radius: var(--radius-pill);
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+
+  &:hover {
+    color: var(--color-ink);
+    background: var(--color-surface-sunken);
+  }
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px 24px;
+  overflow-y: auto;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 18px 24px 24px;
+  border-block-start: 1px solid var(--color-border);
+}
+
+@include respond("sm") {
+  .overlay {
+    padding: 12px;
+  }
+
+  .dialog {
+    border-radius: var(--radius-lg);
+  }
+
+  .header,
+  .body,
+  .footer {
+    padding-inline: 18px;
+  }
+
+  .header {
+    padding-block-start: 20px;
+  }
+
+  .footer {
+    padding-block-end: 20px;
+  }
+}

@@ -1,0 +1,62 @@
+@use "../../../styles" as *;
+
+$accents: (
+  "brand": $color-brand,
+  "amber": $color-accent,
+  "clay": $color-clay,
+);
+
+.card {
+  @include surface-card;
+  @include fade-up;
+
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 16px;
+  background: rgba(255, 253, 248, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+}
+
+.icon {
+  display: inline-grid;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  place-items: center;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-surface-raised);
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.description {
+  margin: 0;
+  color: rgba(247, 244, 237, 0.62);
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+@each $name, $color in $accents {
+  .#{$name} {
+    @include accent-card($color);
+
+    .icon {
+      color: $color;
+      background: rgba($color, 0.16);
+    }
+  }
+}

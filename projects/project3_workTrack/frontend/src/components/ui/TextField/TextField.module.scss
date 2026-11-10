@@ -1,0 +1,99 @@
+@use "../../../styles" as *;
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  color: var(--color-ink);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.control {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-height: 52px;
+  padding-inline: 14px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background-color var(--transition-fast);
+
+  &:focus-within {
+    border-color: var(--color-brand);
+    box-shadow: 0 0 0 4px rgba(15, 76, 70, 0.1);
+  }
+}
+
+.invalid {
+  border-color: rgba(178, 58, 50, 0.56);
+
+  &:focus-within {
+    border-color: var(--color-danger);
+    box-shadow: 0 0 0 4px rgba(178, 58, 50, 0.1);
+  }
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding-block: 14px;
+  color: var(--color-ink);
+  font-size: 0.95rem;
+  background: transparent;
+  border: 0;
+  outline: 0;
+
+  &::placeholder {
+    color: var(--color-ink-soft);
+  }
+
+  &[dir="ltr"] {
+    text-align: left;
+  }
+
+  &[dir="rtl"] {
+    text-align: right;
+  }
+}
+
+.leading,
+.trailing {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  color: var(--color-ink-soft);
+}
+
+.trailing {
+  margin-inline-start: auto;
+}
+
+.error,
+.hint {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.error {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.hint {
+  color: var(--color-ink-soft);
+}
+
+@include respond("sm") {
+  .control {
+    min-height: 50px;
+  }
+}

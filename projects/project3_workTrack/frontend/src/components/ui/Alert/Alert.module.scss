@@ -1,0 +1,55 @@
+@use "../../../styles" as *;
+
+.alert {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+}
+
+.icon {
+  display: inline-flex;
+  flex: none;
+  padding-top: 2px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.body {
+  color: inherit;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  opacity: 0.84;
+}
+
+.error {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+  border-color: rgba(178, 58, 50, 0.2);
+}
+
+.success {
+  color: var(--color-success);
+  background: var(--color-success-soft);
+  border-color: rgba(22, 122, 90, 0.2);
+}
+
+.info {
+  color: var(--color-info);
+  background: var(--color-info-soft);
+  border-color: rgba(47, 111, 143, 0.2);
+}

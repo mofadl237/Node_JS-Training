@@ -1,0 +1,61 @@
+@use "../../../styles" as *;
+
+.screen {
+  display: grid;
+  min-height: 100svh;
+  padding: clamp(16px, 3vw, 32px);
+  background:
+    radial-gradient(circle at 8% 8%, rgba(201, 119, 45, 0.08), transparent 26%),
+    radial-gradient(circle at 92% 92%, rgba(15, 76, 70, 0.08), transparent 28%),
+    var(--color-surface);
+  place-items: center;
+}
+
+.shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
+  gap: clamp(16px, 2.4vw, 30px);
+  align-items: stretch;
+  width: 100%;
+  max-width: 1180px;
+  min-height: min(760px, calc(100svh - 64px));
+
+  @include fade-in(420ms);
+}
+
+.heroArea,
+.formArea {
+  min-width: 0;
+}
+
+.formArea {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@include respond("lg") {
+  .shell {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    max-width: 680px;
+  }
+
+  .formArea {
+    order: 1;
+  }
+
+  .heroArea {
+    order: 2;
+  }
+}
+
+@include respond("sm") {
+  .screen {
+    padding: 10px;
+  }
+
+  .shell {
+    gap: 12px;
+  }
+}

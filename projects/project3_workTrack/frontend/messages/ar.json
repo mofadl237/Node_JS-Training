@@ -1,0 +1,608 @@
+{
+  "Metadata": {
+    "title": "WorkTrack HR | مساحة العمل",
+    "description": "مساحة عمل متكاملة لإدارة الحضور والموظفين وعمليات الموارد البشرية اليومية."
+  },
+  "Common": {
+    "brandName": "WorkTrack HR",
+    "brandTagline": "مساحة عمل الموارد البشرية",
+    "languageName": "English",
+    "languageCode": "EN",
+    "switchLanguage": "تغيير اللغة إلى الإنجليزية",
+    "themeLight": "فاتح",
+    "themeDark": "داكن",
+    "switchToLight": "التبديل إلى الوضع الفاتح",
+    "switchToDark": "التبديل إلى الوضع الداكن",
+    "loading": "جارٍ التحميل...",
+    "close": "إغلاق",
+    "pagination": {
+      "label": "التنقل بين الصفحات",
+      "previous": "السابق",
+      "next": "التالي",
+      "pageOf": "صفحة {page} من {totalPages}"
+    }
+  },
+  "Departments": {
+    "metadata": {
+      "title": "الأقسام | WorkTrack HR"
+    },
+    "eyebrow": "عمليات الأفراد",
+    "title": "الأقسام",
+    "subtitle": "نظّم الفرق، وحدّث بيانات الأقسام، واربط الموظفين بالهيكل الصحيح.",
+    "create": "قسم جديد",
+    "readOnly": "يمكنك عرض تفاصيل الأقسام. التعديل متاح لمسؤولي النظام والموارد البشرية فقط.",
+    "searchLabel": "بحث في الأقسام",
+    "searchPlaceholder": "ابحث بالاسم أو الوصف",
+    "sortLabel": "ترتيب حسب",
+    "sort": {
+      "name": "الاسم",
+      "createdAt": "تاريخ الإنشاء",
+      "updatedAt": "آخر تحديث"
+    },
+    "orderLabel": "الاتجاه",
+    "order": {
+      "asc": "تصاعدي",
+      "desc": "تنازلي"
+    },
+    "columns": {
+      "name": "القسم",
+      "description": "الوصف",
+      "createdAt": "تاريخ الإنشاء",
+      "updatedAt": "آخر تحديث",
+      "actions": "الإجراءات"
+    },
+    "noDescription": "لا يوجد وصف",
+    "view": "عرض القسم",
+    "edit": "تعديل القسم",
+    "delete": "حذف القسم",
+    "empty": {
+      "title": "لا توجد أقسام بعد",
+      "description": "أنشئ أول قسم لبدء تنظيم فرقك.",
+      "searchTitle": "لا توجد أقسام مطابقة",
+      "searchDescription": "جرّب كلمة بحث أخرى أو امسح عوامل التصفية."
+    },
+    "error": {
+      "title": "تعذّر تحميل الأقسام"
+    },
+    "retry": "إعادة المحاولة",
+    "validation": {
+      "nameRequired": "اسم القسم مطلوب.",
+      "nameMin": "يجب أن يكون اسم القسم حرفين على الأقل.",
+      "nameMax": "يجب ألا يتجاوز اسم القسم 100 حرف.",
+      "descriptionMax": "يجب ألا يتجاوز الوصف 500 حرف."
+    },
+    "form": {
+      "createTitle": "إنشاء قسم",
+      "editTitle": "تعديل القسم",
+      "createDescription": "أضف قسماً للحفاظ على تنظيم فرقك.",
+      "editDescription": "حدّث اسم القسم أو وصفه.",
+      "nameLabel": "اسم القسم",
+      "namePlaceholder": "مثال: الهندسة",
+      "descriptionLabel": "الوصف",
+      "descriptionPlaceholder": "ما الذي يقوم به هذا القسم؟",
+      "descriptionHint": "حتى 500 حرف.",
+      "cancel": "إلغاء",
+      "save": "حفظ القسم",
+      "saving": "جارٍ الحفظ...",
+      "createSuccess": "تم إنشاء القسم.",
+      "updateSuccess": "تم تحديث القسم.",
+      "errorTitle": "تعذّر حفظ القسم"
+    },
+    "delete": {
+      "title": "حذف القسم؟",
+      "description": "سيتم حذف {name} نهائياً. لا يمكن التراجع عن هذا الإجراء.",
+      "confirm": "حذف القسم",
+      "deleting": "جارٍ الحذف...",
+      "success": "تم حذف القسم.",
+      "errorTitle": "تعذّر حذف القسم",
+      "cancel": "الإبقاء على القسم"
+    },
+    "errors": {
+      "network": "تعذّر الاتصال بالخادم. تحقق من اتصالك ثم حاول مرة أخرى.",
+      "timeout": "انتهت مهلة الاتصال بالخادم. حاول مرة أخرى.",
+      "exists": "يوجد قسم بهذا الاسم بالفعل.",
+      "notFound": "هذا القسم لم يعد موجوداً.",
+      "hasEmployees": "هذا القسم ما زال يحتوي على موظفين. أعد تعيينهم قبل حذفه.",
+      "validation": "تحقق من بيانات القسم وحاول مرة أخرى.",
+      "forbidden": "ليس لديك صلاحية لتنفيذ هذا الإجراء.",
+      "unauthorized": "انتهت جلستك. سجّل الدخول مرة أخرى.",
+      "unexpected": "حدث خطأ غير متوقع. حاول مرة أخرى."
+    },
+    "details": {
+      "eyebrow": "تفاصيل القسم",
+      "back": "العودة إلى الأقسام",
+      "edit": "تعديل القسم",
+      "delete": "حذف القسم",
+      "notFoundDescription": "ربما تم حذف هذا القسم أو أن الرابط غير صحيح.",
+      "errorTitle": "تعذّر تحميل هذا القسم",
+      "about": "عن هذا القسم",
+      "createdAt": "تاريخ الإنشاء",
+      "updatedAt": "آخر تحديث",
+      "employees": "الموظفون",
+      "employeesHint": "الموظفون المعيّنون حالياً في هذا القسم.",
+      "employeeCountUnavailable": "غير متاح",
+      "employeeCountError": "تعذّر تحميل عدد الموظفين.",
+      "readOnly": "يمكنك عرض هذا القسم. التعديل متاح لمسؤولي النظام والموارد البشرية فقط."
+    }
+  },
+  "Employees": {
+    "metadata": {
+      "title": "الموظفون | WorkTrack HR"
+    },
+    "eyebrow": "عمليات الأفراد",
+    "title": "الموظفون",
+    "subtitle": "تصفّح ملفات الموظفين، وصفِّهم حسب القسم أو الحالة، وحافظ على دليل الأفراد محدثاً.",
+    "create": "موظف جديد",
+    "readOnly": "يمكنك عرض بيانات الموظفين. التعديل متاح للمدير ومسؤول الموارد البشرية فقط.",
+    "view": "عرض الموظف",
+    "searchLabel": "بحث في الموظفين",
+    "searchPlaceholder": "ابحث بالاسم أو الرقم أو البريد الإلكتروني",
+    "departmentLabel": "القسم",
+    "allDepartments": "كل الأقسام",
+    "statusLabel": "الحالة",
+    "allStatuses": "كل الحالات",
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "sortLabel": "ترتيب حسب",
+    "sort": {
+      "employeeCode": "رقم الموظف",
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة",
+      "hireDate": "تاريخ التعيين",
+      "createdAt": "تاريخ الإضافة",
+      "updatedAt": "آخر تحديث"
+    },
+    "orderLabel": "الاتجاه",
+    "order": {
+      "asc": "تصاعدي",
+      "desc": "تنازلي"
+    },
+    "columns": {
+      "employee": "الموظف",
+      "department": "القسم",
+      "jobTitle": "المسمى الوظيفي",
+      "contact": "بيانات التواصل",
+      "status": "الحالة",
+      "hireDate": "تاريخ التعيين"
+    },
+    "noDepartment": "بدون قسم",
+    "noJobTitle": "بدون مسمى وظيفي",
+    "noContact": "لا توجد بيانات تواصل",
+    "validation": {
+      "employeeCodeRequired": "رقم الموظف مطلوب.",
+      "employeeCodeMax": "رقم الموظف يجب ألا يتجاوز 50 حرفاً.",
+      "firstNameRequired": "الاسم الأول مطلوب.",
+      "firstNameMax": "الاسم الأول يجب ألا يتجاوز 100 حرف.",
+      "lastNameRequired": "اسم العائلة مطلوب.",
+      "lastNameMax": "اسم العائلة يجب ألا يتجاوز 100 حرف.",
+      "emailInvalid": "أدخل بريداً إلكترونياً صالحاً.",
+      "phoneInvalid": "أدخل رقم هاتف صالحاً.",
+      "departmentRequired": "اختر القسم.",
+      "jobTitleMax": "المسمى الوظيفي يجب ألا يتجاوز 100 حرف.",
+      "hireDateRequired": "تاريخ التعيين مطلوب."
+    },
+    "empty": {
+      "title": "لا يوجد موظفون بعد",
+      "description": "سيظهر الموظفون هنا بعد إضافتهم.",
+      "searchTitle": "لا يوجد موظفون مطابقون",
+      "searchDescription": "جرّب كلمة بحث أخرى أو امسح عوامل التصفية.",
+      "clearFilters": "مسح عوامل التصفية"
+    },
+    "error": {
+      "title": "تعذّر تحميل الموظفين"
+    },
+    "retry": "إعادة المحاولة",
+    "errors": {
+      "network": "تعذّر الاتصال بالخادم. تحقق من اتصالك ثم حاول مرة أخرى.",
+      "timeout": "انتهت مهلة الاتصال بالخادم. حاول مرة أخرى.",
+      "notFound": "هذا الموظف لم يعد موجوداً.",
+      "codeExists": "يوجد موظف بهذا الرقم بالفعل.",
+      "emailExists": "يوجد موظف بهذا البريد الإلكتروني بالفعل.",
+      "hasRelatedRecords": "هذا الموظف لديه سجلات مرتبطة ولا يمكن حذفه.",
+      "departmentNotFound": "القسم المحدد لم يعد موجوداً.",
+      "validation": "تحقق من بيانات الموظف وحاول مرة أخرى.",
+      "forbidden": "ليس لديك صلاحية لتنفيذ هذا الإجراء.",
+      "unauthorized": "انتهت جلستك. سجّل الدخول مرة أخرى.",
+      "unexpected": "حدث خطأ غير متوقع. حاول مرة أخرى."
+    },
+    "form": {
+      "createTitle": "إضافة موظف",
+      "editTitle": "تعديل الموظف",
+      "createDescription": "أضف شخصاً جديداً إلى دليل الموظفين.",
+      "editDescription": "حدّث بيانات هذا الموظف وبيانات التعيين.",
+      "employeeCodeLabel": "رقم الموظف",
+      "employeeCodePlaceholder": "مثال: EMP-012",
+      "firstNameLabel": "الاسم الأول",
+      "firstNamePlaceholder": "مثال: عمر",
+      "lastNameLabel": "اسم العائلة",
+      "lastNamePlaceholder": "مثال: حسن",
+      "emailLabel": "البريد الإلكتروني",
+      "emailPlaceholder": "name@worktrack.com",
+      "phoneLabel": "الهاتف",
+      "phonePlaceholder": "+201001234567",
+      "departmentLabel": "القسم",
+      "departmentPlaceholder": "اختر القسم",
+      "departmentsUnavailable": "تعذّر تحميل الأقسام. حدّث الصفحة وحاول مرة أخرى.",
+      "jobTitleLabel": "المسمى الوظيفي",
+      "jobTitlePlaceholder": "مثال: أخصائي موارد بشرية",
+      "statusLabel": "الحالة",
+      "hireDateLabel": "تاريخ التعيين",
+      "cancel": "إلغاء",
+      "save": "حفظ الموظف",
+      "saving": "جارٍ الحفظ...",
+      "createSuccess": "تمت إضافة الموظف.",
+      "updateSuccess": "تم تحديث الموظف.",
+      "errorTitle": "تعذّر حفظ الموظف"
+    },
+    "details": {
+      "eyebrow": "ملف الموظف",
+      "back": "العودة إلى الموظفين",
+      "edit": "تعديل الموظف",
+      "notFoundDescription": "قد يكون هذا الموظف محذوفاً أو الرابط غير صحيح.",
+      "errorTitle": "تعذّر تحميل هذا الموظف",
+      "department": "القسم",
+      "email": "البريد الإلكتروني",
+      "phone": "الهاتف",
+      "hireDate": "تاريخ التعيين",
+      "createdAt": "تاريخ الإضافة",
+      "updatedAt": "آخر تحديث",
+      "noJobTitle": "بدون مسمى وظيفي",
+      "noEmail": "لا يوجد بريد إلكتروني",
+      "noPhone": "لا يوجد رقم هاتف",
+      "readOnly": "يمكنك عرض هذا الموظف. التعديل متاح للمدير ومسؤول الموارد البشرية فقط.",
+      "profileHint": "هذا الملف خاص بـ {name}. حافظ على بيانات التعيين والتواصل محدثة."
+    }
+  },
+  "AttendanceLogs": {
+    "metadata": {
+      "title": "سجلات الحضور | WorkTrack HR"
+    },
+    "eyebrow": "عمليات الحضور",
+    "title": "سجلات الحضور",
+    "subtitle": "راجع أحداث الدخول والخروج الخام، وصفّها حسب الموظف أو التاريخ، وتابع طريقة تسجيل كل حدث.",
+    "employeeLabel": "الموظف",
+    "employeePlaceholder": "ابحث بالاسم أو الكود أو البريد الإلكتروني",
+    "employeeSearchLoading": "جارٍ البحث عن الموظفين...",
+    "employeeSearchEmpty": "لا يوجد موظفون مطابقون لهذا البحث.",
+    "employeeSearchError": "تعذّر تحميل اقتراحات الموظفين.",
+    "clearEmployee": "مسح فلتر الموظف",
+    "fromLabel": "من تاريخ",
+    "toLabel": "إلى تاريخ",
+    "typeLabel": "نوع الحدث",
+    "allTypes": "كل الأحداث",
+    "type": {
+      "CHECK_IN": "دخول",
+      "CHECK_OUT": "خروج"
+    },
+    "sourceLabel": "المصدر",
+    "allSources": "كل المصادر",
+    "source": {
+      "MANUAL": "يدوي",
+      "CSV": "CSV",
+      "SYSTEM": "النظام"
+    },
+    "sortLabel": "ترتيب حسب",
+    "sort": {
+      "timestamp": "وقت الحدث",
+      "createdAt": "تاريخ الإضافة"
+    },
+    "orderLabel": "الاتجاه",
+    "order": {
+      "asc": "تصاعدي",
+      "desc": "تنازلي"
+    },
+    "columns": {
+      "employee": "الموظف",
+      "event": "الحدث",
+      "timestamp": "الوقت",
+      "source": "المصدر",
+      "recordedBy": "سجّله"
+    },
+    "viewEmployee": "عرض الموظف",
+    "noJobTitle": "بدون مسمى وظيفي",
+    "systemActor": "النظام",
+    "empty": {
+      "title": "لا توجد سجلات حضور بعد",
+      "description": "ستظهر أحداث الدخول والخروج الخام هنا بعد تسجيلها.",
+      "filteredTitle": "لا توجد سجلات مطابقة",
+      "filteredDescription": "جرّب موظفاً أو نطاق تاريخ أو نوع حدث مختلفاً.",
+      "clearFilters": "مسح الفلاتر"
+    },
+    "error": {
+      "title": "تعذّر تحميل سجلات الحضور"
+    },
+    "retry": "حاول مرة أخرى",
+    "errors": {
+      "network": "تعذّر الاتصال بالخادم. تحقق من اتصالك ثم حاول مرة أخرى.",
+      "timeout": "انتهت مهلة الاتصال بالخادم. حاول مرة أخرى.",
+      "unauthorized": "انتهت صلاحية الجلسة. سجّل الدخول مرة أخرى.",
+      "forbidden": "ليست لديك صلاحية لعرض سجلات الحضور.",
+      "validation": "تحقق من الفلاتر المحددة ثم حاول مرة أخرى.",
+      "unexpected": "حدث خطأ غير متوقع. حاول مرة أخرى."
+    }
+  },
+  "AttendanceProcess": {
+    "metadata": {
+      "title": "معالجة الحضور | WorkTrack HR"
+    },
+    "eyebrow": "عمليات الحضور",
+    "title": "معالجة الحضور",
+    "subtitle": "شغّل حساب الحضور يدوياً ليوم واحد أو لنطاق تاريخ، ثم تابع المهام التي تمت جدولتها.",
+    "infoTitle": "كيف تعمل المعالجة اليدوية",
+    "infoDescription": "يتم وضع كل تاريخ محدد في مهمة خلفية. تظهر النتائج في سجلات الحضور بعد اكتمال المعالجة.",
+    "cardTitle": "تشغيل يدوي",
+    "cardDescription": "اختر يوماً واحداً أو نطاقاً لا يتجاوز 31 يوماً. تتم المعالجة في الخلفية.",
+    "modeLabel": "وضع المعالجة",
+    "mode": {
+      "single": "يوم واحد",
+      "range": "نطاق تاريخ"
+    },
+    "dateLabel": "تاريخ الحضور",
+    "fromLabel": "من تاريخ",
+    "toLabel": "إلى تاريخ",
+    "submit": "معالجة الحضور",
+    "processing": "جارٍ الجدولة...",
+    "successTitle": "تمت جدولة معالجة الحضور",
+    "successDescription": "تمت جدولة {count} يوم للمعالجة. ستتحدث السجلات بعد اكتمال المهمة الخلفية.",
+    "datesLabel": "التواريخ المجدولة",
+    "viewRecords": "عرض سجلات الحضور",
+    "errorTitle": "تعذّر جدولة معالجة الحضور",
+    "validation": {
+      "dateRequired": "اختر تاريخ الحضور.",
+      "fromRequired": "اختر تاريخ البداية.",
+      "toRequired": "اختر تاريخ النهاية.",
+      "rangeInvalid": "يجب أن يكون تاريخ النهاية في تاريخ البداية أو بعده.",
+      "rangeTooLong": "يجب ألا يتجاوز نطاق التاريخ 31 يوماً."
+    },
+    "errors": {
+      "network": "تعذّر الاتصال بالخادم. تحقق من اتصالك ثم حاول مرة أخرى.",
+      "timeout": "انتهت مهلة الاتصال بالخادم. حاول مرة أخرى.",
+      "queueUnavailable": "قائمة معالجة الحضور غير متاحة. حاول مرة أخرى بعد قليل.",
+      "unauthorized": "انتهت صلاحية الجلسة. سجّل الدخول مرة أخرى.",
+      "forbidden": "ليست لديك صلاحية لمعالجة الحضور.",
+      "validation": "تحقق من التواريخ المحددة وحاول مرة أخرى.",
+      "unexpected": "حدث خطأ غير متوقع. حاول مرة أخرى."
+    }
+  },
+  "AttendanceRecords": {
+    "metadata": {
+      "title": "سجلات الحضور المحسوبة | WorkTrack HR"
+    },
+    "eyebrow": "عمليات الحضور",
+    "title": "سجلات الحضور المحسوبة",
+    "subtitle": "راجع سجلات الحضور اليومية المحسوبة، وصفّها حسب الموظف أو التاريخ أو الحالة، وأدر تفاصيلها.",
+    "create": "سجل جديد",
+    "readOnly": "يمكنك عرض سجلات الحضور. التعديل متاح لمسؤولي النظام والموارد البشرية فقط.",
+    "employeeLabel": "الموظف",
+    "employeePlaceholder": "ابحث بالاسم أو الكود أو البريد الإلكتروني",
+    "employeeSearchLoading": "جارٍ البحث عن الموظفين...",
+    "employeeSearchEmpty": "لا يوجد موظفون مطابقون لهذا البحث.",
+    "employeeSearchError": "تعذّر تحميل اقتراحات الموظفين.",
+    "clearEmployee": "مسح فلتر الموظف",
+    "fromLabel": "من تاريخ",
+    "toLabel": "إلى تاريخ",
+    "statusLabel": "الحالة",
+    "allStatuses": "كل الحالات",
+    "status": {
+      "PRESENT": "حاضر",
+      "ABSENT": "غائب",
+      "LATE": "متأخر",
+      "HALF_DAY": "نصف يوم",
+      "ON_LEAVE": "إجازة"
+    },
+    "sortLabel": "ترتيب حسب",
+    "sort": {
+      "date": "تاريخ الحضور",
+      "createdAt": "تاريخ الإضافة",
+      "updatedAt": "آخر تحديث"
+    },
+    "orderLabel": "الاتجاه",
+    "order": {
+      "asc": "تصاعدي",
+      "desc": "تنازلي"
+    },
+    "columns": {
+      "employee": "الموظف",
+      "date": "التاريخ",
+      "checkIn": "الدخول",
+      "checkOut": "الخروج",
+      "working": "ساعات العمل",
+      "status": "الحالة",
+      "actions": "الإجراءات"
+    },
+    "viewEmployee": "عرض الموظف",
+    "edit": "تعديل السجل",
+    "delete": "حذف السجل",
+    "noJobTitle": "بدون مسمى وظيفي",
+    "noShift": "بدون وردية",
+    "noTime": "—",
+    "empty": {
+      "title": "لا توجد سجلات حضور محسوبة بعد",
+      "description": "ستظهر سجلات الحضور اليومية المحسوبة هنا بعد معالجتها.",
+      "filteredTitle": "لا توجد سجلات مطابقة",
+      "filteredDescription": "جرّب موظفاً أو نطاق تاريخ أو حالة مختلفة.",
+      "clearFilters": "مسح الفلاتر"
+    },
+    "error": {
+      "title": "تعذّر تحميل سجلات الحضور"
+    },
+    "retry": "حاول مرة أخرى",
+    "validation": {
+      "employeeRequired": "اختر موظفاً.",
+      "dateRequired": "تاريخ الحضور مطلوب.",
+      "timeInvalid": "أدخل وقتاً صحيحاً.",
+      "checkOutBeforeCheckIn": "يجب أن يكون وقت الخروج بعد وقت الدخول أو مساوياً له.",
+      "minutesInvalid": "أدخل عدداً صحيحاً من الدقائق.",
+      "minutesMax": "يجب ألا تتجاوز الدقائق 10080.",
+      "notesMax": "يجب ألا تتجاوز الملاحظات 1000 حرف."
+    },
+    "form": {
+      "createTitle": "إنشاء سجل حضور",
+      "editTitle": "تعديل سجل الحضور",
+      "createDescription": "أضف سجل حضور يومياً لموظف.",
+      "editDescription": "حدّث تفاصيل الحضور لهذا السجل.",
+      "assignmentSection": "التعيين",
+      "timingSection": "التوقيت",
+      "employeeLabel": "الموظف",
+      "employeePlaceholder": "اختر موظفاً",
+      "employeeUnavailable": "تعذّر تحميل الموظفين.",
+      "shiftLabel": "الوردية",
+      "shiftPlaceholder": "بدون وردية",
+      "shiftUnavailable": "تعذّر تحميل الورديات.",
+      "dateLabel": "تاريخ الحضور",
+      "statusLabel": "الحالة",
+      "checkInLabel": "وقت الدخول",
+      "checkOutLabel": "وقت الخروج",
+      "workingMinutesLabel": "دقائق العمل",
+      "workingMinutesHint": "اتركه فارغاً لحسابه من وقت الدخول والخروج.",
+      "lateMinutesLabel": "دقائق التأخير",
+      "earlyLeaveMinutesLabel": "دقائق الانصراف المبكر",
+      "overtimeMinutesLabel": "دقائق العمل الإضافي",
+      "notesLabel": "ملاحظات",
+      "notesPlaceholder": "سياق اختياري لهذا السجل",
+      "notesHint": "حتى 1000 حرف.",
+      "cancel": "إلغاء",
+      "save": "حفظ السجل",
+      "saving": "جارٍ الحفظ...",
+      "createSuccess": "تم إنشاء سجل الحضور.",
+      "updateSuccess": "تم تحديث سجل الحضور.",
+      "errorTitle": "تعذّر حفظ سجل الحضور"
+    },
+    "delete": {
+      "title": "حذف سجل الحضور؟",
+      "description": "سيتم حذف سجل حضور {name} بتاريخ {date} نهائياً. لا يمكن التراجع عن هذا الإجراء.",
+      "confirm": "حذف السجل",
+      "deleting": "جارٍ الحذف...",
+      "success": "تم حذف سجل الحضور.",
+      "errorTitle": "تعذّر حذف سجل الحضور",
+      "cancel": "الإبقاء على السجل"
+    },
+    "errors": {
+      "network": "تعذّر الاتصال بالخادم. تحقق من اتصالك ثم حاول مرة أخرى.",
+      "timeout": "انتهت مهلة الاتصال بالخادم. حاول مرة أخرى.",
+      "exists": "يوجد سجل حضور لهذا الموظف في هذا التاريخ بالفعل.",
+      "unauthorized": "انتهت صلاحية الجلسة. سجّل الدخول مرة أخرى.",
+      "forbidden": "ليست لديك صلاحية لتعديل سجلات الحضور.",
+      "validation": "تحقق من بيانات السجل وحاول مرة أخرى.",
+      "unexpected": "حدث خطأ غير متوقع. حاول مرة أخرى."
+    }
+  },
+  "Login": {
+    "hero": {
+      "eyebrow": "منصة الموارد البشرية",
+      "title": "إدارة يوم العمل تبدأ من هنا.",
+      "description": "من الحضور إلى الإجازات، اجمع عمليات فريقك في مساحة واحدة هادئة وواضحة."
+    },
+    "features": {
+      "attendance": {
+        "title": "حضور دقيق",
+        "description": "تابع الدخول والخروج والتأخير والانصراف المبكر من مكان واحد."
+      },
+      "people": {
+        "title": "فريقك في صورة واضحة",
+        "description": "نظّم الموظفين والأقسام والورديات بدون جداول متفرقة."
+      },
+      "insights": {
+        "title": "قرارات أسرع",
+        "description": "مؤشرات الموارد البشرية والاتجاهات اليومية أمامك مباشرة."
+      }
+    },
+    "eyebrow": "مساحة عمل آمنة",
+    "title": "أهلاً بعودتك",
+    "subtitle": "سجّل الدخول لمتابعة الحضور، الموظفين، وكل عمليات الموارد البشرية اليومية.",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "name@company.com",
+    "passwordLabel": "كلمة المرور",
+    "passwordPlaceholder": "أدخل كلمة المرور",
+    "showPassword": "إظهار كلمة المرور",
+    "hidePassword": "إخفاء كلمة المرور",
+    "submit": "تسجيل الدخول",
+    "submitting": "جارٍ تسجيل الدخول...",
+    "support": "محتاج وصول؟ تواصل مع مسؤول الموارد البشرية.",
+    "errorTitle": "تعذّر تسجيل الدخول",
+    "successTitle": "تم تسجيل الدخول",
+    "successMessage": "أهلاً بعودتك، {name}.",
+    "footer": "بياناتك محمية ومشفّرة أثناء النقل.",
+    "validation": {
+      "emailRequired": "البريد الإلكتروني مطلوب.",
+      "emailInvalid": "أدخل بريداً إلكترونياً صحيحاً.",
+      "passwordRequired": "كلمة المرور مطلوبة."
+    },
+    "errors": {
+      "network": "تعذّر الاتصال بالخادم. تحقق من اتصالك ثم حاول مرة أخرى.",
+      "timeout": "انتهت مهلة الاتصال بالخادم. حاول مرة أخرى.",
+      "unexpected": "حدث خطأ غير متوقع. حاول مرة أخرى.",
+      "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+      "rateLimited": "محاولات كثيرة. حاول مرة أخرى بعد {seconds} ثانية.",
+      "validation": "تحقق من البيانات المدخلة وحاول مرة أخرى."
+    }
+  },
+  "Home": {
+    "signedIn": "تم تسجيل الدخول",
+    "welcome": "أهلاً، {name}",
+    "subtitle": "جلستك جاهزة. الخطوة التالية هي بناء لوحة التحكم.",
+    "role": "الدور",
+    "department": "القسم",
+    "notAssigned": "غير مرتبط بقسم",
+    "roles": {
+      "ADMIN": "مدير النظام",
+      "HR": "موارد بشرية",
+      "MANAGER": "مدير قسم"
+    },
+    "logout": "تسجيل الخروج",
+    "loggingOut": "جارٍ الخروج...",
+    "nextStep": "الخطوة التالية: لوحة التحكم",
+    "logoutSuccess": "تم تسجيل الخروج بنجاح.",
+    "logoutError": "تم مسح الجلسة محلياً، لكن تعذّر إبلاغ الخادم."
+  },
+  "Shell": {
+    "navigation": "التنقل",
+    "workspace": "مساحة العمل",
+    "skipToContent": "الانتقال إلى المحتوى",
+    "openMenu": "فتح القائمة",
+    "closeMenu": "إغلاق القائمة",
+    "collapseSidebar": "تصغير الشريط الجانبي",
+    "expandSidebar": "توسيع الشريط الجانبي",
+    "userMenu": "قائمة المستخدم",
+    "logout": "تسجيل الخروج",
+    "loggingOut": "جارٍ الخروج...",
+    "logoutSuccess": "تم تسجيل الخروج بنجاح.",
+    "logoutError": "تم مسح الجلسة محلياً، لكن تعذّر إبلاغ الخادم.",
+    "moduleEyebrow": "وحدة WorkTrack",
+    "moduleNotice": "هذه الوحدة جاهزة داخل هيكل التطبيق، وسيتم استكمال شاشاتها في المهمة التالية.",
+    "groups": {
+      "overview": "نظرة عامة",
+      "people": "الأفراد",
+      "attendance": "الحضور",
+      "administration": "الإدارة"
+    },
+    "nav": {
+      "dashboard": "لوحة التحكم",
+      "hrKpi": "مؤشرات الموارد البشرية",
+      "employees": "الموظفون",
+      "departments": "الأقسام",
+      "shifts": "الورديات",
+      "leaves": "الإجازات",
+      "attendanceLogs": "سجلات الحضور",
+      "attendanceRecords": "سجلات الحضور المحسوبة",
+      "attendanceProcess": "معالجة الحضور",
+      "uploads": "الرفع والاستيراد",
+      "auditLogs": "سجل التدقيق"
+    },
+    "moduleDescriptions": {
+      "dashboard": "ملخص سريع لحالة القوى العاملة والحضور.",
+      "hrKpi": "مؤشرات الموارد البشرية وأعلى الموظفين تأخراً.",
+      "employees": "إدارة ملفات الموظفين وبياناتهم.",
+      "departments": "تنظيم الأقسام وربط الموظفين بها.",
+      "shifts": "تعريف الورديات وتعيينها للموظفين.",
+      "leaves": "إدارة الإجازات والتقويم.",
+      "attendanceLogs": "سجلات الدخول والخروج الخام.",
+      "attendanceRecords": "سجلات الحضور المحسوبة يومياً.",
+      "attendanceProcess": "تشغيل حساب الحضور يدوياً.",
+      "uploads": "استيراد الموظفين والحضور من CSV.",
+      "auditLogs": "متابعة العمليات والتغييرات في النظام."
+    }
+  }
+}

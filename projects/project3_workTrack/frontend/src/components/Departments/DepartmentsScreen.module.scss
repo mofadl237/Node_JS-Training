@@ -1,0 +1,14 @@
+@use "../../styles" as *;
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  @include fade-up(480ms);
+}
+
+@include respond("sm") {
+  .screen {
+    gap: 16px;
+  }
+}

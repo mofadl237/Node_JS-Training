@@ -1,0 +1,1 @@
+export const ATTENDANCE_LOGS_PAGE_SIZE = 20;

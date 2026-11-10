@@ -1,0 +1,11 @@
+@mixin fade-up($duration: 560ms, $delay: 0ms) {
+  animation: fade-up $duration cubic-bezier(0.22, 1, 0.36, 1) $delay both;
+}
+
+@mixin fade-in($duration: 420ms, $delay: 0ms) {
+  animation: fade-in $duration ease $delay both;
+}
+
+@mixin float-in($duration: 700ms, $delay: 0ms) {
+  animation: float-in $duration cubic-bezier(0.22, 1, 0.36, 1) $delay both;
+}

@@ -1,0 +1,189 @@
+@use "../../styles" as *;
+
+.wrapper {
+  overflow-x: auto;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.table {
+  width: 100%;
+  min-width: 920px;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 14px 16px;
+    text-align: start;
+    vertical-align: middle;
+  }
+
+  th {
+    color: var(--color-ink-soft);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--color-surface-sunken);
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  td {
+    color: var(--color-ink-muted);
+    font-size: 0.86rem;
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  tbody tr:last-child td {
+    border-block-end: 0;
+  }
+}
+
+.row {
+  transition: background-color var(--transition-fast);
+
+  &:hover {
+    background: var(--color-brand-soft);
+  }
+}
+
+.employeeCell {
+  min-width: 180px;
+}
+
+.employeeName {
+  display: block;
+  width: fit-content;
+  color: var(--color-ink);
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast);
+
+  &:hover {
+    color: var(--color-brand);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.employeeCode {
+  display: block;
+  margin-block-start: 2px;
+  color: var(--color-ink-soft);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.departmentCell {
+  min-width: 140px;
+}
+
+.jobTitleCell {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contactCell {
+  min-width: 220px;
+}
+
+.contactLine {
+  display: block;
+  color: var(--color-ink-muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.statusCell {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.active {
+  color: var(--color-success);
+  background: var(--color-success-soft);
+}
+
+.inactive {
+  color: var(--color-ink-soft);
+  background: var(--color-surface-sunken);
+}
+
+.dateCell {
+  white-space: nowrap;
+}
+
+.skeletonShort {
+  width: 64px;
+}
+
+.skeletonName {
+  width: 130px;
+  height: 16px;
+}
+
+.skeletonCode {
+  width: 76px;
+  height: 10px;
+  margin-block-start: 6px;
+}
+
+.skeletonDepartment {
+  width: 110px;
+}
+
+.skeletonJobTitle {
+  width: 120px;
+}
+
+.skeletonContact {
+  width: 180px;
+}
+
+.skeletonStatus {
+  width: 74px;
+  height: 24px;
+}
+
+.skeletonDate {
+  width: 92px;
+}
+
+@include respond("md") {
+  .table {
+    min-width: 720px;
+  }
+
+  .jobTitleCell {
+    display: none;
+  }
+}
+
+@include respond("sm") {
+  .table {
+    min-width: 560px;
+  }
+
+  .contactCell {
+    display: none;
+  }
+}

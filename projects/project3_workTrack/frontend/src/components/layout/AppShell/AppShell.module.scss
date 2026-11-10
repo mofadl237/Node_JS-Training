@@ -1,0 +1,73 @@
+@use "../../../styles" as *;
+
+.shell {
+  --sidebar-width: 286px;
+
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  min-height: 100svh;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(201, 119, 45, 0.06), transparent 26%),
+    var(--color-surface);
+  transition: grid-template-columns var(--transition-base);
+}
+
+.collapsed {
+  --sidebar-width: 88px;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100svh;
+}
+
+.content {
+  flex: 1;
+  width: 100%;
+  max-width: 1240px;
+  padding: clamp(20px, 3vw, 38px);
+  margin-inline: auto;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: none;
+  padding: 0;
+  background: rgba(7, 16, 14, 0.5);
+  border: 0;
+  cursor: pointer;
+  backdrop-filter: blur(2px);
+}
+
+.skipLink {
+  position: fixed;
+  inset-block-start: 12px;
+  inset-inline-start: 12px;
+  z-index: 100;
+  padding: 10px 14px;
+  color: var(--color-surface-raised);
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: var(--color-brand);
+  border-radius: var(--radius-pill);
+  transform: translateY(-160%);
+  transition: transform var(--transition-fast);
+
+  &:focus-visible {
+    transform: translateY(0);
+  }
+}
+
+@include respond("lg") {
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .overlay {
+    display: block;
+  }
+}

@@ -1,0 +1,18 @@
+@use "../../../styles" as *;
+
+.loader {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  color: var(--color-brand);
+  background: var(--color-surface);
+}
+
+.label {
+  color: var(--color-ink-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}

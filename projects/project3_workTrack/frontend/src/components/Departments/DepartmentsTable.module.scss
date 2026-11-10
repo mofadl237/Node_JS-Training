@@ -1,0 +1,137 @@
+@use "../../styles" as *;
+
+.wrapper {
+  overflow-x: auto;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 14px 16px;
+    text-align: start;
+    vertical-align: middle;
+  }
+
+  th {
+    color: var(--color-ink-soft);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--color-surface-sunken);
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  td {
+    color: var(--color-ink-muted);
+    font-size: 0.86rem;
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  tbody tr:last-child td {
+    border-block-end: 0;
+  }
+}
+
+.row {
+  transition: background-color var(--transition-fast);
+
+  &:hover {
+    background: var(--color-brand-soft);
+  }
+}
+
+.nameCell {
+  min-width: 180px;
+}
+
+.nameLink {
+  color: var(--color-ink);
+  font-weight: 700;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--color-brand);
+    text-decoration: underline;
+  }
+}
+
+.descriptionCell {
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dateCell {
+  white-space: nowrap;
+}
+
+.actionsCell {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.iconButton {
+  @include icon-button;
+
+  width: 34px;
+  height: 34px;
+  margin-inline-end: 4px;
+  color: var(--color-ink-soft);
+  border-radius: var(--radius-pill);
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+
+  &:hover {
+    color: var(--color-brand);
+    background: var(--color-surface-raised);
+  }
+}
+
+.danger:hover {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+.skeletonShort {
+  width: 64px;
+}
+
+.skeletonName {
+  width: 130px;
+  height: 16px;
+}
+
+.skeletonDescription {
+  width: 220px;
+}
+
+.skeletonDate {
+  width: 92px;
+}
+
+.skeletonActions {
+  width: 80px;
+  height: 24px;
+}
+
+@include respond("md") {
+  .table {
+    min-width: 520px;
+  }
+
+  .descriptionCell,
+  .dateCell:nth-child(4) {
+    display: none;
+  }
+}

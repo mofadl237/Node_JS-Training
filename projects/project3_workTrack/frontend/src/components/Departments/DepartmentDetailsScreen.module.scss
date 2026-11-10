@@ -1,0 +1,49 @@
+@use "../../styles" as *;
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  @include fade-up(480ms);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.backLink {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 46px;
+  padding-inline: 8px;
+  color: var(--color-ink-muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+
+  &:hover {
+    color: var(--color-brand);
+    background: var(--color-brand-soft);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+@include respond("sm") {
+  .screen {
+    gap: 16px;
+  }
+
+  .actions {
+    width: 100%;
+  }
+}

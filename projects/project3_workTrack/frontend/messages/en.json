@@ -1,0 +1,608 @@
+{
+  "Metadata": {
+    "title": "WorkTrack HR | Workspace",
+    "description": "A focused workspace for attendance, people, and everyday HR operations."
+  },
+  "Common": {
+    "brandName": "WorkTrack HR",
+    "brandTagline": "People operations workspace",
+    "languageName": "العربية",
+    "languageCode": "AR",
+    "switchLanguage": "Switch language to Arabic",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode",
+    "loading": "Loading...",
+    "close": "Close",
+    "pagination": {
+      "label": "Pagination",
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {page} of {totalPages}"
+    }
+  },
+  "Departments": {
+    "metadata": {
+      "title": "Departments | WorkTrack HR"
+    },
+    "eyebrow": "People operations",
+    "title": "Departments",
+    "subtitle": "Organize teams, keep department details current, and connect people to the right structure.",
+    "create": "New department",
+    "readOnly": "You can view department details. Only administrators and HR can make changes.",
+    "searchLabel": "Search departments",
+    "searchPlaceholder": "Search by name or description",
+    "sortLabel": "Sort by",
+    "sort": {
+      "name": "Name",
+      "createdAt": "Date created",
+      "updatedAt": "Last updated"
+    },
+    "orderLabel": "Order",
+    "order": {
+      "asc": "Ascending",
+      "desc": "Descending"
+    },
+    "columns": {
+      "name": "Department",
+      "description": "Description",
+      "createdAt": "Created",
+      "updatedAt": "Updated",
+      "actions": "Actions"
+    },
+    "noDescription": "No description",
+    "view": "View department",
+    "edit": "Edit department",
+    "delete": "Delete department",
+    "empty": {
+      "title": "No departments yet",
+      "description": "Create the first department to start organizing your teams.",
+      "searchTitle": "No matching departments",
+      "searchDescription": "Try a different search term or clear the filters."
+    },
+    "error": {
+      "title": "We couldn't load departments"
+    },
+    "retry": "Try again",
+    "validation": {
+      "nameRequired": "Department name is required.",
+      "nameMin": "Department name must be at least 2 characters.",
+      "nameMax": "Department name must not exceed 100 characters.",
+      "descriptionMax": "Description must not exceed 500 characters."
+    },
+    "form": {
+      "createTitle": "Create department",
+      "editTitle": "Edit department",
+      "createDescription": "Add a department to keep your teams organized.",
+      "editDescription": "Update the department name or description.",
+      "nameLabel": "Department name",
+      "namePlaceholder": "e.g. Engineering",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "What does this department do?",
+      "descriptionHint": "Up to 500 characters.",
+      "cancel": "Cancel",
+      "save": "Save department",
+      "saving": "Saving...",
+      "createSuccess": "Department created.",
+      "updateSuccess": "Department updated.",
+      "errorTitle": "We couldn't save the department"
+    },
+    "delete": {
+      "title": "Delete department?",
+      "description": "This will permanently delete {name}. This action cannot be undone.",
+      "confirm": "Delete department",
+      "deleting": "Deleting...",
+      "success": "Department deleted.",
+      "errorTitle": "We couldn't delete the department",
+      "cancel": "Keep department"
+    },
+    "errors": {
+      "network": "We couldn't reach the server. Check your connection and try again.",
+      "timeout": "The server took too long to respond. Try again.",
+      "exists": "A department with this name already exists.",
+      "notFound": "This department no longer exists.",
+      "hasEmployees": "This department still has employees. Reassign them before deleting it.",
+      "validation": "Check the department details and try again.",
+      "forbidden": "You don't have permission to perform this action.",
+      "unauthorized": "Your session has expired. Sign in again.",
+      "unexpected": "Something went wrong. Try again."
+    },
+    "details": {
+      "eyebrow": "Department details",
+      "back": "Back to departments",
+      "edit": "Edit department",
+      "delete": "Delete department",
+      "notFoundDescription": "This department may have been deleted or the link is incorrect.",
+      "errorTitle": "We couldn't load this department",
+      "about": "About this department",
+      "createdAt": "Created",
+      "updatedAt": "Last updated",
+      "employees": "Employees",
+      "employeesHint": "People currently assigned to this department.",
+      "employeeCountUnavailable": "Unavailable",
+      "employeeCountError": "Couldn't load the employee count.",
+      "readOnly": "You can view this department. Only administrators and HR can make changes."
+    }
+  },
+  "Employees": {
+    "metadata": {
+      "title": "Employees | WorkTrack HR"
+    },
+    "eyebrow": "People operations",
+    "title": "Employees",
+    "subtitle": "Browse employee profiles, filter by department or status, and keep the people directory current.",
+    "create": "New employee",
+    "readOnly": "You can view employee details. Only administrators and HR can make changes.",
+    "view": "View employee",
+    "searchLabel": "Search employees",
+    "searchPlaceholder": "Search by name, code, or email",
+    "departmentLabel": "Department",
+    "allDepartments": "All departments",
+    "statusLabel": "Status",
+    "allStatuses": "All statuses",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "sortLabel": "Sort by",
+    "sort": {
+      "employeeCode": "Employee code",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "hireDate": "Hire date",
+      "createdAt": "Date added",
+      "updatedAt": "Last updated"
+    },
+    "orderLabel": "Order",
+    "order": {
+      "asc": "Ascending",
+      "desc": "Descending"
+    },
+    "columns": {
+      "employee": "Employee",
+      "department": "Department",
+      "jobTitle": "Job title",
+      "contact": "Contact",
+      "status": "Status",
+      "hireDate": "Hire date"
+    },
+    "noDepartment": "No department",
+    "noJobTitle": "No job title",
+    "noContact": "No contact details",
+    "validation": {
+      "employeeCodeRequired": "Employee code is required.",
+      "employeeCodeMax": "Employee code must not exceed 50 characters.",
+      "firstNameRequired": "First name is required.",
+      "firstNameMax": "First name must not exceed 100 characters.",
+      "lastNameRequired": "Last name is required.",
+      "lastNameMax": "Last name must not exceed 100 characters.",
+      "emailInvalid": "Enter a valid email address.",
+      "phoneInvalid": "Enter a valid phone number.",
+      "departmentRequired": "Select a department.",
+      "jobTitleMax": "Job title must not exceed 100 characters.",
+      "hireDateRequired": "Hire date is required."
+    },
+    "empty": {
+      "title": "No employees yet",
+      "description": "Employees will appear here once they are added.",
+      "searchTitle": "No matching employees",
+      "searchDescription": "Try a different search term or clear the filters.",
+      "clearFilters": "Clear filters"
+    },
+    "error": {
+      "title": "We couldn't load employees"
+    },
+    "retry": "Try again",
+    "errors": {
+      "network": "We couldn't reach the server. Check your connection and try again.",
+      "timeout": "The server took too long to respond. Try again.",
+      "notFound": "This employee no longer exists.",
+      "codeExists": "An employee with this code already exists.",
+      "emailExists": "An employee with this email already exists.",
+      "hasRelatedRecords": "This employee has related records and cannot be deleted.",
+      "departmentNotFound": "The selected department no longer exists.",
+      "validation": "Check the employee details and try again.",
+      "forbidden": "You don't have permission to perform this action.",
+      "unauthorized": "Your session has expired. Sign in again.",
+      "unexpected": "Something went wrong. Try again."
+    },
+    "form": {
+      "createTitle": "Add employee",
+      "editTitle": "Edit employee",
+      "createDescription": "Add a new person to the employee directory.",
+      "editDescription": "Update this employee's profile and employment details.",
+      "employeeCodeLabel": "Employee code",
+      "employeeCodePlaceholder": "e.g. EMP-012",
+      "firstNameLabel": "First name",
+      "firstNamePlaceholder": "e.g. Omar",
+      "lastNameLabel": "Last name",
+      "lastNamePlaceholder": "e.g. Hassan",
+      "emailLabel": "Email",
+      "emailPlaceholder": "name@worktrack.com",
+      "phoneLabel": "Phone",
+      "phonePlaceholder": "+201001234567",
+      "departmentLabel": "Department",
+      "departmentPlaceholder": "Select a department",
+      "departmentsUnavailable": "Couldn't load departments. Refresh and try again.",
+      "jobTitleLabel": "Job title",
+      "jobTitlePlaceholder": "e.g. HR Specialist",
+      "statusLabel": "Status",
+      "hireDateLabel": "Hire date",
+      "cancel": "Cancel",
+      "save": "Save employee",
+      "saving": "Saving...",
+      "createSuccess": "Employee added.",
+      "updateSuccess": "Employee updated.",
+      "errorTitle": "We couldn't save the employee"
+    },
+    "details": {
+      "eyebrow": "Employee profile",
+      "back": "Back to employees",
+      "edit": "Edit employee",
+      "notFoundDescription": "This employee may have been removed or the link is incorrect.",
+      "errorTitle": "We couldn't load this employee",
+      "department": "Department",
+      "email": "Email",
+      "phone": "Phone",
+      "hireDate": "Hire date",
+      "createdAt": "Added",
+      "updatedAt": "Last updated",
+      "noJobTitle": "No job title",
+      "noEmail": "No email address",
+      "noPhone": "No phone number",
+      "readOnly": "You can view this employee. Only administrators and HR can make changes.",
+      "profileHint": "This profile belongs to {name}. Keep employment and contact details up to date."
+    }
+  },
+  "AttendanceLogs": {
+    "metadata": {
+      "title": "Attendance logs | WorkTrack HR"
+    },
+    "eyebrow": "Attendance operations",
+    "title": "Attendance logs",
+    "subtitle": "Review raw check-in and check-out events, narrow them by employee or date, and keep an eye on how each event was captured.",
+    "employeeLabel": "Employee",
+    "employeePlaceholder": "Search by name, code, or email",
+    "employeeSearchLoading": "Searching employees...",
+    "employeeSearchEmpty": "No employees match this search.",
+    "employeeSearchError": "We couldn't load employee suggestions.",
+    "clearEmployee": "Clear employee filter",
+    "fromLabel": "From date",
+    "toLabel": "To date",
+    "typeLabel": "Event type",
+    "allTypes": "All events",
+    "type": {
+      "CHECK_IN": "Check-in",
+      "CHECK_OUT": "Check-out"
+    },
+    "sourceLabel": "Source",
+    "allSources": "All sources",
+    "source": {
+      "MANUAL": "Manual",
+      "CSV": "CSV",
+      "SYSTEM": "System"
+    },
+    "sortLabel": "Sort by",
+    "sort": {
+      "timestamp": "Event time",
+      "createdAt": "Date added"
+    },
+    "orderLabel": "Order",
+    "order": {
+      "asc": "Ascending",
+      "desc": "Descending"
+    },
+    "columns": {
+      "employee": "Employee",
+      "event": "Event",
+      "timestamp": "Timestamp",
+      "source": "Source",
+      "recordedBy": "Recorded by"
+    },
+    "viewEmployee": "View employee",
+    "noJobTitle": "No job title",
+    "systemActor": "System",
+    "empty": {
+      "title": "No attendance logs yet",
+      "description": "Raw check-in and check-out events will appear here once they are recorded.",
+      "filteredTitle": "No matching logs",
+      "filteredDescription": "Try a different employee, date range, or event type.",
+      "clearFilters": "Clear filters"
+    },
+    "error": {
+      "title": "We couldn't load attendance logs"
+    },
+    "retry": "Try again",
+    "errors": {
+      "network": "We couldn't reach the server. Check your connection and try again.",
+      "timeout": "The server took too long to respond. Try again.",
+      "unauthorized": "Your session has expired. Sign in again.",
+      "forbidden": "You don't have permission to view attendance logs.",
+      "validation": "Check the selected filters and try again.",
+      "unexpected": "Something went wrong. Try again."
+    }
+  },
+  "AttendanceProcess": {
+    "metadata": {
+      "title": "Attendance process | WorkTrack HR"
+    },
+    "eyebrow": "Attendance operations",
+    "title": "Attendance process",
+    "subtitle": "Run attendance calculation manually for a single day or a date range, then follow the queued work.",
+    "infoTitle": "How manual processing works",
+    "infoDescription": "Each selected date is queued as a background job. Results appear in attendance records once processing finishes.",
+    "cardTitle": "Manual run",
+    "cardDescription": "Choose a day or a range of up to 31 days. Processing runs in the background.",
+    "modeLabel": "Process mode",
+    "mode": {
+      "single": "Single day",
+      "range": "Date range"
+    },
+    "dateLabel": "Attendance date",
+    "fromLabel": "From date",
+    "toLabel": "To date",
+    "submit": "Process attendance",
+    "processing": "Queueing...",
+    "successTitle": "Attendance processing queued",
+    "successDescription": "{count} day(s) queued for processing. Records will update as the background job completes.",
+    "datesLabel": "Queued dates",
+    "viewRecords": "View attendance records",
+    "errorTitle": "We couldn't queue attendance processing",
+    "validation": {
+      "dateRequired": "Choose an attendance date.",
+      "fromRequired": "Choose a start date.",
+      "toRequired": "Choose an end date.",
+      "rangeInvalid": "The end date must be on or after the start date.",
+      "rangeTooLong": "The date range must not exceed 31 days."
+    },
+    "errors": {
+      "network": "We couldn't reach the server. Check your connection and try again.",
+      "timeout": "The server took too long to respond. Try again.",
+      "queueUnavailable": "The attendance queue is unavailable. Try again shortly.",
+      "unauthorized": "Your session has expired. Sign in again.",
+      "forbidden": "You don't have permission to process attendance.",
+      "validation": "Check the selected dates and try again.",
+      "unexpected": "Something went wrong. Try again."
+    }
+  },
+  "AttendanceRecords": {
+    "metadata": {
+      "title": "Attendance records | WorkTrack HR"
+    },
+    "eyebrow": "Attendance operations",
+    "title": "Attendance records",
+    "subtitle": "Review calculated daily attendance records, narrow them by employee, date, or status, and manage record details.",
+    "create": "New record",
+    "readOnly": "You can view attendance records. Only administrators and HR can make changes.",
+    "employeeLabel": "Employee",
+    "employeePlaceholder": "Search by name, code, or email",
+    "employeeSearchLoading": "Searching employees...",
+    "employeeSearchEmpty": "No employees match this search.",
+    "employeeSearchError": "We couldn't load employee suggestions.",
+    "clearEmployee": "Clear employee filter",
+    "fromLabel": "From date",
+    "toLabel": "To date",
+    "statusLabel": "Status",
+    "allStatuses": "All statuses",
+    "status": {
+      "PRESENT": "Present",
+      "ABSENT": "Absent",
+      "LATE": "Late",
+      "HALF_DAY": "Half day",
+      "ON_LEAVE": "On leave"
+    },
+    "sortLabel": "Sort by",
+    "sort": {
+      "date": "Attendance date",
+      "createdAt": "Date added",
+      "updatedAt": "Last updated"
+    },
+    "orderLabel": "Order",
+    "order": {
+      "asc": "Ascending",
+      "desc": "Descending"
+    },
+    "columns": {
+      "employee": "Employee",
+      "date": "Date",
+      "checkIn": "Check-in",
+      "checkOut": "Check-out",
+      "working": "Worked",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "viewEmployee": "View employee",
+    "edit": "Edit record",
+    "delete": "Delete record",
+    "noJobTitle": "No job title",
+    "noShift": "No shift",
+    "noTime": "—",
+    "empty": {
+      "title": "No attendance records yet",
+      "description": "Calculated daily attendance records will appear here once they are processed.",
+      "filteredTitle": "No matching records",
+      "filteredDescription": "Try a different employee, date range, or status.",
+      "clearFilters": "Clear filters"
+    },
+    "error": {
+      "title": "We couldn't load attendance records"
+    },
+    "retry": "Try again",
+    "validation": {
+      "employeeRequired": "Select an employee.",
+      "dateRequired": "Attendance date is required.",
+      "timeInvalid": "Enter a valid time.",
+      "checkOutBeforeCheckIn": "Check-out must be after or equal to check-in.",
+      "minutesInvalid": "Enter a whole number of minutes.",
+      "minutesMax": "Minutes must not exceed 10080.",
+      "notesMax": "Notes must not exceed 1000 characters."
+    },
+    "form": {
+      "createTitle": "Create attendance record",
+      "editTitle": "Edit attendance record",
+      "createDescription": "Add a daily attendance record for an employee.",
+      "editDescription": "Update the attendance details for this record.",
+      "assignmentSection": "Assignment",
+      "timingSection": "Timing",
+      "employeeLabel": "Employee",
+      "employeePlaceholder": "Select an employee",
+      "employeeUnavailable": "We couldn't load employees.",
+      "shiftLabel": "Shift",
+      "shiftPlaceholder": "No shift",
+      "shiftUnavailable": "We couldn't load shifts.",
+      "dateLabel": "Attendance date",
+      "statusLabel": "Status",
+      "checkInLabel": "Check-in",
+      "checkOutLabel": "Check-out",
+      "workingMinutesLabel": "Worked minutes",
+      "workingMinutesHint": "Leave empty to calculate from check-in and check-out.",
+      "lateMinutesLabel": "Late minutes",
+      "earlyLeaveMinutesLabel": "Early leave minutes",
+      "overtimeMinutesLabel": "Overtime minutes",
+      "notesLabel": "Notes",
+      "notesPlaceholder": "Optional context for this record",
+      "notesHint": "Up to 1000 characters.",
+      "cancel": "Cancel",
+      "save": "Save record",
+      "saving": "Saving...",
+      "createSuccess": "Attendance record created.",
+      "updateSuccess": "Attendance record updated.",
+      "errorTitle": "We couldn't save the attendance record"
+    },
+    "delete": {
+      "title": "Delete attendance record?",
+      "description": "This will permanently delete the attendance record for {name} on {date}. This action cannot be undone.",
+      "confirm": "Delete record",
+      "deleting": "Deleting...",
+      "success": "Attendance record deleted.",
+      "errorTitle": "We couldn't delete the attendance record",
+      "cancel": "Keep record"
+    },
+    "errors": {
+      "network": "We couldn't reach the server. Check your connection and try again.",
+      "timeout": "The server took too long to respond. Try again.",
+      "exists": "An attendance record already exists for this employee on this date.",
+      "unauthorized": "Your session has expired. Sign in again.",
+      "forbidden": "You don't have permission to change attendance records.",
+      "validation": "Check the record details and try again.",
+      "unexpected": "Something went wrong. Try again."
+    }
+  },
+  "Login": {
+    "hero": {
+      "eyebrow": "People operations platform",
+      "title": "The workday, managed with clarity.",
+      "description": "From attendance to leave, bring your team's daily operations into one calm, focused workspace."
+    },
+    "features": {
+      "attendance": {
+        "title": "Attendance that adds up",
+        "description": "Track check-ins, check-outs, lateness, and early leave from one place."
+      },
+      "people": {
+        "title": "Your team, in focus",
+        "description": "Keep employees, departments, and shifts organized without scattered spreadsheets."
+      },
+      "insights": {
+        "title": "Decisions, sooner",
+        "description": "See workforce metrics and daily trends without waiting for a report."
+      }
+    },
+    "eyebrow": "Secure workspace",
+    "title": "Welcome back",
+    "subtitle": "Sign in to manage attendance, people, and your daily HR operations.",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "name@company.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "submit": "Sign in",
+    "submitting": "Signing in...",
+    "support": "Need access? Contact your HR administrator.",
+    "errorTitle": "We couldn't sign you in",
+    "successTitle": "Signed in",
+    "successMessage": "Welcome back, {name}.",
+    "footer": "Your data is protected and encrypted in transit.",
+    "validation": {
+      "emailRequired": "Email address is required.",
+      "emailInvalid": "Enter a valid email address.",
+      "passwordRequired": "Password is required."
+    },
+    "errors": {
+      "network": "We couldn't reach the server. Check your connection and try again.",
+      "timeout": "The server took too long to respond. Try again.",
+      "unexpected": "Something went wrong. Try again.",
+      "invalidCredentials": "The email address or password is incorrect.",
+      "rateLimited": "Too many attempts. Try again in {seconds} seconds.",
+      "validation": "Check your details and try again."
+    }
+  },
+  "Home": {
+    "signedIn": "Signed in",
+    "welcome": "Welcome, {name}",
+    "subtitle": "Your session is ready. The next step is building the dashboard.",
+    "role": "Role",
+    "department": "Department",
+    "notAssigned": "No department assigned",
+    "roles": {
+      "ADMIN": "Administrator",
+      "HR": "HR",
+      "MANAGER": "Department manager"
+    },
+    "logout": "Sign out",
+    "loggingOut": "Signing out...",
+    "nextStep": "Next step: dashboard",
+    "logoutSuccess": "You have been signed out.",
+    "logoutError": "Your local session was cleared, but the server could not be notified."
+  },
+  "Shell": {
+    "navigation": "Navigation",
+    "workspace": "Workspace",
+    "skipToContent": "Skip to content",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar",
+    "userMenu": "User menu",
+    "logout": "Sign out",
+    "loggingOut": "Signing out...",
+    "logoutSuccess": "You have been signed out.",
+    "logoutError": "Your local session was cleared, but the server could not be notified.",
+    "moduleEyebrow": "WorkTrack module",
+    "moduleNotice": "This module is ready in the app shell. Its screens will be completed in the next task.",
+    "groups": {
+      "overview": "Overview",
+      "people": "People",
+      "attendance": "Attendance",
+      "administration": "Administration"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "hrKpi": "HR KPI",
+      "employees": "Employees",
+      "departments": "Departments",
+      "shifts": "Shifts",
+      "leaves": "Leaves",
+      "attendanceLogs": "Attendance logs",
+      "attendanceRecords": "Attendance records",
+      "attendanceProcess": "Attendance process",
+      "uploads": "Uploads",
+      "auditLogs": "Audit logs"
+    },
+    "moduleDescriptions": {
+      "dashboard": "A quick snapshot of workforce and attendance activity.",
+      "hrKpi": "HR metrics and the most late-arriving employees.",
+      "employees": "Manage employee profiles and details.",
+      "departments": "Organize departments and connect employees to them.",
+      "shifts": "Define shifts and assign them to employees.",
+      "leaves": "Manage leave requests and the leave calendar.",
+      "attendanceLogs": "Raw check-in and check-out events.",
+      "attendanceRecords": "Daily calculated attendance records.",
+      "attendanceProcess": "Run attendance calculation on demand.",
+      "uploads": "Import employees and attendance from CSV.",
+      "auditLogs": "Review system activity and changes."
+    }
+  }
+}

@@ -1,0 +1,70 @@
+@use "../../../styles" as *;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 780px;
+  padding: clamp(24px, 4vw, 44px);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+
+  @include fade-up(520ms);
+}
+
+.icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  color: var(--color-brand);
+  background: var(--color-brand-soft);
+  border-radius: var(--radius-md);
+  place-items: center;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--color-accent);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.description {
+  max-width: 58ch;
+  margin: 0;
+  color: var(--color-ink-muted);
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+
+.notice {
+  margin: 0;
+  padding: 12px 14px;
+  color: var(--color-brand);
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: var(--color-brand-soft);
+  border-inline-start: 3px solid var(--color-brand);
+  border-radius: var(--radius-sm);
+}
+
+@include respond("sm") {
+  .card {
+    gap: 14px;
+    padding: 22px 18px;
+    border-radius: var(--radius-lg);
+  }
+}

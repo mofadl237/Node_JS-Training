@@ -1,0 +1,203 @@
+@use "../src/styles" as *;
+
+:root {
+  --color-ink: #{$color-ink};
+  --color-ink-muted: #{$color-ink-muted};
+  --color-ink-soft: #{$color-ink-soft};
+  --color-surface: #{$color-surface};
+  --color-surface-raised: #{$color-surface-raised};
+  --color-surface-sunken: #{$color-surface-sunken};
+  --color-border: #{$color-border};
+  --color-border-strong: #{$color-border-strong};
+  --color-brand: #{$color-brand};
+  --color-brand-strong: #{$color-brand-strong};
+  --color-brand-soft: #{$color-brand-soft};
+  --color-accent: #{$color-accent};
+  --color-accent-soft: #{$color-accent-soft};
+  --color-clay: #{$color-clay};
+  --color-clay-soft: #{$color-clay-soft};
+  --color-success: #{$color-success};
+  --color-success-soft: #{$color-success-soft};
+  --color-danger: #{$color-danger};
+  --color-danger-soft: #{$color-danger-soft};
+  --color-warning: #{$color-warning};
+  --color-warning-soft: #{$color-warning-soft};
+  --color-info: #{$color-info};
+  --color-info-soft: #{$color-info-soft};
+  --radius-sm: #{$radius-sm};
+  --radius-md: #{$radius-md};
+  --radius-lg: #{$radius-lg};
+  --radius-xl: #{$radius-xl};
+  --radius-pill: #{$radius-pill};
+  --shadow-sm: #{$shadow-sm};
+  --shadow-md: #{$shadow-md};
+  --shadow-lg: #{$shadow-lg};
+  --font-sans: #{$font-sans};
+  --font-display: #{$font-display};
+  --transition-fast: #{$transition-fast};
+  --transition-base: #{$transition-base};
+}
+
+[data-theme="dark"] {
+  --color-ink: #e9efe9;
+  --color-ink-muted: #a7b3ad;
+  --color-ink-soft: #7f8c86;
+  --color-surface: #0b1513;
+  --color-surface-raised: #101d1a;
+  --color-surface-sunken: #07100e;
+  --color-border: #24332e;
+  --color-border-strong: #34463f;
+  --color-brand: #4fb8a5;
+  --color-brand-strong: #6ed0bd;
+  --color-brand-soft: #16332d;
+  --color-accent: #e39a4f;
+  --color-accent-soft: #3a2a18;
+  --color-clay: #d0806b;
+  --color-clay-soft: #3b211c;
+  --color-success: #4bc59a;
+  --color-success-soft: #113327;
+  --color-danger: #ef7c72;
+  --color-danger-soft: #3a1a17;
+  --color-warning: #e0b25d;
+  --color-warning-soft: #332813;
+  --color-info: #6cb6d6;
+  --color-info-soft: #122c36;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 18px 45px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 34px 90px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  color-scheme: light;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100svh;
+  margin: 0;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+html[lang="ar"] body {
+  font-family: var(--font-ibm-plex-arabic), var(--font-manrope), sans-serif;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  color: var(--color-surface-raised);
+  background: var(--color-brand);
+}
+
+:focus-visible {
+  @include focus-ring;
+}
+
+.app-toast {
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-md) !important;
+  background: var(--color-surface-raised) !important;
+  color: var(--color-ink) !important;
+  box-shadow: var(--shadow-md) !important;
+  font-family: var(--font-sans) !important;
+}
+
+.app-toast__title {
+  font-weight: 700 !important;
+}
+
+.app-toast__description {
+  color: var(--color-ink-muted) !important;
+}
+
+.app-toast--success {
+  border-color: rgba(22, 122, 90, 0.28) !important;
+}
+
+.app-toast--error {
+  border-color: rgba(178, 58, 50, 0.28) !important;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes float-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

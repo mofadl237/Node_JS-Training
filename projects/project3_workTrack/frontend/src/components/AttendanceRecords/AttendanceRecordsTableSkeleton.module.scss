@@ -1,0 +1,38 @@
+@use "../../styles" as *;
+
+.skeletonShort {
+  width: 64px;
+}
+
+.skeletonAvatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+}
+
+.skeletonName {
+  width: 140px;
+  height: 16px;
+}
+
+.skeletonDate {
+  width: 110px;
+}
+
+.skeletonTime {
+  width: 64px;
+}
+
+.skeletonWorking {
+  width: 52px;
+}
+
+.skeletonBadge {
+  width: 84px;
+  height: 24px;
+}
+
+.skeletonActions {
+  width: 76px;
+  height: 24px;
+}

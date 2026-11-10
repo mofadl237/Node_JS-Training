@@ -1,0 +1,133 @@
+@use "../../styles" as *;
+
+.wrapper {
+  position: relative;
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+.field {
+  min-width: 0;
+}
+
+.clear {
+  @include icon-button;
+
+  width: 26px;
+  height: 26px;
+  color: var(--color-ink-soft);
+  background: var(--color-surface-sunken);
+  border-radius: 50%;
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+
+  &:hover {
+    color: var(--color-brand);
+    background: var(--color-brand-soft);
+  }
+}
+
+.dropdown {
+  position: absolute;
+  inset-block-start: calc(100% + 8px);
+  inset-inline: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 320px;
+  padding: 8px;
+  overflow: auto;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  animation: dropdown-in 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.option {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 9px 10px;
+  text-align: start;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    transform var(--transition-fast);
+
+  &:hover {
+    transform: translateX(2px);
+  }
+
+  &:focus-visible {
+    @include focus-ring;
+  }
+}
+
+.highlighted {
+  background: var(--color-brand-soft);
+}
+
+.avatar {
+  display: grid;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  color: var(--color-brand);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  background: var(--color-brand-soft);
+  border-radius: 11px;
+  place-items: center;
+}
+
+.optionCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.optionName {
+  overflow: hidden;
+  color: var(--color-ink);
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.optionMeta {
+  overflow: hidden;
+  color: var(--color-ink-soft);
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.message {
+  margin: 0;
+  padding: 12px 10px;
+  color: var(--color-ink-soft);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

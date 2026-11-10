@@ -1,0 +1,97 @@
+@use "../../styles" as *;
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.eyebrow {
+  width: 120px;
+  height: 12px;
+}
+
+.title {
+  width: 240px;
+  height: 30px;
+}
+
+.description {
+  width: min(100%, 460px);
+  height: 14px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: clamp(20px, 3vw, 30px);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.profile {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.avatar {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-pill);
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.name {
+  width: 180px;
+  height: 22px;
+}
+
+.code {
+  width: 80px;
+  height: 11px;
+}
+
+.jobTitle {
+  width: 140px;
+  height: 13px;
+}
+
+.details {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  padding-block-start: 20px;
+  border-block-start: 1px solid var(--color-border);
+}
+
+.detail {
+  height: 54px;
+}
+
+@include respond("lg") {
+  .details {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@include respond("sm") {
+  .details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,0 +1,29 @@
+@use "../../../styles" as *;
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding-block-start: 4px;
+}
+
+.status {
+  margin: 0;
+  color: var(--color-ink-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+@include respond("sm") {
+  .pagination {
+    justify-content: center;
+  }
+
+  .status {
+    order: -1;
+    width: 100%;
+  }
+}
