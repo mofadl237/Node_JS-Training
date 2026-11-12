@@ -1,0 +1,136 @@
+@use "../../styles" as *;
+
+.wrapper {
+  overflow-x: auto;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.table {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 14px 16px;
+    text-align: start;
+    vertical-align: middle;
+  }
+
+  th {
+    color: var(--color-ink-soft);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--color-surface-sunken);
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  td {
+    color: var(--color-ink-muted);
+    font-size: 0.86rem;
+    border-block-end: 1px solid var(--color-border);
+  }
+
+  tbody tr:last-child td {
+    border-block-end: 0;
+  }
+}
+
+.row {
+  transition: background-color var(--transition-fast);
+
+  &:hover {
+    background: var(--color-brand-soft);
+  }
+}
+
+.name {
+  display: block;
+  color: var(--color-ink);
+  font-weight: 700;
+}
+
+.meta {
+  display: block;
+  margin-block-start: 2px;
+  color: var(--color-ink-soft);
+  font-size: 0.74rem;
+}
+
+.time {
+  white-space: nowrap;
+}
+
+.muted {
+  color: var(--color-ink-soft);
+}
+
+.nightBadge,
+.activeBadge,
+.inactiveBadge {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  padding: 4px 9px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  border-radius: var(--radius-pill);
+}
+
+.nightBadge {
+  color: var(--color-brand);
+  background: var(--color-brand-soft);
+}
+
+.activeBadge {
+  color: var(--color-success);
+  background: var(--color-success-soft);
+}
+
+.inactiveBadge {
+  color: var(--color-ink-soft);
+  background: var(--color-surface-sunken);
+}
+
+.actionsCell {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.iconButton {
+  @include icon-button;
+
+  width: 34px;
+  height: 34px;
+  margin-inline-end: 4px;
+  color: var(--color-ink-soft);
+  border-radius: var(--radius-pill);
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+
+  &:hover {
+    color: var(--color-brand);
+    background: var(--color-surface-raised);
+  }
+}
+
+.danger:hover {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+.skeletonShort {
+  width: 64px;
+}
+
+.skeletonCell {
+  width: 110px;
+  height: 14px;
+}

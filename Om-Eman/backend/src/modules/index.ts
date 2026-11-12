@@ -1,6 +1,8 @@
 import { Router } from "express";
 import authRouter from "./auth/routes.js";
 import productImportRouter from "./productImport/router.js";
+import storeRouter from "./store/routes.js";
+import reportsRouter from "./reports/routes.js";
 import employeeRouter from "./employee/router.js";
 import auditLogRouter from "./auditLog/router.js";
 import customerRouter from "./customer/router.js";
@@ -44,6 +46,8 @@ const router = Router();
 
 router.use("/auth", authRouter);
 router.use("/products/import", productImportRouter);
+router.use("/store", storeRouter);
+router.use("/reports", reportsRouter);
 router.use("/employees", employeeRouter);
 router.use("/audit-logs", auditLogRouter);
 router.use("/customers", customerRouter);

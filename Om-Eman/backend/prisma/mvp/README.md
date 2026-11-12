@@ -13,8 +13,8 @@ This directory contains the MVP manual SQL, dry-run SQL, and adoption notes.
 | Active schema | `prisma/schema.prisma` (MVP) |
 | Legacy schema | `prisma/legacy/full-schema.prisma` (archived, not used) |
 | Validation | `npx prisma validate` passes |
-| Models | 38 |
-| Enums | 25, all prefixed with `E` |
+| Models | 41 (منهم AuthAccount, Session, AuthVerificationToken — بدون CRUD مولد) |
+| Enums | 27, all prefixed with `E` |
 | Manual SQL | `prisma/mvp/manual_constraints.sql` |
 | Dry run | `prisma/mvp/dry-run.sql` |
 | Arabic helper | `src/utils/arabic/normalize-arabic.ts` |

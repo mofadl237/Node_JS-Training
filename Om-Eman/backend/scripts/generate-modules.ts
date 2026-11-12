@@ -28,7 +28,15 @@ interface IEnum {
 const ROOT = process.cwd();
 const SCHEMA_PATH = path.join(ROOT, "prisma", "schema.prisma");
 const MODULES_PATH = path.join(ROOT, "src", "modules");
-const PRESERVED_MODULE_FOLDERS = new Set(["auth", "productImport"]);
+const PRESERVED_MODULE_FOLDERS = new Set(["auth", "productImport", "store", "reports"]);
+// Internal auth infrastructure. Never expose these tables as employee CRUD:
+// Session and AuthVerificationToken rows hold token hashes, and AuthAccount
+// rows are managed exclusively by the identity services in src/services/.
+const EXCLUDED_MODELS = new Set([
+  "AuthAccount",
+  "Session",
+  "AuthVerificationToken",
+]);
 
 const passwordModels = new Set(["Employee", "Customer"]);
 const appendOnlyModels = new Set([
@@ -875,13 +883,18 @@ async function main(): Promise<void> {
     'import { Router } from "express";',
     'import authRouter from "./auth/routes.js";',
     'import productImportRouter from "./productImport/router.js";',
+    'import storeRouter from "./store/routes.js";',
+    'import reportsRouter from "./reports/routes.js";',
   ];
   const mountLines: string[] = [
     'router.use("/auth", authRouter);',
     'router.use("/products/import", productImportRouter);',
+    'router.use("/store", storeRouter);',
+    'router.use("/reports", reportsRouter);',
   ];
 
   for (const model of models) {
+    if (EXCLUDED_MODELS.has(model.name)) continue;
     const folder = lowerFirst(model.name);
     const dir = path.join(MODULES_PATH, folder);
     await mkdir(dir, { recursive: true });

@@ -1,0 +1,62 @@
+@use "../../styles" as *;
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  @include fade-up(480ms);
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 6px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.tab {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 16px;
+  color: var(--color-ink-muted);
+  font-size: 0.84rem;
+  font-weight: 700;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+
+  &:hover {
+    color: var(--color-brand);
+    background: var(--color-brand-soft);
+  }
+}
+
+.activeTab {
+  color: var(--color-brand);
+  background: var(--color-brand-soft);
+}
+
+@include respond("sm") {
+  .screen {
+    gap: 16px;
+  }
+
+  .tabs {
+    align-self: stretch;
+  }
+
+  .tab {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+}

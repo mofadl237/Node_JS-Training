@@ -433,8 +433,12 @@ SELECT mvp_ensure_check_constraint(
 SELECT mvp_ensure_check_constraint(
   '"Invoice"'::regclass,
   'Invoice_money_nonnegative',
-  $check$"subtotal" >= 0 AND "discountTotal" >= 0 AND "shippingTotal" >= 0 AND "taxTotal" >= 0 AND "grandTotal" >= 0 AND "taxAmount" >= 0$check$
+  $check$"subtotal" >= 0 AND "discountTotal" >= 0 AND "shippingTotal" >= 0 AND "taxTotal" >= 0 AND "grandTotal" >= 0$check$
 );
+
+-- Invoice tax dedup: the header keeps taxTotal (mirrors Order.taxTotal) and
+-- taxRateSnapshot (the rate). The old taxAmount column was removed, so the
+-- Invoice_money_nonnegative CHECK above no longer references it.
 
 SELECT mvp_ensure_check_constraint(
   '"Payment"'::regclass,
@@ -537,6 +541,116 @@ SELECT mvp_ensure_check_constraint(
   'Payment_confirmed_requires_confirmedAt',
   $check$"status" <> 'CONFIRMED' OR "confirmedAt" IS NOT NULL$check$
 );
+
+-- A Session row must belong to exactly one owner: a Customer or an Employee,
+-- never both and never neither.
+SELECT mvp_ensure_check_constraint(
+  '"Session"'::regclass,
+  'Session_owner_exactly_one',
+  $check$(
+    ("customerId" IS NOT NULL AND "employeeId" IS NULL)
+    OR
+    ("employeeId" IS NOT NULL AND "customerId" IS NULL)
+  )$check$
+);
+
+-- A merged customer record must always point at the surviving customer.
+SELECT mvp_ensure_check_constraint(
+  '"Customer"'::regclass,
+  'Customer_merged_requires_target',
+  $check$"status" <> 'MERGED' OR "mergedIntoCustomerId" IS NOT NULL$check$
+);
+
+-- ---------------------------------------------------------------------------
+-- Partial unique indexes
+-- ---------------------------------------------------------------------------
+
+-- At most one ISSUED invoice per order. VOID invoices do not block a reissue,
+-- which is why Invoice.orderId is NOT unique at the Prisma level.
+CREATE UNIQUE INDEX IF NOT EXISTS "Invoice_orderId_issued_key"
+  ON "Invoice" ("orderId")
+  WHERE "status" = 'ISSUED';
+
+-- At most one default address per customer. Inactive addresses are excluded so
+-- an archived default does not block a new one.
+CREATE UNIQUE INDEX IF NOT EXISTS "CustomerAddress_customerId_default_key"
+  ON "CustomerAddress" ("customerId")
+  WHERE "isDefault" AND "isActive";
+
+-- At most one ACTIVE cart per customer. MERGED/CHECKED_OUT/ABANDONED carts are
+-- excluded, otherwise a customer could never have a second cart in history.
+CREATE UNIQUE INDEX IF NOT EXISTS "Cart_customerId_active_key"
+  ON "Cart" ("customerId")
+  WHERE "status" = 'ACTIVE' AND "customerId" IS NOT NULL;
+
+-- At most one primary image per product.
+CREATE UNIQUE INDEX IF NOT EXISTS "ProductImage_productId_primary_key"
+  ON "ProductImage" ("productId")
+  WHERE "isPrimary";
+
+-- ---------------------------------------------------------------------------
+-- Bundle package-count triggers
+-- ---------------------------------------------------------------------------
+
+-- A PREDEFINED_BUNDLE product must have exactly one ProductPackage:
+--   - INSERT/UPDATE on ProductPackage: a bundle may never end up with a second
+--     package.
+--   - DELETE on ProductPackage: the last remaining package of a bundle cannot
+--     be deleted.
+-- A FINISHED product is not restricted.
+CREATE OR REPLACE FUNCTION enforce_bundle_single_package()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  v_product_id text;
+  v_is_bundle boolean;
+  v_count integer;
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    v_product_id := OLD."productId";
+  ELSE
+    v_product_id := NEW."productId";
+  END IF;
+
+  SELECT "productType" = 'PREDEFINED_BUNDLE'
+  INTO v_is_bundle
+  FROM "Product"
+  WHERE id = v_product_id;
+
+  IF v_is_bundle IS NOT TRUE THEN
+    RETURN COALESCE(NEW, OLD);
+  END IF;
+
+  SELECT count(*)::integer
+  INTO v_count
+  FROM "ProductPackage"
+  WHERE "productId" = v_product_id;
+
+  IF TG_OP = 'DELETE' THEN
+    IF v_count <= 1 THEN
+      RAISE EXCEPTION
+        'Bundle product % must keep exactly one ProductPackage; deleting this package would leave %',
+        v_product_id, v_count - 1
+        USING ERRCODE = '23514';
+    END IF;
+    RETURN OLD;
+  ELSE
+    IF v_count > 1 THEN
+      RAISE EXCEPTION
+        'Bundle product % must have exactly one ProductPackage; found %',
+        v_product_id, v_count
+        USING ERRCODE = '23514';
+    END IF;
+    RETURN NEW;
+  END IF;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS "ProductPackage_bundle_single_package" ON "ProductPackage";
+CREATE TRIGGER "ProductPackage_bundle_single_package"
+  BEFORE INSERT OR UPDATE OR DELETE ON "ProductPackage"
+  FOR EACH ROW EXECUTE FUNCTION enforce_bundle_single_package();
 
 -- ---------------------------------------------------------------------------
 -- Append-only triggers

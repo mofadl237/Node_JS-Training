@@ -23,8 +23,10 @@
 | --- | --- |
 | `prisma/schema.prisma` | الـ MVP النشط وصالح (`prisma validate` ينجح) |
 | `prisma/legacy/full-schema.prisma` | أرشيف الـ Schema الكامل (133 model / 72 enum) — غير مستخدم |
-| عدد الـ Models | 38 |
-| عدد الـ Enums | 25 |
+| عدد الـ Models | 41 (منهم 3 جداول auth داخلية: AuthAccount, Session, AuthVerificationToken) |
+| عدد الـ Enums | 27 |
+| طبقة الأعمال | `src/services/` (document-number, order-payment-status, customer-stats, guest-checkout, customer-claim) |
+| الاختبارات | Vitest (`npm test`): unit دائمًا + integration تعمل skip عند غياب DB |
 | Prisma Client | تم توليده من الـ MVP |
 | `src/app.ts` | جاهز: Helmet, CORS, JSON, Morgan, `/api` router, error handling |
 | `src/server.ts` | جاهز: HTTP server, Prisma connect, graceful shutdown |
@@ -45,7 +47,7 @@
 | `src/utils/logger/index.ts` | جاهز: Console + file (`logs/app.log`) |
 | `src/utils/jwt.ts` | جاهز: sign/verify |
 | `src/utils/password.ts` | جاهز: bcrypt hash/compare |
-| `src/modules/` | Auth + 38 CRUD module + CSV product import — `/api` |
+| `src/modules/` | Auth + 38 CRUD module + CSV product import + Store API (`store/`) + Reports (`reports/`) — `/api` |
 | `scripts/generate-modules.ts` | مولّد CRUD من `prisma/schema.prisma` |
 | `logs/app.log` | موجود وفارغ — append-only، غير مُتتبع في Git |
 | `src/jobs/` | فارغ عمدًا — لا cron jobs |
@@ -154,6 +156,9 @@ prisma/mvp/manual_constraints.sql    # قيود وفهارس ودوال وviews 
 prisma/mvp/dry-run.sql               # بيانات تجريبية واختبارات بحث/views
 prisma/mvp/README.md                 # قرارات وخطوات الـ MVP
 src/utils/arabic/normalize-arabic.ts # تطبيع وتقطيع البحث العربي
+src/utils/secure-token.ts            # توليد/hashing توكنات opaque (SHA-256 فقط)
+src/services/                        # طبقة الأعمال: ترقيم المستندات، حالة الدفع، إحصائيات العملاء، guest checkout، claim/merge
+tests/                               # اختبارات Vitest (unit + integration مع skip عند غياب DB)
 prisma7.config.ts                    # Prisma config (يشير إلى schema.prisma النشط)
 src/app.ts                           # Express app + تركيب /api router
 src/server.ts                        # bootstrap + graceful shutdown
@@ -177,9 +182,12 @@ src/middlewares/validate.middleware.ts # Zod body/query/params
 src/utils/logger/index.ts            # Console + file logger
 src/utils/jwt.ts                     # JWT sign/verify
 src/utils/password.ts                # bcrypt hash/compare
-src/modules/index.ts                 # Auth + 38 module + CSV import
+src/modules/index.ts                 # Auth + 38 module + CSV import + store + reports
 src/modules/module-metadata.ts       # مولّد — يستخدمه Swagger
-src/modules/auth/                    # login/me
+src/modules/auth/                    # login/me (موظفين)
+src/modules/store/                   # API المتجر: auth عميل (Google/Email + Sessions)، checkout، track، cart، search، payment proof، product by slug
+src/modules/reports/                 # تقارير OWNER/ADMIN من الـ views
+src/middlewares/customer-auth.middleware.ts # جلسات العملاء (opaque token + SHA-256 hash)
 src/modules/productImport/           # استيراد المنتجات من CSV
 src/modules/<model>/                 # controller/service/router/validation/types
 src/middlewares/csv-upload.middleware.ts # رفع CSV في الذاكرة
@@ -210,7 +218,7 @@ docs/assumptions.md
 
 ### 7.1 Schema
 
-الـ Schema النشط هو MVP ويحتوي 38 model و25 enum:
+الـ Schema النشط هو MVP ويحتوي 41 model و27 enum:
 
 - الموظفين والأدوار البسيطة و`AuditLog`.
 - العملاء والعناوين والسلة والمفضلة.
@@ -387,7 +395,11 @@ npx prisma generate
 npm run modules:generate
 npx tsc --noEmit
 npm run build
+npm test
 ```
+
+> ملاحظة: جداول `AuthAccount` و `Session` و `AuthVerificationToken` مستثناة من
+> `modules:generate` عمدًا (EXCLUDED_MODELS في المولّد) — ممنوع توليد CRUD لها.
 
 يجب أن تنجح كلها. أي تغيير في الـ schema يجب أن يتبعه تحديث:
 

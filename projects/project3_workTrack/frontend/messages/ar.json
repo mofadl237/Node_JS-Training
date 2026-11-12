@@ -127,7 +127,8 @@
   },
   "Employees": {
     "metadata": {
-      "title": "الموظفون | WorkTrack HR"
+      "title": "الموظفون | WorkTrack HR",
+      "detailsTitle": "ملف الموظف | WorkTrack HR"
     },
     "eyebrow": "عمليات الأفراد",
     "title": "الموظفون",
@@ -487,6 +488,626 @@
       "forbidden": "ليست لديك صلاحية لتعديل سجلات الحضور.",
       "validation": "تحقق من بيانات السجل وحاول مرة أخرى.",
       "unexpected": "حدث خطأ غير متوقع. حاول مرة أخرى."
+    }
+  },
+  "Uploads": {
+    "metadata": {
+      "title": "رفع ملفات CSV | WorkTrack HR"
+    },
+    "eyebrow": "عمليات البيانات",
+    "title": "رفع ملفات CSV",
+    "subtitle": "استورد الموظفين وسجلات الحضور من ملفات CSV، ثم راجع أخطاء الصفوف قبل إعادة المحاولة.",
+    "infoTitle": "استيراد آمن",
+    "infoDescription": "ارفع ملف CSV واحداً في كل مرة. يتم حفظ الصفوف الصحيحة حتى لو فشلت صفوف أخرى، وتظهر كل الصفوف الفاشلة مع رقم الصف والسبب.",
+    "columnsLabel": "الأعمدة المتوقعة",
+    "chooseFile": "اختر ملف CSV",
+    "fileHint": "اسحب أو اختر ملف .csv بحجم أقصى 5MB",
+    "selectedFile": "الملف المحدد",
+    "removeFile": "إزالة الملف",
+    "upload": "رفع الملف",
+    "uploading": "جارٍ الرفع...",
+    "successToast": "انتهى استيراد CSV",
+    "errorTitle": "تعذّر استيراد ملف CSV",
+    "fileErrorTitle": "تحقق من الملف المحدد",
+    "invalidFileType": "اختر ملف .csv.",
+    "fileTooLarge": "يجب ألا يتجاوز حجم الملف 5MB.",
+    "employees": {
+      "title": "استيراد الموظفين",
+      "description": "أنشئ أو حدّث الموظفين والأقسام وتعيينات الورديات الاختيارية.",
+      "columns": "employeeCode, firstName, lastName, department, hireDate, email?, phone?, jobTitle?, status?, shiftName?, shiftStartTime?, shiftEndTime?"
+    },
+    "attendance": {
+      "title": "استيراد الحضور",
+      "description": "استورد سجلات الدخول والخروج أو سجلات الحضور اليومية.",
+      "columns": "السجلات: employeeCode, type, timestamp. اليومية: employeeCode, date, checkIn?, checkOut?, status?"
+    },
+    "result": {
+      "successTitle": "اكتمل الاستيراد",
+      "partialTitle": "اكتمل الاستيراد مع أخطاء",
+      "failureTitle": "لم يتم استيراد أي صف",
+      "summary": "تم استيراد {success} من {total} صفاً.",
+      "total": "الإجمالي",
+      "success": "تم استيراده",
+      "failed": "فشل",
+      "errorsTitle": "صفوف تحتاج إلى مراجعة",
+      "row": "الصف",
+      "employee": "كود الموظف",
+      "message": "السبب",
+      "noEmployee": "—"
+    },
+    "errors": {
+      "network": "تعذّر الاتصال بالخادم. تحقق من اتصالك ثم حاول مرة أخرى.",
+      "timeout": "انتهت مهلة الاتصال بالخادم. حاول مرة أخرى.",
+      "fileTooLarge": "يجب ألا يتجاوز حجم الملف 5MB.",
+      "invalidFileType": "يُسمح بملفات .csv فقط.",
+      "emptyFile": "ملف CSV فارغ.",
+      "fileRequired": "اختر ملف CSV أولاً.",
+      "unauthorized": "انتهت صلاحية الجلسة. سجّل الدخول مرة أخرى.",
+      "forbidden": "ليست لديك صلاحية لاستيراد ملفات CSV.",
+      "validation": "تحقق من ملف CSV وحاول مرة أخرى.",
+      "unexpected": "حدث خطأ غير متوقع. حاول مرة أخرى."
+    }
+  },
+  "Shifts": {
+    "metadata": {
+      "title": "الورديات | WorkTrack HR"
+    },
+    "eyebrow": "جدولة القوى العاملة",
+    "title": "الورديات والتعيينات",
+    "subtitle": "عرّف ورديات العمل واربط الموظفين بالجدول المناسب لأدوارهم.",
+    "tabs": {
+      "label": "أقسام إدارة الورديات",
+      "shifts": "الورديات",
+      "assignments": "التعيينات"
+    },
+    "yes": "نعم",
+    "no": "لا",
+    "validation": {
+      "nameRequired": "اسم الوردية مطلوب.",
+      "nameMin": "يجب أن يتكون اسم الوردية من حرفين على الأقل.",
+      "nameMax": "يجب ألا يتجاوز اسم الوردية 100 حرف.",
+      "timeInvalid": "أدخل وقتاً صالحاً بصيغة HH:mm.",
+      "minutesInvalid": "أدخل عدداً صحيحاً من الدقائق.",
+      "minutesMax": "يجب ألا تتجاوز الدقائق 1440.",
+      "hoursInvalid": "أدخل رقماً أكبر من صفر.",
+      "hoursMax": "يجب ألا تتجاوز الساعات المتوقعة 24.",
+      "employeeRequired": "اختر موظفاً.",
+      "shiftRequired": "اختر وردية.",
+      "startDateRequired": "تاريخ البداية مطلوب.",
+      "dateRangeInvalid": "يجب أن يكون تاريخ النهاية في تاريخ البداية أو بعده."
+    },
+    "form": {
+      "createTitle": "إنشاء وردية",
+      "editTitle": "تعديل الوردية",
+      "createDescription": "أضف وردية مع ساعات العمل وقواعد الحضور.",
+      "editDescription": "حدّث توقيت الوردية أو الحدود أو خيار الوردية الليلية.",
+      "nameLabel": "اسم الوردية",
+      "namePlaceholder": "مثال: وردية صباحية",
+      "startTimeLabel": "وقت البداية",
+      "endTimeLabel": "وقت النهاية",
+      "graceLabel": "فترة السماح",
+      "expectedHoursLabel": "الساعات المتوقعة",
+      "overtimeLabel": "العمل الإضافي بعد",
+      "minutesHint": "بالدقائق (0–1440).",
+      "hoursHint": "بين 0.5 و24 ساعة.",
+      "nightShiftLabel": "وردية ليلية",
+      "nightShiftHint": "حدّد هذا الخيار إذا كانت الوردية تتجاوز منتصف الليل.",
+      "errorTitle": "تعذّر حفظ الوردية",
+      "cancel": "إلغاء",
+      "save": "حفظ الوردية",
+      "saving": "جارٍ الحفظ...",
+      "createSuccess": "تم إنشاء الوردية بنجاح.",
+      "updateSuccess": "تم تحديث الوردية بنجاح."
+    },
+    "shifts": {
+      "title": "دليل الورديات",
+      "description": "إدارة الورديات المستخدمة في حساب الحضور وتعيينات الموظفين.",
+      "create": "وردية جديدة",
+      "readOnly": "يمكنك عرض الورديات. التعديل متاح للمديرين والموارد البشرية فقط.",
+      "retry": "إعادة المحاولة",
+      "empty": {
+        "title": "لا توجد ورديات بعد",
+        "description": "أنشئ أول وردية لبدء جدولة الموظفين.",
+        "searchTitle": "لا توجد ورديات مطابقة",
+        "searchDescription": "جرّب بحثاً مختلفاً أو امسح عوامل التصفية."
+      },
+      "error": {
+        "title": "تعذّر تحميل الورديات"
+      },
+      "columns": {
+        "name": "الوردية",
+        "time": "ساعات العمل",
+        "grace": "السماح",
+        "expected": "المتوقع",
+        "overtime": "الإضافي بعد",
+        "night": "وردية ليلية",
+        "actions": "الإجراءات"
+      },
+      "units": {
+        "minutes": "{value} د",
+        "hours": "{value} س"
+      },
+      "edit": "تعديل {name}",
+      "delete": {
+        "action": "حذف {name}",
+        "title": "حذف الوردية",
+        "description": "حذف {name}؟ لا يمكن التراجع عن هذا الإجراء.",
+        "confirm": "حذف الوردية",
+        "cancel": "إلغاء",
+        "deleting": "جارٍ الحذف...",
+        "success": "تم حذف الوردية بنجاح.",
+        "errorTitle": "تعذّر حذف الوردية"
+      }
+    },
+    "assignments": {
+      "title": "تعيينات الموظفين",
+      "description": "اربط الموظفين بالورديات وحافظ على تواريخ سريانها محدثة.",
+      "create": "تعيين جديد",
+      "readOnly": "يمكنك عرض التعيينات. التعديل متاح للمديرين والموارد البشرية فقط.",
+      "retry": "إعادة المحاولة",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "empty": {
+        "title": "لا توجد تعيينات بعد",
+        "description": "عيّن وردية لموظف للبدء.",
+        "searchTitle": "لا توجد تعيينات مطابقة",
+        "searchDescription": "جرّب عوامل تصفية مختلفة أو امسحها."
+      },
+      "error": {
+        "title": "تعذّر تحميل التعيينات"
+      },
+      "columns": {
+        "employee": "الموظف",
+        "shift": "الوردية",
+        "startDate": "تبدأ",
+        "endDate": "تنتهي",
+        "status": "الحالة",
+        "actions": "الإجراءات"
+      },
+      "edit": "تعديل تعيين {name}",
+      "delete": {
+        "action": "حذف تعيين {name}",
+        "title": "حذف التعيين",
+        "description": "حذف تعيين {name} على وردية {shift}؟ لا يمكن التراجع عن هذا الإجراء.",
+        "confirm": "حذف التعيين",
+        "cancel": "إلغاء",
+        "deleting": "جارٍ الحذف...",
+        "success": "تم حذف التعيين بنجاح.",
+        "errorTitle": "تعذّر حذف التعيين"
+      }
+    },
+    "assignmentForm": {
+      "createTitle": "إنشاء تعيين",
+      "editTitle": "تعديل التعيين",
+      "createDescription": "عيّن وردية لموظف مع تاريخ سريان.",
+      "editDescription": "حدّث الموظف أو الوردية أو التواريخ أو حالة النشاط.",
+      "employeeLabel": "الموظف",
+      "employeePlaceholder": "اختر موظفاً",
+      "shiftLabel": "الوردية",
+      "shiftPlaceholder": "اختر وردية",
+      "startDateLabel": "تاريخ البداية",
+      "endDateLabel": "تاريخ النهاية",
+      "endDateHint": "اتركه فارغاً لتعيين مفتوح.",
+      "activeLabel": "تعيين نشط",
+      "activeHint": "التعيينات غير النشطة تبقى محفوظة لكنها لا تُستخدم في الجدولة.",
+      "employeeUnavailable": "تعذّر تحميل قائمة الموظفين.",
+      "shiftUnavailable": "تعذّر تحميل قائمة الورديات.",
+      "errorTitle": "تعذّر حفظ التعيين",
+      "cancel": "إلغاء",
+      "save": "حفظ التعيين",
+      "saving": "جارٍ الحفظ...",
+      "createSuccess": "تم إنشاء التعيين بنجاح.",
+      "updateSuccess": "تم تحديث التعيين بنجاح."
+    },
+    "filters": {
+      "searchLabel": "بحث الورديات",
+      "searchPlaceholder": "ابحث باسم الوردية",
+      "shiftTypeLabel": "نوع الوردية",
+      "allShiftTypes": "كل أنواع الورديات",
+      "dayShift": "وردية نهارية",
+      "nightShift": "وردية ليلية",
+      "employeeLabel": "الموظف",
+      "employeePlaceholder": "ابحث عن الموظفين",
+      "clearEmployee": "مسح الموظف",
+      "employeeLoading": "جارٍ تحميل الموظفين...",
+      "employeeEmpty": "لا يوجد موظفون.",
+      "employeeError": "تعذّر تحميل الموظفين.",
+      "shiftLabel": "الوردية",
+      "allShifts": "كل الورديات",
+      "shiftUnavailable": "تعذّر تحميل الورديات.",
+      "statusLabel": "الحالة",
+      "allStatuses": "كل الحالات",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "clear": "مسح عوامل التصفية"
+    },
+    "errors": {
+      "network": "تعذّر الوصول إلى الخادم. تحقق من الاتصال وحاول مجدداً.",
+      "timeout": "استغرق الطلب وقتاً طويلاً. حاول مجدداً.",
+      "shiftNotFound": "تعذّر العثور على الوردية المحددة.",
+      "shiftInUse": "هذه الوردية معيّنة لموظفين أو مستخدمة في سجلات الحضور ولا يمكن حذفها.",
+      "assignmentNotFound": "تعذّر العثور على التعيين المحدد.",
+      "employeeNotFound": "تعذّر العثور على الموظف المحدد.",
+      "dateRange": "يجب أن يكون تاريخ النهاية في تاريخ البداية أو بعده.",
+      "unauthorized": "انتهت جلستك. يرجى تسجيل الدخول مجدداً.",
+      "forbidden": "ليس لديك صلاحية لتنفيذ هذا الإجراء.",
+      "validation": "تحقق من حقول النموذج وحاول مجدداً.",
+      "unexpected": "حدث خطأ ما. حاول مجدداً."
+    }
+  },
+  "Leaves": {
+    "metadata": {
+      "title": "الإجازات | WorkTrack HR"
+    },
+    "eyebrow": "إدارة الإجازات",
+    "title": "الإجازات",
+    "subtitle": "عرّف أنواع الإجازات والعطلات والإجازات المتكررة لفريق العمل.",
+    "create": "إجازة جديدة",
+    "readOnly": "يمكنك عرض تعريفات الإجازات. التعديل متاح للمديرين والموارد البشرية فقط.",
+    "retry": "إعادة المحاولة",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "paid": "مدفوعة",
+    "unpaid": "غير مدفوعة",
+    "deductible": "تُخصم",
+    "noEndDate": "بدون تاريخ نهاية",
+    "filters": {
+      "searchLabel": "بحث الإجازات",
+      "searchPlaceholder": "ابحث بالاسم أو الوصف",
+      "typeLabel": "نوع الإجازة",
+      "allTypes": "كل أنواع الإجازات",
+      "scopeLabel": "النطاق",
+      "allScopes": "كل النطاقات",
+      "recurrenceLabel": "التكرار",
+      "allRecurrences": "كل التكرارات",
+      "statusLabel": "الحالة",
+      "allStatuses": "كل الحالات",
+      "clear": "مسح عوامل التصفية"
+    },
+    "types": {
+      "ANNUAL": "إجازة سنوية",
+      "SICK": "إجازة مرضية",
+      "UNPAID": "إجازة غير مدفوعة",
+      "ABSENCE": "غياب",
+      "OFFICIAL_HOLIDAY": "عطلة رسمية",
+      "WEEKEND": "عطلة نهاية الأسبوع",
+      "CUSTOM": "مخصصة"
+    },
+    "scope": {
+      "ALL": "كل الموظفين",
+      "DEPARTMENT": "قسم",
+      "EMPLOYEE": "موظف",
+      "allEmployees": "كل الموظفين"
+    },
+    "recurrence": {
+      "NONE": "لمرة واحدة",
+      "WEEKLY": "أسبوعياً",
+      "MONTHLY": "شهرياً",
+      "YEARLY": "سنوياً"
+    },
+    "weekdays": {
+      "0": "الأحد",
+      "1": "الاثنين",
+      "2": "الثلاثاء",
+      "3": "الأربعاء",
+      "4": "الخميس",
+      "5": "الجمعة",
+      "6": "السبت"
+    },
+    "columns": {
+      "name": "الإجازة",
+      "type": "النوع",
+      "scope": "النطاق",
+      "dates": "التواريخ",
+      "recurrence": "التكرار",
+      "flags": "الخصائص",
+      "status": "الحالة",
+      "actions": "الإجراءات"
+    },
+    "empty": {
+      "title": "لا توجد إجازات بعد",
+      "description": "أنشئ أول تعريف إجازة لبدء إدارة الإجازات.",
+      "searchTitle": "لا توجد إجازات مطابقة",
+      "searchDescription": "جرّب بحثاً مختلفاً أو امسح عوامل التصفية."
+    },
+    "error": {
+      "title": "تعذّر تحميل الإجازات"
+    },
+    "edit": "تعديل {name}",
+    "delete": {
+      "action": "حذف {name}",
+      "title": "حذف الإجازة",
+      "description": "حذف {name}؟ لا يمكن التراجع عن هذا الإجراء.",
+      "confirm": "حذف الإجازة",
+      "cancel": "إلغاء",
+      "deleting": "جارٍ الحذف...",
+      "success": "تم حذف الإجازة بنجاح.",
+      "errorTitle": "تعذّر حذف الإجازة"
+    },
+    "validation": {
+      "nameRequired": "اسم الإجازة مطلوب.",
+      "nameMin": "يجب أن يتكون اسم الإجازة من حرفين على الأقل.",
+      "nameMax": "يجب ألا يتجاوز اسم الإجازة 100 حرف.",
+      "descriptionMax": "يجب ألا يتجاوز الوصف 500 حرف.",
+      "employeeRequired": "اختر موظفاً لهذا النطاق.",
+      "departmentRequired": "اختر قسماً لهذا النطاق.",
+      "startDateRequired": "تاريخ البداية مطلوب.",
+      "dateRangeInvalid": "يجب أن يكون تاريخ النهاية في تاريخ البداية أو بعده.",
+      "dayOfWeekInvalid": "يجب أن يكون يوم الأسبوع بين 0 و6.",
+      "dayOfMonthInvalid": "يجب أن يكون يوم الشهر بين 1 و31.",
+      "monthInvalid": "يجب أن يكون الشهر بين 1 و12.",
+      "dayInvalid": "يجب أن يكون اليوم بين 1 و31."
+    },
+    "form": {
+      "createTitle": "إنشاء إجازة",
+      "editTitle": "تعديل الإجازة",
+      "createDescription": "أضف نوع إجازة أو عطلة أو قاعدة إجازة متكررة.",
+      "editDescription": "حدّث تفاصيل الإجازة أو نطاقها أو تواريخها أو تكرارها.",
+      "detailsSection": "تفاصيل الإجازة",
+      "nameLabel": "اسم الإجازة",
+      "namePlaceholder": "مثال: إجازة سنوية",
+      "typeLabel": "نوع الإجازة",
+      "descriptionLabel": "الوصف",
+      "descriptionPlaceholder": "أضف وصفاً قصيراً",
+      "descriptionHint": "اختياري، حتى 500 حرف.",
+      "scopeSection": "النطاق",
+      "scopeLabel": "تنطبق على",
+      "departmentLabel": "القسم",
+      "departmentPlaceholder": "اختر قسماً",
+      "departmentUnavailable": "تعذّر تحميل قائمة الأقسام.",
+      "employeeLabel": "الموظف",
+      "employeePlaceholder": "اختر موظفاً",
+      "employeeUnavailable": "تعذّر تحميل قائمة الموظفين.",
+      "datesSection": "التواريخ",
+      "startDateLabel": "تاريخ البداية",
+      "endDateLabel": "تاريخ النهاية",
+      "endDateHint": "اتركه فارغاً لإجازة ليوم واحد.",
+      "recurrenceSection": "التكرار",
+      "recurrenceLabel": "يتكرر",
+      "autoFromStartDate": "تلقائي من تاريخ البداية",
+      "dayOfWeekLabel": "يوم الأسبوع",
+      "dayOfMonthLabel": "يوم الشهر",
+      "monthLabel": "الشهر",
+      "dayLabel": "اليوم",
+      "recurrenceHint": "اختياري. اتركه فارغاً ليُشتق من تاريخ البداية.",
+      "flagsSection": "الرواتب والحالة",
+      "paidLabel": "إجازة مدفوعة",
+      "paidHint": "حدّد هذه الإجازة كمدفوعة.",
+      "deductibleLabel": "تُخصم",
+      "deductibleHint": "خصم هذه الإجازة من الرصيد.",
+      "activeLabel": "نشطة",
+      "activeHint": "الإجازات غير النشطة تبقى محفوظة لكنها لا تُطبّق.",
+      "errorTitle": "تعذّر حفظ الإجازة",
+      "cancel": "إلغاء",
+      "save": "حفظ الإجازة",
+      "saving": "جارٍ الحفظ...",
+      "createSuccess": "تم إنشاء الإجازة بنجاح.",
+      "updateSuccess": "تم تحديث الإجازة بنجاح."
+    },
+    "errors": {
+      "network": "تعذّر الوصول إلى الخادم. تحقق من الاتصال وحاول مجدداً.",
+      "timeout": "استغرق الطلب وقتاً طويلاً. حاول مجدداً.",
+      "notFound": "تعذّر العثور على الإجازة المحددة.",
+      "employeeNotFound": "تعذّر العثور على الموظف المحدد.",
+      "departmentNotFound": "تعذّر العثور على القسم المحدد.",
+      "dateRange": "يجب أن يكون تاريخ النهاية في تاريخ البداية أو بعده.",
+      "employeeRequired": "اختر موظفاً للإجازات المرتبطة بموظف.",
+      "departmentRequired": "اختر قسماً للإجازات المرتبطة بقسم.",
+      "unauthorized": "انتهت جلستك. يرجى تسجيل الدخول مجدداً.",
+      "forbidden": "ليس لديك صلاحية لتنفيذ هذا الإجراء.",
+      "validation": "تحقق من حقول النموذج وحاول مجدداً.",
+      "unexpected": "حدث خطأ ما. حاول مجدداً."
+    }
+  },
+  "Dashboard": {
+    "metadata": {
+      "title": "لوحة التحكم | WorkTrack HR"
+    },
+    "eyebrow": "نظرة عامة",
+    "title": "لوحة القوى العاملة",
+    "subtitle": "ملخص مباشر للقوى العاملة والحضور وآخر نشاط في النظام.",
+    "refresh": "تحديث",
+    "updatedAt": "آخر تحديث {date}",
+    "managerScope": "تقتصر لوحتك على القسم المسند إليك.",
+    "filters": {
+      "from": "من",
+      "to": "إلى",
+      "department": "القسم",
+      "allDepartments": "كل الأقسام",
+      "clear": "مسح الفلاتر"
+    },
+    "kpis": {
+      "attendanceRate": "معدل الحضور",
+      "attendanceHint": "{attended} من {total} سجل",
+      "lateRate": "معدل التأخير",
+      "lateHint": "{count} سجل تأخير",
+      "absenceRate": "معدل الغياب",
+      "absenceHint": "{count} سجل غياب",
+      "averageWorking": "متوسط وقت العمل",
+      "averageWorkingHint": "{total} إجمالي"
+    },
+    "panels": {
+      "workforce": "القوى العاملة",
+      "workforceDescription": "إجماليات الموظفين والتنظيم.",
+      "today": "اليوم",
+      "todayDescription": "ملخص الحضور ليوم {date}.",
+      "attendance": "توزيع الحضور",
+      "attendanceDescription": "توزيع الحالات للفترة المحددة.",
+      "leaves": "الإجازات",
+      "leavesDescription": "تعريفات الإجازات النشطة وحدوثها اليوم."
+    },
+    "metrics": {
+      "totalEmployees": "إجمالي الموظفين",
+      "activeEmployees": "نشط",
+      "inactiveEmployees": "غير نشط",
+      "departments": "الأقسام",
+      "shifts": "الورديات",
+      "totalRecords": "إجمالي السجلات",
+      "present": "حاضر",
+      "late": "متأخر",
+      "absent": "غائب",
+      "halfDay": "نصف يوم",
+      "onLeave": "في إجازة",
+      "attendanceRate": "معدل الحضور",
+      "activeLeaves": "إجازات نشطة",
+      "todayLeaves": "إجازات اليوم"
+    },
+    "trend": {
+      "title": "اتجاه الحضور",
+      "description": "معدل الحضور اليومي من {from} إلى {to}.",
+      "empty": "لا توجد بيانات اتجاه حضور لهذه الفترة.",
+      "ariaLabel": "مخطط اتجاه معدل الحضور",
+      "rate": "معدل الحضور"
+    },
+    "audit": {
+      "title": "آخر النشاطات",
+      "description": "أحدث أحداث التدقيق ضمن نطاقك.",
+      "empty": "لا توجد نشاطات حديثة.",
+      "system": "النظام"
+    },
+    "errors": {
+      "title": "تعذّر تحميل لوحة التحكم",
+      "network": "الشبكة غير متاحة. تحقق من الاتصال وحاول مجدداً.",
+      "timeout": "استغرق الطلب وقتاً طويلاً. حاول مجدداً.",
+      "managerDepartment": "حسابك غير مسند إلى قسم. تواصل مع المسؤول.",
+      "unauthorized": "انتهت جلستك. يرجى تسجيل الدخول مجدداً.",
+      "forbidden": "ليس لديك صلاحية لعرض لوحة التحكم.",
+      "validation": "الفلاتر المحددة غير صالحة.",
+      "rangeTooLong": "يجب ألا يتجاوز نطاق التاريخ 366 يوماً.",
+      "unexpected": "حدث خطأ ما أثناء تحميل لوحة التحكم."
+    },
+    "retry": "إعادة المحاولة"
+  },
+  "HrKpi": {
+    "metadata": {
+      "title": "مؤشرات الموارد البشرية | WorkTrack HR"
+    },
+    "eyebrow": "تحليلات الموظفين",
+    "title": "تقرير مؤشرات الموارد البشرية",
+    "subtitle": "أداء الأقسام وأكثر الموظفين تأخراً.",
+    "refresh": "تحديث",
+    "updatedAt": "آخر تحديث {date}",
+    "filters": {
+      "from": "من",
+      "to": "إلى",
+      "department": "القسم",
+      "allDepartments": "كل الأقسام",
+      "clear": "مسح الفلاتر"
+    },
+    "kpis": {
+      "attendanceRate": "معدل الحضور",
+      "attendanceHint": "{attended} من {total} سجل",
+      "lateRate": "معدل التأخير",
+      "lateHint": "{count} سجل تأخير",
+      "absenceRate": "معدل الغياب",
+      "absenceHint": "{count} سجل غياب",
+      "averageWorking": "متوسط وقت العمل",
+      "averageWorkingHint": "{total} إجمالي"
+    },
+    "panels": {
+      "departments": "مؤشرات الأقسام",
+      "departmentsDescription": "أداء الحضور حسب القسم.",
+      "topLate": "أكثر الموظفين تأخراً",
+      "topLateDescription": "الموظفون الأكثر دقائق تأخير."
+    },
+    "columns": {
+      "department": "القسم",
+      "employees": "الموظفون",
+      "records": "السجلات",
+      "present": "حاضر",
+      "late": "متأخر",
+      "absent": "غائب",
+      "attendanceRate": "الحضور",
+      "lateRate": "معدل التأخير",
+      "averageWorking": "متوسط العمل",
+      "employee": "الموظف",
+      "lateDays": "أيام التأخير",
+      "lateMinutes": "وقت التأخير",
+      "absentDays": "أيام الغياب"
+    },
+    "empty": {
+      "departments": "لا توجد بيانات أقسام لهذه الفترة.",
+      "topLate": "لا يوجد موظفون متأخرون لهذه الفترة."
+    },
+    "errors": {
+      "title": "تعذّر تحميل تقرير مؤشرات الموارد البشرية",
+      "network": "الشبكة غير متاحة. تحقق من الاتصال وحاول مجدداً.",
+      "timeout": "استغرق الطلب وقتاً طويلاً. حاول مجدداً.",
+      "unauthorized": "انتهت جلستك. يرجى تسجيل الدخول مجدداً.",
+      "forbidden": "ليس لديك صلاحية لعرض هذا التقرير.",
+      "validation": "الفلاتر المحددة غير صالحة.",
+      "rangeTooLong": "يجب ألا يتجاوز نطاق التاريخ 366 يوماً.",
+      "unexpected": "حدث خطأ ما أثناء تحميل التقرير."
+    },
+    "retry": "إعادة المحاولة"
+  },
+  "AuditLogs": {
+    "metadata": {
+      "title": "سجل التدقيق | WorkTrack HR"
+    },
+    "eyebrow": "الإدارة",
+    "title": "سجل التدقيق",
+    "subtitle": "راجع نشاط النظام والتغييرات على مستوى المؤسسة.",
+    "retry": "إعادة المحاولة",
+    "view": "عرض التفاصيل",
+    "system": "النظام",
+    "noEntityId": "—",
+    "roles": {
+      "ADMIN": "مدير النظام",
+      "HR": "موارد بشرية",
+      "MANAGER": "مدير قسم"
+    },
+    "filters": {
+      "searchLabel": "بحث",
+      "searchPlaceholder": "ابحث في الإجراء أو الكيان أو معرّف الكيان",
+      "actionLabel": "الإجراء",
+      "actionPlaceholder": "مثال: CREATE",
+      "entityLabel": "الكيان",
+      "entityPlaceholder": "مثال: Employee",
+      "fromLabel": "من",
+      "toLabel": "إلى",
+      "clear": "مسح الفلاتر"
+    },
+    "columns": {
+      "timestamp": "الوقت",
+      "action": "الإجراء",
+      "entity": "الكيان",
+      "entityId": "معرّف الكيان",
+      "user": "المستخدم",
+      "details": "التفاصيل"
+    },
+    "empty": {
+      "title": "لا توجد سجلات تدقيق بعد",
+      "description": "سيظهر نشاط النظام هنا عند إجراء التغييرات.",
+      "filteredTitle": "لا توجد سجلات مطابقة",
+      "filteredDescription": "جرّب كلمة بحث مختلفة أو امسح الفلاتر.",
+      "clearFilters": "مسح الفلاتر"
+    },
+    "error": {
+      "title": "تعذّر تحميل سجل التدقيق"
+    },
+    "errors": {
+      "network": "الشبكة غير متاحة. تحقق من الاتصال وحاول مجدداً.",
+      "timeout": "استغرق الطلب وقتاً طويلاً. حاول مجدداً.",
+      "notFound": "تعذّر العثور على سجل التدقيق.",
+      "unauthorized": "انتهت جلستك. يرجى تسجيل الدخول مجدداً.",
+      "forbidden": "ليس لديك صلاحية لعرض سجل التدقيق.",
+      "validation": "الفلاتر المحددة غير صالحة.",
+      "unexpected": "حدث خطأ ما أثناء تحميل سجل التدقيق."
+    },
+    "details": {
+      "title": "تفاصيل سجل التدقيق",
+      "description": "السياق الكامل لهذا الإجراء المسجل.",
+      "action": "الإجراء",
+      "entity": "الكيان",
+      "entityId": "معرّف الكيان",
+      "user": "المستخدم",
+      "email": "البريد الإلكتروني",
+      "role": "الدور",
+      "createdAt": "تاريخ الإنشاء",
+      "details": "التفاصيل",
+      "noDetails": "لم يتم تسجيل تفاصيل إضافية.",
+      "close": "إغلاق"
     }
   },
   "Login": {

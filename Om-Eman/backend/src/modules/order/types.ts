@@ -8,6 +8,7 @@ export type {
 export interface IOrderResponse {
   id: string;
   orderNumber: string;
+  trackingToken: string;
   customerId: string;
   status: EOrderStatus;
   paymentStatus: EPaymentStatus;

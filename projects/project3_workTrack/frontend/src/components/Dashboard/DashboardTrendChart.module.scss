@@ -1,0 +1,77 @@
+@use "../../styles" as *;
+
+.chartWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.gridLine {
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.axisLabel {
+  fill: var(--color-ink-soft);
+  font-family: $font-sans;
+  font-size: 10px;
+}
+
+.area {
+  fill: var(--color-brand);
+  opacity: 0.12;
+}
+
+.line {
+  fill: none;
+  stroke: var(--color-brand);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+}
+
+.point {
+  fill: var(--color-surface-raised);
+  stroke: var(--color-brand);
+  stroke-width: 2;
+}
+
+.legend {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  color: var(--color-ink-muted);
+  font-size: 0.76rem;
+}
+
+.legendDot {
+  width: 9px;
+  height: 9px;
+  background: var(--color-brand);
+  border-radius: 50%;
+}
+
+.empty {
+  margin: 0;
+  padding: 28px 12px;
+  color: var(--color-ink-muted);
+  font-size: 0.86rem;
+  text-align: center;
+  background: var(--color-surface-sunken);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+
+@include respond("sm") {
+  .axisLabel {
+    font-size: 9px;
+  }
+}

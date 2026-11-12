@@ -18,7 +18,6 @@ export const createInvoiceSchema = z.object({
   taxTotal: z.union([z.string().trim().regex(/^-?\d+(?:\.\d+)?$/, "must be a decimal number"), z.number().finite()]).optional(),
   grandTotal: z.union([z.string().trim().regex(/^-?\d+(?:\.\d+)?$/, "must be a decimal number"), z.number().finite()]),
   taxRateSnapshot: z.union([z.string().trim().regex(/^-?\d+(?:\.\d+)?$/, "must be a decimal number"), z.number().finite()]).optional().nullable(),
-  taxAmount: z.union([z.string().trim().regex(/^-?\d+(?:\.\d+)?$/, "must be a decimal number"), z.number().finite()]).optional(),
   notes: z.string().trim().min(1, "must not be empty").optional().nullable(),
   voidedAt: z.coerce.date().optional().nullable(),
   voidReason: z.string().trim().min(1, "must not be empty").optional().nullable(),
@@ -44,7 +43,6 @@ export const updateInvoiceSchema = z.object({
   taxTotal: z.union([z.string().trim().regex(/^-?\d+(?:\.\d+)?$/, "must be a decimal number"), z.number().finite()]).optional(),
   grandTotal: z.union([z.string().trim().regex(/^-?\d+(?:\.\d+)?$/, "must be a decimal number"), z.number().finite()]).optional(),
   taxRateSnapshot: z.union([z.string().trim().regex(/^-?\d+(?:\.\d+)?$/, "must be a decimal number"), z.number().finite()]).optional().nullable(),
-  taxAmount: z.union([z.string().trim().regex(/^-?\d+(?:\.\d+)?$/, "must be a decimal number"), z.number().finite()]).optional(),
   notes: z.string().trim().min(1, "must not be empty").optional().nullable(),
   voidedAt: z.coerce.date().optional().nullable(),
   voidReason: z.string().trim().min(1, "must not be empty").optional().nullable(),
@@ -60,7 +58,7 @@ export const listInvoiceQuerySchema = z.object({
   q: z.string().trim().min(1).max(200).optional(),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(20),
-  sortBy: z.enum(["id", "invoiceNumber", "orderId", "status", "issuedAt", "issuedByEmployeeId", "sellerName", "sellerTaxNumber", "customerName", "customerPhone", "customerEmail", "subtotal", "discountTotal", "shippingTotal", "taxTotal", "grandTotal", "taxRateSnapshot", "taxAmount", "notes", "voidedAt", "voidReason", "pdfUrl", "pdfGeneratedAt", "createdAt", "updatedAt"]).default("createdAt"),
+  sortBy: z.enum(["id", "invoiceNumber", "orderId", "status", "issuedAt", "issuedByEmployeeId", "sellerName", "sellerTaxNumber", "customerName", "customerPhone", "customerEmail", "subtotal", "discountTotal", "shippingTotal", "taxTotal", "grandTotal", "taxRateSnapshot", "notes", "voidedAt", "voidReason", "pdfUrl", "pdfGeneratedAt", "createdAt", "updatedAt"]).default("createdAt"),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
 });
 

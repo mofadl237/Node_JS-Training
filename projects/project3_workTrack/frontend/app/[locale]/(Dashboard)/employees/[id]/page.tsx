@@ -9,9 +9,17 @@ interface IEmployeeDetailsPageProps {
   params: Promise<{ locale: string; id: string }>;
 }
 
-async function DynamicMarker() {
+async function ConnectionMarker() {
   await connection();
   return null;
+}
+
+async function DynamicMarker() {
+  return (
+    <Suspense>
+      <ConnectionMarker />
+    </Suspense>
+  );
 }
 
 export default async function EmployeeDetailsPage({
@@ -23,9 +31,7 @@ export default async function EmployeeDetailsPage({
 
   return (
     <>
-      <Suspense>
-        <DynamicMarker />
-      </Suspense>
+      <DynamicMarker />
       <RoleGuard roles={ALL_ROLES}>
         <EmployeeDetailsScreen employeeId={id} />
       </RoleGuard>

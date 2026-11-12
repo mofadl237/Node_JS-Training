@@ -127,7 +127,8 @@
   },
   "Employees": {
     "metadata": {
-      "title": "Employees | WorkTrack HR"
+      "title": "Employees | WorkTrack HR",
+      "detailsTitle": "Employee profile | WorkTrack HR"
     },
     "eyebrow": "People operations",
     "title": "Employees",
@@ -487,6 +488,626 @@
       "forbidden": "You don't have permission to change attendance records.",
       "validation": "Check the record details and try again.",
       "unexpected": "Something went wrong. Try again."
+    }
+  },
+  "Uploads": {
+    "metadata": {
+      "title": "CSV uploads | WorkTrack HR"
+    },
+    "eyebrow": "Data operations",
+    "title": "CSV uploads",
+    "subtitle": "Import employees and attendance records from CSV files, then review row-level errors before retrying.",
+    "infoTitle": "Import safely",
+    "infoDescription": "Upload one CSV at a time. Valid rows are saved even when other rows fail, and every failed row is listed with its row number and reason.",
+    "columnsLabel": "Expected columns",
+    "chooseFile": "Choose a CSV file",
+    "fileHint": "Drop or select a .csv file up to 5MB",
+    "selectedFile": "Selected file",
+    "removeFile": "Remove file",
+    "upload": "Upload CSV",
+    "uploading": "Uploading...",
+    "successToast": "CSV import finished",
+    "errorTitle": "We couldn't import this CSV",
+    "fileErrorTitle": "Check the selected file",
+    "invalidFileType": "Choose a .csv file.",
+    "fileTooLarge": "The file must be 5MB or smaller.",
+    "employees": {
+      "title": "Employee import",
+      "description": "Create or update employees, departments, and optional shift assignments.",
+      "columns": "employeeCode, firstName, lastName, department, hireDate, email?, phone?, jobTitle?, status?, shiftName?, shiftStartTime?, shiftEndTime?"
+    },
+    "attendance": {
+      "title": "Attendance import",
+      "description": "Import check-in/check-out logs or daily attendance records.",
+      "columns": "Logs: employeeCode, type, timestamp. Records: employeeCode, date, checkIn?, checkOut?, status?"
+    },
+    "result": {
+      "successTitle": "Import completed",
+      "partialTitle": "Import completed with errors",
+      "failureTitle": "No rows were imported",
+      "summary": "Imported {success} of {total} rows.",
+      "total": "Total",
+      "success": "Imported",
+      "failed": "Failed",
+      "errorsTitle": "Rows that need attention",
+      "row": "Row",
+      "employee": "Employee code",
+      "message": "Reason",
+      "noEmployee": "—"
+    },
+    "errors": {
+      "network": "We couldn't reach the server. Check your connection and try again.",
+      "timeout": "The server took too long to respond. Try again.",
+      "fileTooLarge": "The file must be 5MB or smaller.",
+      "invalidFileType": "Only .csv files are allowed.",
+      "emptyFile": "The CSV file is empty.",
+      "fileRequired": "Choose a CSV file first.",
+      "unauthorized": "Your session has expired. Sign in again.",
+      "forbidden": "You don't have permission to import CSV files.",
+      "validation": "Check the CSV file and try again.",
+      "unexpected": "Something went wrong. Try again."
+    }
+  },
+  "Shifts": {
+    "metadata": {
+      "title": "Shifts | WorkTrack HR"
+    },
+    "eyebrow": "Workforce scheduling",
+    "title": "Shifts & assignments",
+    "subtitle": "Define working shifts and connect employees to the schedule that fits their role.",
+    "tabs": {
+      "label": "Shift management sections",
+      "shifts": "Shifts",
+      "assignments": "Assignments"
+    },
+    "yes": "Yes",
+    "no": "No",
+    "validation": {
+      "nameRequired": "Shift name is required.",
+      "nameMin": "Shift name must be at least 2 characters.",
+      "nameMax": "Shift name must not exceed 100 characters.",
+      "timeInvalid": "Use a valid time in HH:mm format.",
+      "minutesInvalid": "Enter a whole number of minutes.",
+      "minutesMax": "Minutes must not exceed 1440.",
+      "hoursInvalid": "Enter a number greater than zero.",
+      "hoursMax": "Expected hours must not exceed 24.",
+      "employeeRequired": "Select an employee.",
+      "shiftRequired": "Select a shift.",
+      "startDateRequired": "Start date is required.",
+      "dateRangeInvalid": "End date must be on or after the start date."
+    },
+    "form": {
+      "createTitle": "Create shift",
+      "editTitle": "Edit shift",
+      "createDescription": "Add a shift with its working hours and attendance rules.",
+      "editDescription": "Update the shift timing, limits, or night-shift flag.",
+      "nameLabel": "Shift name",
+      "namePlaceholder": "e.g. Morning shift",
+      "startTimeLabel": "Start time",
+      "endTimeLabel": "End time",
+      "graceLabel": "Grace period",
+      "expectedHoursLabel": "Expected hours",
+      "overtimeLabel": "Overtime after",
+      "minutesHint": "In minutes (0–1440).",
+      "hoursHint": "Between 0.5 and 24 hours.",
+      "nightShiftLabel": "Night shift",
+      "nightShiftHint": "Mark this shift when it crosses midnight.",
+      "errorTitle": "We couldn't save the shift",
+      "cancel": "Cancel",
+      "save": "Save shift",
+      "saving": "Saving...",
+      "createSuccess": "Shift created successfully.",
+      "updateSuccess": "Shift updated successfully."
+    },
+    "shifts": {
+      "title": "Shift catalog",
+      "description": "Manage the shifts used by attendance calculations and employee assignments.",
+      "create": "New shift",
+      "readOnly": "You can view shifts. Only administrators and HR can make changes.",
+      "retry": "Try again",
+      "empty": {
+        "title": "No shifts yet",
+        "description": "Create the first shift to start scheduling employees.",
+        "searchTitle": "No matching shifts",
+        "searchDescription": "Try a different search term or clear the filters."
+      },
+      "error": {
+        "title": "We couldn't load shifts"
+      },
+      "columns": {
+        "name": "Shift",
+        "time": "Working hours",
+        "grace": "Grace",
+        "expected": "Expected",
+        "overtime": "Overtime after",
+        "night": "Night shift",
+        "actions": "Actions"
+      },
+      "units": {
+        "minutes": "{value} min",
+        "hours": "{value} h"
+      },
+      "edit": "Edit {name}",
+      "delete": {
+        "action": "Delete {name}",
+        "title": "Delete shift",
+        "description": "Delete {name}? This cannot be undone.",
+        "confirm": "Delete shift",
+        "cancel": "Cancel",
+        "deleting": "Deleting...",
+        "success": "Shift deleted successfully.",
+        "errorTitle": "We couldn't delete the shift"
+      }
+    },
+    "assignments": {
+      "title": "Employee assignments",
+      "description": "Connect employees to shifts and keep their effective dates up to date.",
+      "create": "New assignment",
+      "readOnly": "You can view assignments. Only administrators and HR can make changes.",
+      "retry": "Try again",
+      "active": "Active",
+      "inactive": "Inactive",
+      "empty": {
+        "title": "No assignments yet",
+        "description": "Assign a shift to an employee to get started.",
+        "searchTitle": "No matching assignments",
+        "searchDescription": "Try different filters or clear them."
+      },
+      "error": {
+        "title": "We couldn't load assignments"
+      },
+      "columns": {
+        "employee": "Employee",
+        "shift": "Shift",
+        "startDate": "Starts",
+        "endDate": "Ends",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "edit": "Edit assignment for {name}",
+      "delete": {
+        "action": "Delete assignment for {name}",
+        "title": "Delete assignment",
+        "description": "Delete the assignment for {name} on {shift}? This cannot be undone.",
+        "confirm": "Delete assignment",
+        "cancel": "Cancel",
+        "deleting": "Deleting...",
+        "success": "Assignment deleted successfully.",
+        "errorTitle": "We couldn't delete the assignment"
+      }
+    },
+    "assignmentForm": {
+      "createTitle": "Create assignment",
+      "editTitle": "Edit assignment",
+      "createDescription": "Assign a shift to an employee with an effective date.",
+      "editDescription": "Update the employee, shift, dates, or active status.",
+      "employeeLabel": "Employee",
+      "employeePlaceholder": "Select an employee",
+      "shiftLabel": "Shift",
+      "shiftPlaceholder": "Select a shift",
+      "startDateLabel": "Start date",
+      "endDateLabel": "End date",
+      "endDateHint": "Leave empty for an open-ended assignment.",
+      "activeLabel": "Active assignment",
+      "activeHint": "Inactive assignments stay on record but are not used for scheduling.",
+      "employeeUnavailable": "The employee list could not be loaded.",
+      "shiftUnavailable": "The shift list could not be loaded.",
+      "errorTitle": "We couldn't save the assignment",
+      "cancel": "Cancel",
+      "save": "Save assignment",
+      "saving": "Saving...",
+      "createSuccess": "Assignment created successfully.",
+      "updateSuccess": "Assignment updated successfully."
+    },
+    "filters": {
+      "searchLabel": "Search shifts",
+      "searchPlaceholder": "Search by shift name",
+      "shiftTypeLabel": "Shift type",
+      "allShiftTypes": "All shift types",
+      "dayShift": "Day shift",
+      "nightShift": "Night shift",
+      "employeeLabel": "Employee",
+      "employeePlaceholder": "Search employees",
+      "clearEmployee": "Clear employee",
+      "employeeLoading": "Loading employees...",
+      "employeeEmpty": "No employees found.",
+      "employeeError": "Could not load employees.",
+      "shiftLabel": "Shift",
+      "allShifts": "All shifts",
+      "shiftUnavailable": "Could not load shifts.",
+      "statusLabel": "Status",
+      "allStatuses": "All statuses",
+      "active": "Active",
+      "inactive": "Inactive",
+      "clear": "Clear filters"
+    },
+    "errors": {
+      "network": "We couldn't reach the server. Check your connection and try again.",
+      "timeout": "The request took too long. Please try again.",
+      "shiftNotFound": "The selected shift could not be found.",
+      "shiftInUse": "This shift is assigned to employees or used by attendance records and cannot be deleted.",
+      "assignmentNotFound": "The selected assignment could not be found.",
+      "employeeNotFound": "The selected employee could not be found.",
+      "dateRange": "The end date must be on or after the start date.",
+      "unauthorized": "Your session has expired. Please sign in again.",
+      "forbidden": "You do not have permission to perform this action.",
+      "validation": "Check the form fields and try again.",
+      "unexpected": "Something went wrong. Please try again."
+    }
+  },
+  "Leaves": {
+    "metadata": {
+      "title": "Leaves | WorkTrack HR"
+    },
+    "eyebrow": "Time off management",
+    "title": "Leaves",
+    "subtitle": "Define leave types, holidays, and recurring time off for your workforce.",
+    "create": "New leave",
+    "readOnly": "You can view leave definitions. Only administrators and HR can make changes.",
+    "retry": "Try again",
+    "active": "Active",
+    "inactive": "Inactive",
+    "paid": "Paid",
+    "unpaid": "Unpaid",
+    "deductible": "Deductible",
+    "noEndDate": "No end date",
+    "filters": {
+      "searchLabel": "Search leaves",
+      "searchPlaceholder": "Search by name or description",
+      "typeLabel": "Leave type",
+      "allTypes": "All leave types",
+      "scopeLabel": "Scope",
+      "allScopes": "All scopes",
+      "recurrenceLabel": "Recurrence",
+      "allRecurrences": "All recurrences",
+      "statusLabel": "Status",
+      "allStatuses": "All statuses",
+      "clear": "Clear filters"
+    },
+    "types": {
+      "ANNUAL": "Annual leave",
+      "SICK": "Sick leave",
+      "UNPAID": "Unpaid leave",
+      "ABSENCE": "Absence",
+      "OFFICIAL_HOLIDAY": "Official holiday",
+      "WEEKEND": "Weekend",
+      "CUSTOM": "Custom"
+    },
+    "scope": {
+      "ALL": "All employees",
+      "DEPARTMENT": "Department",
+      "EMPLOYEE": "Employee",
+      "allEmployees": "All employees"
+    },
+    "recurrence": {
+      "NONE": "One-time",
+      "WEEKLY": "Weekly",
+      "MONTHLY": "Monthly",
+      "YEARLY": "Yearly"
+    },
+    "weekdays": {
+      "0": "Sunday",
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday"
+    },
+    "columns": {
+      "name": "Leave",
+      "type": "Type",
+      "scope": "Scope",
+      "dates": "Dates",
+      "recurrence": "Recurrence",
+      "flags": "Flags",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No leaves yet",
+      "description": "Create the first leave definition to start managing time off.",
+      "searchTitle": "No matching leaves",
+      "searchDescription": "Try a different search term or clear the filters."
+    },
+    "error": {
+      "title": "We couldn't load leaves"
+    },
+    "edit": "Edit {name}",
+    "delete": {
+      "action": "Delete {name}",
+      "title": "Delete leave",
+      "description": "Delete {name}? This cannot be undone.",
+      "confirm": "Delete leave",
+      "cancel": "Cancel",
+      "deleting": "Deleting...",
+      "success": "Leave deleted successfully.",
+      "errorTitle": "We couldn't delete the leave"
+    },
+    "validation": {
+      "nameRequired": "Leave name is required.",
+      "nameMin": "Leave name must be at least 2 characters.",
+      "nameMax": "Leave name must not exceed 100 characters.",
+      "descriptionMax": "Description must not exceed 500 characters.",
+      "employeeRequired": "Select an employee for this scope.",
+      "departmentRequired": "Select a department for this scope.",
+      "startDateRequired": "Start date is required.",
+      "dateRangeInvalid": "End date must be on or after the start date.",
+      "dayOfWeekInvalid": "Day of week must be between 0 and 6.",
+      "dayOfMonthInvalid": "Day of month must be between 1 and 31.",
+      "monthInvalid": "Month must be between 1 and 12.",
+      "dayInvalid": "Day must be between 1 and 31."
+    },
+    "form": {
+      "createTitle": "Create leave",
+      "editTitle": "Edit leave",
+      "createDescription": "Add a leave type, holiday, or recurring time off rule.",
+      "editDescription": "Update the leave details, scope, dates, or recurrence.",
+      "detailsSection": "Leave details",
+      "nameLabel": "Leave name",
+      "namePlaceholder": "e.g. Annual leave",
+      "typeLabel": "Leave type",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Add a short description",
+      "descriptionHint": "Optional, up to 500 characters.",
+      "scopeSection": "Scope",
+      "scopeLabel": "Applies to",
+      "departmentLabel": "Department",
+      "departmentPlaceholder": "Select a department",
+      "departmentUnavailable": "The department list could not be loaded.",
+      "employeeLabel": "Employee",
+      "employeePlaceholder": "Select an employee",
+      "employeeUnavailable": "The employee list could not be loaded.",
+      "datesSection": "Dates",
+      "startDateLabel": "Start date",
+      "endDateLabel": "End date",
+      "endDateHint": "Leave empty for a single-day leave.",
+      "recurrenceSection": "Recurrence",
+      "recurrenceLabel": "Repeats",
+      "autoFromStartDate": "Automatic from start date",
+      "dayOfWeekLabel": "Day of week",
+      "dayOfMonthLabel": "Day of month",
+      "monthLabel": "Month",
+      "dayLabel": "Day",
+      "recurrenceHint": "Optional. Leave empty to derive it from the start date.",
+      "flagsSection": "Payroll and status",
+      "paidLabel": "Paid leave",
+      "paidHint": "Mark this leave as paid.",
+      "deductibleLabel": "Deductible",
+      "deductibleHint": "Deduct this leave from the balance.",
+      "activeLabel": "Active",
+      "activeHint": "Inactive leaves stay on record but are not applied.",
+      "errorTitle": "We couldn't save the leave",
+      "cancel": "Cancel",
+      "save": "Save leave",
+      "saving": "Saving...",
+      "createSuccess": "Leave created successfully.",
+      "updateSuccess": "Leave updated successfully."
+    },
+    "errors": {
+      "network": "We couldn't reach the server. Check your connection and try again.",
+      "timeout": "The request took too long. Please try again.",
+      "notFound": "The selected leave could not be found.",
+      "employeeNotFound": "The selected employee could not be found.",
+      "departmentNotFound": "The selected department could not be found.",
+      "dateRange": "The end date must be on or after the start date.",
+      "employeeRequired": "Select an employee for employee-scoped leaves.",
+      "departmentRequired": "Select a department for department-scoped leaves.",
+      "unauthorized": "Your session has expired. Please sign in again.",
+      "forbidden": "You do not have permission to perform this action.",
+      "validation": "Check the form fields and try again.",
+      "unexpected": "Something went wrong. Please try again."
+    }
+  },
+  "Dashboard": {
+    "metadata": {
+      "title": "Dashboard | WorkTrack HR"
+    },
+    "eyebrow": "Overview",
+    "title": "Workforce dashboard",
+    "subtitle": "A live snapshot of workforce, attendance, and recent system activity.",
+    "refresh": "Refresh",
+    "updatedAt": "Updated {date}",
+    "managerScope": "Your dashboard is limited to your assigned department.",
+    "filters": {
+      "from": "From",
+      "to": "To",
+      "department": "Department",
+      "allDepartments": "All departments",
+      "clear": "Clear filters"
+    },
+    "kpis": {
+      "attendanceRate": "Attendance rate",
+      "attendanceHint": "{attended} of {total} records",
+      "lateRate": "Late rate",
+      "lateHint": "{count} late records",
+      "absenceRate": "Absence rate",
+      "absenceHint": "{count} absent records",
+      "averageWorking": "Average working time",
+      "averageWorkingHint": "{total} total"
+    },
+    "panels": {
+      "workforce": "Workforce",
+      "workforceDescription": "Employee and organization totals.",
+      "today": "Today",
+      "todayDescription": "Attendance snapshot for {date}.",
+      "attendance": "Attendance breakdown",
+      "attendanceDescription": "Status distribution for the selected period.",
+      "leaves": "Leaves",
+      "leavesDescription": "Active leave definitions and occurrences today."
+    },
+    "metrics": {
+      "totalEmployees": "Total employees",
+      "activeEmployees": "Active",
+      "inactiveEmployees": "Inactive",
+      "departments": "Departments",
+      "shifts": "Shifts",
+      "totalRecords": "Total records",
+      "present": "Present",
+      "late": "Late",
+      "absent": "Absent",
+      "halfDay": "Half day",
+      "onLeave": "On leave",
+      "attendanceRate": "Attendance rate",
+      "activeLeaves": "Active leaves",
+      "todayLeaves": "Leaves today"
+    },
+    "trend": {
+      "title": "Attendance trend",
+      "description": "Daily attendance rate from {from} to {to}.",
+      "empty": "No attendance trend data for this period.",
+      "ariaLabel": "Attendance rate trend chart",
+      "rate": "Attendance rate"
+    },
+    "audit": {
+      "title": "Recent activity",
+      "description": "The latest audit events in your scope.",
+      "empty": "No recent activity.",
+      "system": "System"
+    },
+    "errors": {
+      "title": "Could not load the dashboard",
+      "network": "Network unavailable. Check your connection and try again.",
+      "timeout": "The request timed out. Please try again.",
+      "managerDepartment": "Your account is not assigned to a department. Contact an administrator.",
+      "unauthorized": "Your session expired. Please sign in again.",
+      "forbidden": "You do not have permission to view this dashboard.",
+      "validation": "The selected filters are invalid.",
+      "rangeTooLong": "The date range must not exceed 366 days.",
+      "unexpected": "Something went wrong while loading the dashboard."
+    },
+    "retry": "Try again"
+  },
+  "HrKpi": {
+    "metadata": {
+      "title": "HR KPI | WorkTrack HR"
+    },
+    "eyebrow": "People analytics",
+    "title": "HR KPI report",
+    "subtitle": "Department performance and the most late-arriving employees.",
+    "refresh": "Refresh",
+    "updatedAt": "Updated {date}",
+    "filters": {
+      "from": "From",
+      "to": "To",
+      "department": "Department",
+      "allDepartments": "All departments",
+      "clear": "Clear filters"
+    },
+    "kpis": {
+      "attendanceRate": "Attendance rate",
+      "attendanceHint": "{attended} of {total} records",
+      "lateRate": "Late rate",
+      "lateHint": "{count} late records",
+      "absenceRate": "Absence rate",
+      "absenceHint": "{count} absent records",
+      "averageWorking": "Average working time",
+      "averageWorkingHint": "{total} total"
+    },
+    "panels": {
+      "departments": "Department KPIs",
+      "departmentsDescription": "Attendance performance by department.",
+      "topLate": "Top late employees",
+      "topLateDescription": "The employees with the most late minutes."
+    },
+    "columns": {
+      "department": "Department",
+      "employees": "Employees",
+      "records": "Records",
+      "present": "Present",
+      "late": "Late",
+      "absent": "Absent",
+      "attendanceRate": "Attendance",
+      "lateRate": "Late rate",
+      "averageWorking": "Avg. work",
+      "employee": "Employee",
+      "lateDays": "Late days",
+      "lateMinutes": "Late time",
+      "absentDays": "Absent days"
+    },
+    "empty": {
+      "departments": "No department data for this period.",
+      "topLate": "No late employees for this period."
+    },
+    "errors": {
+      "title": "Could not load the HR KPI report",
+      "network": "Network unavailable. Check your connection and try again.",
+      "timeout": "The request timed out. Please try again.",
+      "unauthorized": "Your session expired. Please sign in again.",
+      "forbidden": "You do not have permission to view this report.",
+      "validation": "The selected filters are invalid.",
+      "rangeTooLong": "The date range must not exceed 366 days.",
+      "unexpected": "Something went wrong while loading the report."
+    },
+    "retry": "Try again"
+  },
+  "AuditLogs": {
+    "metadata": {
+      "title": "Audit logs | WorkTrack HR"
+    },
+    "eyebrow": "Administration",
+    "title": "Audit logs",
+    "subtitle": "Review system activity and changes across your organization.",
+    "retry": "Try again",
+    "view": "View details",
+    "system": "System",
+    "noEntityId": "—",
+    "roles": {
+      "ADMIN": "Administrator",
+      "HR": "HR",
+      "MANAGER": "Department manager"
+    },
+    "filters": {
+      "searchLabel": "Search",
+      "searchPlaceholder": "Search action, entity, or entity ID",
+      "actionLabel": "Action",
+      "actionPlaceholder": "e.g. CREATE",
+      "entityLabel": "Entity",
+      "entityPlaceholder": "e.g. Employee",
+      "fromLabel": "From",
+      "toLabel": "To",
+      "clear": "Clear filters"
+    },
+    "columns": {
+      "timestamp": "Timestamp",
+      "action": "Action",
+      "entity": "Entity",
+      "entityId": "Entity ID",
+      "user": "User",
+      "details": "Details"
+    },
+    "empty": {
+      "title": "No audit logs yet",
+      "description": "System activity will appear here as changes are made.",
+      "filteredTitle": "No matching audit logs",
+      "filteredDescription": "Try a different search term or clear the filters.",
+      "clearFilters": "Clear filters"
+    },
+    "error": {
+      "title": "We couldn't load audit logs"
+    },
+    "errors": {
+      "network": "Network unavailable. Check your connection and try again.",
+      "timeout": "The request timed out. Please try again.",
+      "notFound": "The audit log could not be found.",
+      "unauthorized": "Your session expired. Please sign in again.",
+      "forbidden": "You do not have permission to view audit logs.",
+      "validation": "The selected filters are invalid.",
+      "unexpected": "Something went wrong while loading audit logs."
+    },
+    "details": {
+      "title": "Audit log details",
+      "description": "Full context for this recorded action.",
+      "action": "Action",
+      "entity": "Entity",
+      "entityId": "Entity ID",
+      "user": "User",
+      "email": "Email",
+      "role": "Role",
+      "createdAt": "Created at",
+      "details": "Details",
+      "noDetails": "No additional details were recorded.",
+      "close": "Close"
     }
   },
   "Login": {

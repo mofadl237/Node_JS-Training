@@ -7,7 +7,7 @@ export type {
 
 export interface ICustomerResponse {
   id: string;
-  phone: string;
+  phone: string | null;
   email: string | null;
   firstName: string | null;
   lastName: string | null;

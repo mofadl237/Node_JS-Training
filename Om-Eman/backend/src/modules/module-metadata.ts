@@ -689,7 +689,7 @@ export const moduleMetadata: IModuleMetadata[] = [
         "name": "phone",
         "type": "String",
         "kind": "scalar",
-        "isOptional": false,
+        "isOptional": true,
         "hasDefault": false,
         "isId": false
       },
@@ -840,7 +840,7 @@ export const moduleMetadata: IModuleMetadata[] = [
         "name": "phone",
         "type": "String",
         "kind": "scalar",
-        "isOptional": false,
+        "isOptional": true,
         "hasDefault": false,
         "isId": false
       },
@@ -984,7 +984,7 @@ export const moduleMetadata: IModuleMetadata[] = [
         "name": "phone",
         "type": "String",
         "kind": "scalar",
-        "isOptional": false,
+        "isOptional": true,
         "hasDefault": false,
         "isId": false
       },
@@ -1887,6 +1887,568 @@ export const moduleMetadata: IModuleMetadata[] = [
         "type": "String",
         "kind": "scalar",
         "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      }
+    ]
+  },
+  {
+    "modelName": "AuthAccount",
+    "folder": "authAccount",
+    "route": "auth-accounts",
+    "tag": "General",
+    "description": "CRUD operations for AuthAccount.",
+    "publicRead": false,
+    "appendOnly": false,
+    "passwordModel": false,
+    "defaultSort": "createdAt",
+    "sortFields": [
+      "id",
+      "customerId",
+      "provider",
+      "providerAccountId",
+      "email",
+      "createdAt",
+      "updatedAt"
+    ],
+    "responseFields": [
+      {
+        "name": "id",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": true,
+        "isId": true
+      },
+      {
+        "name": "customerId",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "provider",
+        "type": "EAuthProvider",
+        "kind": "enum",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false,
+        "enumValues": [
+          "GOOGLE",
+          "PASSWORD"
+        ]
+      },
+      {
+        "name": "providerAccountId",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "email",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "createdAt",
+        "type": "DateTime",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": true,
+        "isId": false
+      },
+      {
+        "name": "updatedAt",
+        "type": "DateTime",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      }
+    ],
+    "createFields": [
+      {
+        "name": "customerId",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "provider",
+        "type": "EAuthProvider",
+        "kind": "enum",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false,
+        "enumValues": [
+          "GOOGLE",
+          "PASSWORD"
+        ]
+      },
+      {
+        "name": "providerAccountId",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "email",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      }
+    ],
+    "updateFields": [
+      {
+        "name": "customerId",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "provider",
+        "type": "EAuthProvider",
+        "kind": "enum",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false,
+        "enumValues": [
+          "GOOGLE",
+          "PASSWORD"
+        ]
+      },
+      {
+        "name": "providerAccountId",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "email",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      }
+    ]
+  },
+  {
+    "modelName": "Session",
+    "folder": "session",
+    "route": "sessions",
+    "tag": "General",
+    "description": "CRUD operations for Session.",
+    "publicRead": false,
+    "appendOnly": false,
+    "passwordModel": false,
+    "defaultSort": "createdAt",
+    "sortFields": [
+      "id",
+      "tokenHash",
+      "customerId",
+      "employeeId",
+      "userAgent",
+      "ip",
+      "expiresAt",
+      "revokedAt",
+      "createdAt",
+      "updatedAt"
+    ],
+    "responseFields": [
+      {
+        "name": "id",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": true,
+        "isId": true
+      },
+      {
+        "name": "tokenHash",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "customerId",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": true,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "employeeId",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": true,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "userAgent",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": true,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "ip",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": true,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "expiresAt",
+        "type": "DateTime",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "revokedAt",
+        "type": "DateTime",
+        "kind": "scalar",
+        "isOptional": true,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "createdAt",
+        "type": "DateTime",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": true,
+        "isId": false
+      },
+      {
+        "name": "updatedAt",
+        "type": "DateTime",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      }
+    ],
+    "createFields": [
+      {
+        "name": "tokenHash",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "customerId",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": true,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "employeeId",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": true,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "userAgent",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": true,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "ip",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": true,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "expiresAt",
+        "type": "DateTime",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "revokedAt",
+        "type": "DateTime",
+        "kind": "scalar",
+        "isOptional": true,
+        "hasDefault": false,
+        "isId": false
+      }
+    ],
+    "updateFields": [
+      {
+        "name": "tokenHash",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "customerId",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": true,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "employeeId",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": true,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "userAgent",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": true,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "ip",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": true,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "expiresAt",
+        "type": "DateTime",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "revokedAt",
+        "type": "DateTime",
+        "kind": "scalar",
+        "isOptional": true,
+        "hasDefault": false,
+        "isId": false
+      }
+    ]
+  },
+  {
+    "modelName": "AuthVerificationToken",
+    "folder": "authVerificationToken",
+    "route": "auth-verification-tokens",
+    "tag": "General",
+    "description": "CRUD operations for AuthVerificationToken.",
+    "publicRead": false,
+    "appendOnly": false,
+    "passwordModel": false,
+    "defaultSort": "createdAt",
+    "sortFields": [
+      "id",
+      "purpose",
+      "tokenHash",
+      "customerId",
+      "expiresAt",
+      "usedAt",
+      "createdAt",
+      "updatedAt"
+    ],
+    "responseFields": [
+      {
+        "name": "id",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": true,
+        "isId": true
+      },
+      {
+        "name": "purpose",
+        "type": "EVerificationPurpose",
+        "kind": "enum",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false,
+        "enumValues": [
+          "EMAIL_VERIFY",
+          "PASSWORD_RESET"
+        ]
+      },
+      {
+        "name": "tokenHash",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "customerId",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "expiresAt",
+        "type": "DateTime",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "usedAt",
+        "type": "DateTime",
+        "kind": "scalar",
+        "isOptional": true,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "createdAt",
+        "type": "DateTime",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": true,
+        "isId": false
+      },
+      {
+        "name": "updatedAt",
+        "type": "DateTime",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      }
+    ],
+    "createFields": [
+      {
+        "name": "purpose",
+        "type": "EVerificationPurpose",
+        "kind": "enum",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false,
+        "enumValues": [
+          "EMAIL_VERIFY",
+          "PASSWORD_RESET"
+        ]
+      },
+      {
+        "name": "tokenHash",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "customerId",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "expiresAt",
+        "type": "DateTime",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "usedAt",
+        "type": "DateTime",
+        "kind": "scalar",
+        "isOptional": true,
+        "hasDefault": false,
+        "isId": false
+      }
+    ],
+    "updateFields": [
+      {
+        "name": "purpose",
+        "type": "EVerificationPurpose",
+        "kind": "enum",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false,
+        "enumValues": [
+          "EMAIL_VERIFY",
+          "PASSWORD_RESET"
+        ]
+      },
+      {
+        "name": "tokenHash",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "customerId",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "expiresAt",
+        "type": "DateTime",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "usedAt",
+        "type": "DateTime",
+        "kind": "scalar",
+        "isOptional": true,
         "hasDefault": false,
         "isId": false
       }
@@ -4253,6 +4815,7 @@ export const moduleMetadata: IModuleMetadata[] = [
     "sortFields": [
       "id",
       "orderNumber",
+      "trackingToken",
       "customerId",
       "status",
       "paymentStatus",
@@ -4289,6 +4852,14 @@ export const moduleMetadata: IModuleMetadata[] = [
       },
       {
         "name": "orderNumber",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "trackingToken",
         "type": "String",
         "kind": "scalar",
         "isOptional": false,
@@ -4514,6 +5085,14 @@ export const moduleMetadata: IModuleMetadata[] = [
         "isId": false
       },
       {
+        "name": "trackingToken",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
         "name": "customerId",
         "type": "String",
         "kind": "scalar",
@@ -4709,6 +5288,14 @@ export const moduleMetadata: IModuleMetadata[] = [
     "updateFields": [
       {
         "name": "orderNumber",
+        "type": "String",
+        "kind": "scalar",
+        "isOptional": false,
+        "hasDefault": false,
+        "isId": false
+      },
+      {
+        "name": "trackingToken",
         "type": "String",
         "kind": "scalar",
         "isOptional": false,
@@ -5935,7 +6522,6 @@ export const moduleMetadata: IModuleMetadata[] = [
       "taxTotal",
       "grandTotal",
       "taxRateSnapshot",
-      "taxAmount",
       "notes",
       "voidedAt",
       "voidReason",
@@ -6091,14 +6677,6 @@ export const moduleMetadata: IModuleMetadata[] = [
         "kind": "scalar",
         "isOptional": true,
         "hasDefault": false,
-        "isId": false
-      },
-      {
-        "name": "taxAmount",
-        "type": "Decimal",
-        "kind": "scalar",
-        "isOptional": false,
-        "hasDefault": true,
         "isId": false
       },
       {
@@ -6300,14 +6878,6 @@ export const moduleMetadata: IModuleMetadata[] = [
         "isId": false
       },
       {
-        "name": "taxAmount",
-        "type": "Decimal",
-        "kind": "scalar",
-        "isOptional": false,
-        "hasDefault": true,
-        "isId": false
-      },
-      {
         "name": "notes",
         "type": "String",
         "kind": "scalar",
@@ -6487,14 +7057,6 @@ export const moduleMetadata: IModuleMetadata[] = [
         "kind": "scalar",
         "isOptional": true,
         "hasDefault": false,
-        "isId": false
-      },
-      {
-        "name": "taxAmount",
-        "type": "Decimal",
-        "kind": "scalar",
-        "isOptional": false,
-        "hasDefault": true,
         "isId": false
       },
       {

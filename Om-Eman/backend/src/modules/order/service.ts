@@ -12,6 +12,7 @@ import type {
 const selectOrder = {
   id: true,
   orderNumber: true,
+  trackingToken: true,
   customerId: true,
   status: true,
   paymentStatus: true,
@@ -53,6 +54,7 @@ export class OrderService {
       where.OR = [
       { id: { contains: query.q, mode: "insensitive" } },
       { orderNumber: { contains: query.q, mode: "insensitive" } },
+      { trackingToken: { contains: query.q, mode: "insensitive" } },
       { customerId: { contains: query.q, mode: "insensitive" } },
       { cancelReason: { contains: query.q, mode: "insensitive" } },
       { customerNotes: { contains: query.q, mode: "insensitive" } },

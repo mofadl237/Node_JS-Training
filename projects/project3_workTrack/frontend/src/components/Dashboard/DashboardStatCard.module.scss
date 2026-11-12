@@ -1,0 +1,86 @@
+@use "../../styles" as *;
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow: hidden;
+  padding: 18px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  @include fade-up(480ms, 40ms);
+
+  &::before {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    height: 3px;
+    background: var(--tone);
+    content: "";
+  }
+}
+
+.brand {
+  --tone: var(--color-brand);
+  --tone-soft: var(--color-brand-soft);
+}
+
+.success {
+  --tone: var(--color-success);
+  --tone-soft: var(--color-success-soft);
+}
+
+.warning {
+  --tone: var(--color-warning);
+  --tone-soft: var(--color-warning-soft);
+}
+
+.danger {
+  --tone: var(--color-danger);
+  --tone-soft: var(--color-danger-soft);
+}
+
+.info {
+  --tone: var(--color-info);
+  --tone-soft: var(--color-info-soft);
+}
+
+.icon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  margin-block-end: 4px;
+  color: var(--tone);
+  background: var(--tone-soft);
+  border-radius: var(--radius-md);
+  place-items: center;
+}
+
+.label {
+  margin: 0;
+  color: var(--color-ink-soft);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.value {
+  margin: 0;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.5vw, 1.9rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.hint {
+  margin: 0;
+  color: var(--color-ink-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}

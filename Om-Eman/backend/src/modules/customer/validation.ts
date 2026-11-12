@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const createCustomerSchema = z.object({
-  phone: z.string().trim().min(1, "must not be empty"),
+  phone: z.string().trim().min(1, "must not be empty").optional().nullable(),
   email: z.string().trim().email("must be a valid email address").toLowerCase().optional().nullable(),
   password: z.string().min(8, "password must be at least 8 characters").max(128, "password must not exceed 128 characters").optional(),
   firstName: z.string().trim().min(1, "must not be empty").optional().nullable(),
@@ -21,7 +21,7 @@ export const createCustomerSchema = z.object({
 });
 
 export const updateCustomerSchema = z.object({
-  phone: z.string().trim().min(1, "must not be empty").optional(),
+  phone: z.string().trim().min(1, "must not be empty").optional().nullable(),
   email: z.string().trim().email("must be a valid email address").toLowerCase().optional().nullable(),
   password: z.string().min(8, "password must be at least 8 characters").max(128, "password must not exceed 128 characters").optional(),
   firstName: z.string().trim().min(1, "must not be empty").optional().nullable(),

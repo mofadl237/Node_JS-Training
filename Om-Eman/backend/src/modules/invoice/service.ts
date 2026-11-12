@@ -28,7 +28,6 @@ const selectInvoice = {
   taxTotal: true,
   grandTotal: true,
   taxRateSnapshot: true,
-  taxAmount: true,
   notes: true,
   voidedAt: true,
   voidReason: true,

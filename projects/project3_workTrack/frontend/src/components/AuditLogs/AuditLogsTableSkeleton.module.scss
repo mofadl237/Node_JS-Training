@@ -1,0 +1,35 @@
+.skeletonShort {
+  width: 62px;
+}
+
+.skeletonDate {
+  width: 150px;
+  height: 16px;
+}
+
+.skeletonBadge {
+  width: 84px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+}
+
+.skeletonEntity {
+  width: 100px;
+  height: 16px;
+}
+
+.skeletonEntityId {
+  width: 150px;
+  height: 14px;
+}
+
+.skeletonUser {
+  width: 130px;
+  height: 28px;
+}
+
+.skeletonAction {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-pill);
+}

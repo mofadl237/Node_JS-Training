@@ -24,7 +24,6 @@ export interface IInvoiceResponse {
   taxTotal: Prisma.Decimal;
   grandTotal: Prisma.Decimal;
   taxRateSnapshot: Prisma.Decimal | null;
-  taxAmount: Prisma.Decimal;
   notes: string | null;
   voidedAt: Date | null;
   voidReason: string | null;

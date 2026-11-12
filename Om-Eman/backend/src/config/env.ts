@@ -22,6 +22,10 @@ export interface IEnvConfig {
   readonly SMTP_USER: string;
   readonly SMTP_PASS: string;
   readonly SMTP_FROM: string;
+  readonly GOOGLE_CLIENT_ID: string;
+  readonly SESSION_TTL_DAYS: number;
+  readonly EMAIL_VERIFY_TOKEN_TTL_HOURS: number;
+  readonly PASSWORD_RESET_TOKEN_TTL_MINUTES: number;
 }
 
 function getEnv(key: string): string {
@@ -107,11 +111,18 @@ export const env: Readonly<IEnvConfig> = Object.freeze({
   SMTP_SECURE: getBoolean("SMTP_SECURE", smtpPort === 465),
   SMTP_USER: smtpUser,
   SMTP_PASS: smtpPass,
-  SMTP_FROM:
-    process.env.SMTP_FROM ||
-    (smtpUser
-      ? `${appName} <${smtpUser}>`
-      : `${appName} <no-reply@om-eman.local>`),
+    SMTP_FROM:
+      process.env.SMTP_FROM ||
+      (smtpUser
+        ? `${appName} <${smtpUser}>`
+        : `${appName} <no-reply@om-eman.local>`),
+    GOOGLE_CLIENT_ID: getOptionalEnv("GOOGLE_CLIENT_ID", ""),
+    SESSION_TTL_DAYS: getNumber("SESSION_TTL_DAYS", 30),
+    EMAIL_VERIFY_TOKEN_TTL_HOURS: getNumber("EMAIL_VERIFY_TOKEN_TTL_HOURS", 24),
+    PASSWORD_RESET_TOKEN_TTL_MINUTES: getNumber(
+      "PASSWORD_RESET_TOKEN_TTL_MINUTES",
+      30,
+    ),
 });
 
 export default env;

@@ -9,9 +9,17 @@ interface IDepartmentDetailsPageProps {
   params: Promise<{ locale: string; id: string }>;
 }
 
-async function DynamicMarker() {
+async function ConnectionMarker() {
   await connection();
   return null;
+}
+
+async function DynamicMarker() {
+  return (
+    <Suspense>
+      <ConnectionMarker />
+    </Suspense>
+  );
 }
 
 export default async function DepartmentDetailsPage({
@@ -23,9 +31,7 @@ export default async function DepartmentDetailsPage({
 
   return (
     <>
-      <Suspense>
-        <DynamicMarker />
-      </Suspense>
+      <DynamicMarker />
       <RoleGuard roles={ALL_ROLES}>
         <DepartmentDetailsScreen departmentId={id} />
       </RoleGuard>

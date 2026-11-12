@@ -16,33 +16,33 @@
 ## ابدأ من هنا بالترتيب
 
 ### 1. الأساس
-- [ ] **1. Environment + Types**
+- [x] **1. Environment + Types**
   - `NEXT_PUBLIC_API_URL`
   - أنواع `AuthUser`, `AuthResponse`, `PaginatedResponse`, والـ enums.
 
-- [ ] **2. API Client**
+- [x] **2. API Client**
   - GET / POST / PATCH / DELETE.
   - Query builder.
   - Error normalization.
   - `401` → Refresh مرة واحدة → إعادة الطلب.
   - التعامل مع `429` و `Retry-After`.
 
-- [ ] **3. Auth State**
+- [x] **3. Auth State**
   - حفظ ومسح `accessToken` و `refreshToken`.
   - Hydration عند فتح التطبيق.
   - `useAuth` / Auth Context.
   - Logout يستدعي `/api/auth/logout` ثم يمسح الجلسة.
 
 ### 2. الدخول والهيكل
-- [ ] **4. Login Page**
+- [x] **4. Login Page**
   - Validation + loading + error.
   - بعد النجاح: توجيه حسب الدور.
 
-- [ ] **5. Guards**
+- [x] **5. Guards**
   - حماية الصفحات.
   - إخفاء عناصر التنقل غير المسموحة.
 
-- [ ] **6. App Shell**
+- [x] **6. App Shell**
   - Sidebar + Topbar + User Menu.
   - Loading / Empty / Error / Forbidden states.
 
@@ -69,27 +69,27 @@
   - زر manual process.
   - عرض حالة النجاح/الفشل.
 
-- [ ] **13. Uploads CSV**
+- [x] **13. Uploads CSV**
   - Employee import.
   - Attendance import.
   - عرض الأخطاء لكل صف.
 
 ### 5. الباقي
-- [ ] **14. Shifts + Assignments**
+- [x] **14. Shifts + Assignments**
 
-- [ ] **15. Leaves**
+- [x] **15. Leaves**
 
-- [ ] **16. Dashboard Summary**
+- [x] **16. Dashboard Summary**
   - Cards + trend + recent audit logs.
   - `MANAGER` مقيد بقسمه.
 
-- [ ] **17. HR KPI**
+- [x] **17. HR KPI**
   - Department KPI + top late employees.
 
-- [ ] **18. Audit Logs**
+- [x] **18. Audit Logs**
   - Read-only list + filters + details.
 
-- [ ] **19. Polish**
+- [x] **19. Polish**
   - Responsive.
   - Skeletons.
   - Permission-aware buttons.

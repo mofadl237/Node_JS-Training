@@ -197,6 +197,16 @@ enum EMarketingEventStatus {
   SKIPPED
 }
 
+enum EAuthProvider {
+  GOOGLE
+  PASSWORD
+}
+
+enum EVerificationPurpose {
+  EMAIL_VERIFY
+  PASSWORD_RESET
+}
+
 // ---------------------------------------------------------------------------
 // Employees and audit
 // ---------------------------------------------------------------------------
@@ -220,6 +230,7 @@ model Employee {
   orderStatusChanges    OrderStatusHistory[]    @relation("OrderStatusChangedBy")
   shipmentStatusChanges ShipmentStatusHistory[] @relation("ShipmentStatusChangedBy")
   notifications         Notification[]          @relation("NotificationEmployee")
+  sessions              Session[]               @relation("SessionEmployee")
 
   @@index([status])
 }
@@ -256,8 +267,14 @@ model AuditLog {
 // ---------------------------------------------------------------------------
 
 model Customer {
+  // phone is nullable on purpose: checkout requires a phone at the application
+  // level, but a pre-checkout visitor record does not exist yet, and password
+  // registrations created before a phone is known must be allowed. The unique
+  // index allows multiple NULLs (PostgreSQL default), so this is safe.
+  // Claim rule: a guest record is only claimed when the phone or the verified
+  // email matches. Never claim on an unverified phone alone.
   id                   String          @id @default(cuid())
-  phone                String          @unique
+  phone                String?         @unique
   email                String?
   passwordHash         String?
   firstName            String?
@@ -293,8 +310,11 @@ model Customer {
   promotionRedemptions PromotionRedemption[]
   searchLogs           SearchLog[]
   marketingEvents      MarketingEvent[]
-  notifications        Notification[]        @relation("NotificationCustomer")
-  auditLogs            AuditLog[]            @relation("AuditActorCustomer")
+  notifications        Notification[]          @relation("NotificationCustomer")
+  auditLogs            AuditLog[]              @relation("AuditActorCustomer")
+  authAccounts         AuthAccount[]
+  sessions             Session[]               @relation("SessionCustomer")
+  verificationTokens   AuthVerificationToken[]
 
   @@index([email])
   @@index([status])
@@ -372,6 +392,75 @@ model WishlistItem {
 
   @@unique([customerId, productPackageId])
   @@index([productPackageId])
+}
+
+// ---------------------------------------------------------------------------
+// Auth accounts, sessions, verification tokens
+// ---------------------------------------------------------------------------
+
+// One row per external identity. A Customer may have both a PASSWORD account
+// and a GOOGLE account. providerAccountId is the Google "sub" claim; it is
+// stable and never reused, unlike the Google email which can change.
+model AuthAccount {
+  id                String        @id @default(cuid())
+  customerId        String
+  provider          EAuthProvider
+  providerAccountId String
+  email             String
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([customerId])
+  @@index([email])
+}
+
+// Server-side session for both Customer and Employee logins. Exactly one owner
+// is set, enforced by a SQL CHECK (Session_owner_exactly_one).
+// tokenHash is SHA-256 of the opaque bearer token. The raw token is returned to
+// the caller once and never stored. JWT access tokens are stateless and do not
+// create rows here; only refresh/opaque tokens do.
+model Session {
+  id         String    @id @default(cuid())
+  tokenHash  String    @unique
+  customerId String?
+  employeeId String?
+  userAgent  String?
+  ip         String?
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  customer Customer? @relation("SessionCustomer", fields: [customerId], references: [id], onDelete: Cascade)
+  employee Employee? @relation("SessionEmployee", fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([customerId, expiresAt])
+  @@index([employeeId, expiresAt])
+  @@index([expiresAt])
+}
+
+// One-time, short-lived tokens for email verification and password reset.
+// tokenHash is SHA-256 of the emailed token. usedAt marks single use.
+// Phone OTP is intentionally not implemented in the MVP: delivery costs money,
+// there is no SMS provider contract, and checkout already collects the phone
+// for delivery. Claiming by phone requires an OTP to be safe, so the MVP claims
+// only on verified email (Google or verified email link) until SMS is added.
+model AuthVerificationToken {
+  id         String               @id @default(cuid())
+  purpose    EVerificationPurpose
+  tokenHash  String               @unique
+  customerId String
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId, purpose])
 }
 
 // ---------------------------------------------------------------------------
@@ -598,6 +687,13 @@ model SearchLog {
 model Order {
   id            String         @id @default(cuid())
   orderNumber   String         @unique
+  // Guest order tracking. Generated by the application with
+  // crypto.randomBytes(32) as base64url; 256 bits of entropy makes guessing
+  // infeasible, unlike orderNumber which is sequential and public. The token
+  // is the single guest capability: /api/orders/track/:trackingToken returns
+  // only minimal status data. No default here on purpose: the application must
+  // always supply a cryptographically random value.
+  trackingToken String         @unique
   customerId    String
   status        EOrderStatus   @default(RECEIVED)
   // Cached derived value. The source of truth is the Payment rows.
@@ -634,7 +730,7 @@ model Order {
   items                OrderItem[]
   statusHistory        OrderStatusHistory[]
   addressSnapshot      OrderAddressSnapshot?
-  invoice              Invoice?
+  invoices             Invoice[]
   payments             Payment[]
   shipments            Shipment[]
   promotionRedemptions PromotionRedemption[]
@@ -726,10 +822,16 @@ model OrderAddressSnapshot {
 // that creates the invoice, so numbers are sequential with no gaps.
 // The PDF is generated by the backend from Invoice + InvoiceLine snapshot
 // values only; amounts are never recomputed from current prices.
+// Several invoices per order are allowed (VOID then reissue). Uniqueness of the
+// active invoice is a partial unique index in SQL:
+//   CREATE UNIQUE INDEX ... ON "Invoice"("orderId") WHERE status = 'ISSUED'
+// Tax fields: taxTotal is the header amount (mirrors Order.taxTotal) and
+// taxRateSnapshot is the rate used at issue time. There is no separate
+// taxAmount column; the earlier taxAmount duplicate was removed.
 model Invoice {
   id                 String         @id @default(cuid())
   invoiceNumber      String         @unique
-  orderId            String         @unique
+  orderId            String
   status             EInvoiceStatus @default(ISSUED)
   issuedAt           DateTime       @default(now())
   issuedByEmployeeId String?
@@ -745,7 +847,6 @@ model Invoice {
   taxTotal           Decimal        @default(0) @db.Decimal(18, 4)
   grandTotal         Decimal        @db.Decimal(18, 4)
   taxRateSnapshot    Decimal?       @db.Decimal(9, 6)
-  taxAmount          Decimal        @default(0) @db.Decimal(18, 4)
   notes              String?
   voidedAt           DateTime?
   voidReason         String?
@@ -758,6 +859,7 @@ model Invoice {
   issuedBy Employee?     @relation("InvoiceIssuedBy", fields: [issuedByEmployeeId], references: [id], onDelete: Restrict)
   lines    InvoiceLine[]
 
+  @@index([orderId])
   @@index([issuedAt])
   @@index([status])
   @@index([issuedByEmployeeId])
@@ -914,6 +1016,17 @@ model ShipmentStatusHistory {
 // ---------------------------------------------------------------------------
 
 model Promotion {
+  // Usage-limit rule (authoritative):
+  //   The effective limit is always the TIGHTER of the two levels.
+  //   - Coupon.usageLimit and Coupon.perCustomerLimit, when set, can only
+  //     NARROW the Promotion limits, never widen them.
+  //   - effective total limit     = min(usageLimitTotal, coupon.usageLimit),
+  //     skipping nulls (a null means unlimited at that level).
+  //   - effective per-customer    = min(usageLimitPerCustomer,
+  //     coupon.perCustomerLimit), skipping nulls.
+  //   - If both levels are null, the offer is unlimited (avoid in practice).
+  // Enforcement is at checkout time inside the same transaction that creates
+  // the Order and the PromotionRedemption rows.
   id                     String         @id @default(cuid())
   name                   String
   description            String?
@@ -970,6 +1083,10 @@ model PromotionTarget {
 }
 
 model Coupon {
+  // Coupon-level limits narrow the parent Promotion limits (see the Promotion
+  // comment for the exact min() rule). They exist because one Promotion can
+  // carry several coupons with different budgets, e.g. an influencer coupon
+  // capped at 50 uses under a storewide discount capped at 500.
   id               String    @id @default(cuid())
   promotionId      String
   code             String    @unique
