@@ -1,0 +1,34 @@
+
+# Dependencies
+node_modules
+**/node_modules
+
+# Build output
+dist
+build
+coverage
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Prisma generated files (regenerated during build)
+# احذف السطر التالي لو Dockerfile يحتاج ملفات مولدة من خارج build
+**/generated
+
+# Git
+.git
+.gitignore
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE
+.vscode
+.idea
+
+# OS
+.DS_Store
+Thumbs.db
