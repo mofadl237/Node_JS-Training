@@ -1,50 +1,50 @@
 
 # ==========================================
-# Stage 1: BUILD
+# Stage 1: BUILDER
 # ==========================================
+
 FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copy dependency manifests
 COPY package*.json ./
 
-# Install all dependencies (including devDependencies)
-RUN npm i 
+# Install all dependencies
+RUN npm ci
 
-
-# Copy source code
 COPY . .
 
 # Generate Prisma Client
 RUN npx prisma generate
 
-# Compile TypeScript
+# Build TypeScript
 RUN npm run build
 
 
 # ==========================================
 # Stage 2: PRODUCTION
 # ==========================================
+
 FROM node:22-alpine AS production
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy package manifests
+# Install production dependencies only
 COPY package*.json ./
 
-# Install production dependencies only
-RUN npm i --only=production && npm cache clean --force
+RUN npm ci --omit=dev && npm cache clean --force
+
+# Copy generated Prisma Client
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 # Copy compiled application
 COPY --from=builder /app/dist ./dist
 
-# Copy Prisma schema
+# Copy Prisma files
 COPY --from=builder /app/prisma ./prisma
 
-# Start application
 EXPOSE 3000
 
 CMD ["npm", "start"]
