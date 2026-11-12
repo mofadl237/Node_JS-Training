@@ -77,6 +77,9 @@ app.get("/", (_req: Request, res: Response) => {
     success: true,
     message: `${env.APP_NAME} API - Ready`,
     version: "1.0.0",
+    environment: env.NODE_ENV,
+    timestamp: new Date().toISOString(),
+    swaggerDocs: "/api-docs",
   });
 });
 
