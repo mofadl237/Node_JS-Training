@@ -77,6 +77,11 @@ COPY --from=builder --chown=node:node /app/prisma ./prisma
 # If your Prisma config is needed for migrations,
 # keep it available in the production image
 COPY --from=builder --chown=node:node /app/prisma7.config.ts ./prisma7.config.ts
+
+# Create uploads directory and grant permissions
+RUN mkdir -p /app/uploads/csv \
+    && chown -R node:node /app/uploads
+
 # Run as non-root user
 USER node
 
