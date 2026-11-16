@@ -1,7 +1,35 @@
 # حالة Backend المتجر (BACKEND_PROGRESS)
 
-> آخر تحديث: 2026-11-13. يلخص تنفيذ `docs/STORE_BACKEND_TASKS.md` (B1–B16)
+> آخر تحديث: 2026-11-16. يلخص تنفيذ `docs/STORE_BACKEND_TASKS.md` (B1–B16)
 > وما تبقى، وما مطلوب من صاحب المتجر شخصيًا.
+
+## 🗄️ مزامنة قاعدة البيانات (2026-11-16)
+
+قاعدة `om_eman` (PostgreSQL 17 في حاوية `postgres-db`) أصبحت متزامنة مع
+`prisma/schema.prisma` بالكامل. **الأسلوب: `npx prisma db push`** — المشروع
+لا يستخدم Prisma Migrate (لا يوجد مجلد `prisma/migrations`)، ولم يُنشأ أي
+migration. تم أيضًا تطبيق `prisma/mvp/manual_constraints.sql` (مرتين —
+idempotent). النتيجة المتحقق منها بالاستعلام المباشر:
+
+| الكائن | العدد | ملاحظات |
+| --- | --- | --- |
+| Tables | 41 | = عدد الـ models بالضبط |
+| Enums | 27 | |
+| Foreign Keys | 61 | |
+| Indexes (إجمالي) | 175 | 166 من Prisma + 5 trigram يدوية + 4 partial unique |
+| CHECK constraints يدوية | 20 | كلها بأسمائها من `manual_constraints.sql` |
+| Partial unique indexes | 4 | Invoice ISSUED، CustomerAddress default، Cart ACTIVE، ProductImage primary |
+| Triggers | 5 | append-only ×3، bundle single package، no nested bundles |
+| Views تقارير | 12 | `report_*` + `customer_order_stats_drift` + `cod_awaiting_settlement` + `bundle_pricing` |
+| Extensions | 2 | `pg_trgm` + `unaccent` |
+
+- Drift check بـ `prisma migrate diff --exit-code`: الاختلاف الوحيد هو فهارس
+  trigram اليدوية الخمسة (Prisma لا يمثلها في الـ schema) — **لا drift فعلي**.
+- `prisma validate` ✅ · `prisma generate` ✅ · `db pull --print` = 41 model / 27 enum مطابقة ✅
+- دوال `search_products` / `suggest_similar` و`normalize_arabic` تعمل (smoke test).
+- Backup قبل الـ push: `backups/om_eman_pre_push_20261116_200246.dump` (كانت القاعدة فارغة).
+- Dry-run أُجري على قاعدة مؤقتة `om_eman_push_preview` ثم حُذفت — نجح بلا أي تحذير فقد بيانات.
+
 
 ## ✅ المنجز (الكود جاهز ومفحوص)
 
@@ -30,16 +58,45 @@
 
 ## ⏳ متبقي (يحتاج قاعدة البيانات تشتغل)
 
-1. **تشغيل قاعدة البيانات**: `npx prisma dev` يفشل حاليًا بخطأ
-   `EBUSY ... Temp\@prisma\cli-dev@latest-...` (عملية node قديمة قفلته).
-   الحل: إغلاق عمليات node معلقة ثم إعادة التشغيل.
-2. `npx prisma migrate dev --name init` (B1).
-3. `npx prisma db execute --file prisma/mvp/manual_constraints.sql` (قيود + دوال `search_products` / `suggest_similar`).
+1. ~~تشغيل قاعدة البيانات~~ — تم (حاوية `postgres-db` تعمل، PostgreSQL 17).
+2. ~~`npx prisma migrate dev --name init` (B1)~~ — تم بدلًا منه بـ `npx prisma db push` (لا migrations في المشروع). لو أُريد Migrate لاحقًا: `npx prisma migrate dev --name init` على قاعدة نظيفة ثم baseline.
+3. ~~`npx prisma db execute --file prisma/mvp/manual_constraints.sql`~~ — تم (idempotent، نفّذ مرتين بنجاح).
 4. `cp seed.config.example.json seed.config.json` ثم تعبئة القيم الحقيقية ثم `npm run db:seed`.
 5. تشغيل الاختبارات Integration كاملة بدون skip + تجربة curl سريعة للـ endpoints.
 6. إعداد Cloudinary الفعلي (حساب + تعبئة `CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET` في `.env`).
 
+## ☁️ Cloudinary (مراجعة 2026-11-16)
+
+- `CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET` تُقرأ من env فقط (`src/config/env.ts`) — لا أي قيمة hardcoded في الكود، والـ Secret لا يظهر في أي log أو API response.
+- سكربت تحقق جاهز: `npx tsx scripts/verify-cloudinary.ts` (لا يطبع الـ Secret) — يوقّع لكل الـ folders، يقارن التوقيع بإعادة حساب SHA-1 مستقلة، يرفع فعليًا ويحذف، يجرّب توقيعًا مرفوضًا ورفض صيغة نصية، ويختبر رفض `signProof` لطلب مجهول.
+- ⚠️ **مفتوح على المالك:** `CLOUDINARY_CLOUD_NAME` في `.env` قيمته `omEman` — غير موجود في Cloudinary (جرّبنا `om-eman` أيضًا). انسخ الاسم حرفيًا من لوحة Cloudinary (حقل Cloud name) ثم أعد تشغيل السكربت — أجزاء الاختبار المعتمدة على رفع فعلي تنتظر هذه القيمة (8/9 نجحوا).
+
+## 🌱 Seed الديمو (للتطوير فقط — 2026-11-16)
+
+- `npm run db:seed:demo` يبني بيانات تجريبية للعمل عليها: 3 أقسام/4 أقسام فرعية/10 منتجات (منهم سلة bundle واحدة) + 11 عبوة `DEMO-*` + بانر + 3 FAQ + صفحتان ثابتتان + ناقل شحن تجريبي بـ 4 تعرفات + مرادفات بحث + عرض خصم 10% على الأعشاب مع كوبون `DEMO10`. صور الصور من picsum.photos (placeholders).
+- `npm run db:seed:demo -- --clean` يحذف بيانات الديمو فقط. السكربت idempotent، يرفض العمل في `NODE_ENV=production`، ولا يلمس Employee/SystemSetting/طلبات/عملاء (الإنتاج يبقى بـ `npm run db:seed` الحقيقي).
+- الـ seed احترم كل الـ CHECKs والـ triggers (bundle عبوة واحدة، ممنوع bundle داخل bundle، `compareAtPrice > sellingPrice`، scope العرض، `endsAt >= startsAt`).
+
+## 🧪 حالة الاختبارات (2026-11-16)
+
+`npm test` = **24/24 ✅** على قاعدة حقيقية (integration بقتل تشتغل بدل skip). قبل ذلك كانت اختبارات integration لم تُشغَّل فعليًا أبدًا، وظهرت أخطاء مكتوبة على الـ schema القديم:
+
+| الإصلاح | المكان | النوع |
+| --- | --- | --- |
+| `nameAr/nameEn` → `name` + إضافة `code` إلزامي في إنشاء ناقل الاختبار | `tests/integration/checkout-claim.test.ts` | إصلاح setup كتب على full-schema |
+| حذف الـ payments قبل الـ orders (Restrict) + حذف الـ packages قبل المنتجات (Restrict) + تعطيل مؤقت لتريغر append-only داخل transaction التنظيف فقط | نفس الملف (afterAll) | إصلاح تنظيف |
+| عميل واحد بدل عميلين بنفس الهاتف (unique) | اختبار `rejects phone-based claim` | إصلاح بيانات اختبار |
+| السلة المصدر تترقى ACTIVE لو الـ target مفيهوش سلة (سلوك `mergeCartsInTransaction` المصمم) | اختبار `merges a duplicate account` | تصحيح توقع |
+| الإحصائيات تعدّ الطلبات المسلمة فقط — ثاني طلب لم يُسلَّم | اختبار الإحصائيات بعد الدمج | تصحيح توقع |
+| `timeout + maxWait: 30s` لـ 50 transaction متزامنة على نفس صف التسلسل | `tests/integration/document-number.test.ts` | إصلاح توقيت |
+| إجماليات checkout ترجع `"200.0000"` بدل `"200"` (توافق مع العقد الموثق ونمط باقي الخدمات: cart/coupons/card/settings كلها `.toFixed(4)`) | `src/services/guest-checkout.service.ts` (5 أسطر تنسيق) | **bug عقد يحتاج تصديق المالك — سهل الاسترجاع** |
+| قراءة `Decimal` من adapter-pg تفقد trailing zeros → الـ assertions تستخدم `toFixed(4)` | نفس ملف الاختبار | إصلاح assertions |
+
+بقايا جولات الاختبار القديمة نُظفت يدويًا مرة واحدة (القاعدة رجعت: 0 عملاء/طلبات، 10 منتجات demo، 11 عبوة، ناقل واحد).
+
 ## 🙋 ما مطلوب من صاحب المتجر
+
+
 
 1. **الشعار** (قيد الإعداد) — يرفع على Cloudinary لاحقًا.
 2. **بيانات الكتالوج الحقيقية**: CSV للمنتجات (نموذج: `docs/examples/products-import.csv`) — أسماء عربية، أوصاف، عبوات وأسعار.

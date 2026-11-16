@@ -4,10 +4,15 @@ import type {
   IModuleMetadata,
 } from "../modules/module-metadata.js";
 import { moduleMetadata } from "../modules/module-metadata.js";
-import { buildStorePaths, storeSchemas } from "./swagger-store.js";
+import { buildReportsPaths, buildStorePaths, storeSchemas } from "./swagger-store.js";
 
 type TOpenApiSchema = Record<string, unknown>;
 type TOpenApiResponses = Record<string, unknown>;
+
+// Models excluded from modules:generate (EXCLUDED_MODELS) have no live CRUD
+// routes, so their generated metadata must not leak into the API spec.
+const unmountedModules = new Set(["AuthAccount", "Session", "AuthVerificationToken"]);
+const exposedMetadata = moduleMetadata.filter((meta) => !unmountedModules.has(meta.modelName));
 
 const tagDescriptions: Record<string, string> = {
   Auth: "Employee authentication and current-session endpoints.",
@@ -27,6 +32,7 @@ const tagDescriptions: Record<string, string> = {
   Content: "Banners, static pages, and FAQs.",
   Notifications: "Customer and employee notifications.",
   Settings: "System settings and document sequences.",
+  Reports: "Aggregate business reports over reporting SQL views (OWNER/ADMIN).",
   Store: "Storefront browsing, checkout, tracking, and cart (public).",
   "Store Auth": "Customer accounts, sessions, and password flows.",
   "Store Cart": "Guest/customer cart operations.",

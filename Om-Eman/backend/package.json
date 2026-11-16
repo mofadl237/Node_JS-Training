@@ -17,7 +17,8 @@
     "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "db:seed:demo": "tsx scripts/seed-demo.ts"
   },
   "keywords": [],
   "author": "",

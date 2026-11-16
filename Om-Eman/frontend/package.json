@@ -6,7 +6,8 @@
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start -p 3001",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check": "node scripts/check-rules.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.6",

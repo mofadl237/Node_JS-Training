@@ -185,11 +185,11 @@ export async function createGuestOrder(
       paymentMethod: input.paymentMethod,
       paymentId: order.payments[0]?.id ?? "",
       totals: {
-        subtotal: subtotal.toString(),
-        discountTotal: discountTotal.toString(),
-        shippingTotal: shippingTotal.toString(),
-        taxTotal: taxTotal.toString(),
-        grandTotal: grandTotal.toString(),
+        subtotal: subtotal.toFixed(4),
+        discountTotal: discountTotal.toFixed(4),
+        shippingTotal: shippingTotal.toFixed(4),
+        taxTotal: taxTotal.toFixed(4),
+        grandTotal: grandTotal.toFixed(4),
         currency: env.DEFAULT_CURRENCY,
       },
     };

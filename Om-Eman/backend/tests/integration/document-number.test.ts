@@ -20,12 +20,17 @@ describe.skipIf(!isDbUp)("document numbering (integration)", () => {
 
     const results = await Promise.all(
       Array.from({ length: 50 }, () =>
-        prisma.$transaction(async (tx) => {
-          return allocateDocumentNumber(tx, {
-            documentType: "TEST",
-            prefix: "TST",
-          });
-        }),
+        // 50 interactive transactions serialize on the same sequence row while
+        // sharing a small connection pool; the default 5s timeout is too tight.
+        prisma.$transaction(
+          async (tx) => {
+            return allocateDocumentNumber(tx, {
+              documentType: "TEST",
+              prefix: "TST",
+            });
+          },
+          { timeout: 30_000, maxWait: 30_000 },
+        ),
       ),
     );
 

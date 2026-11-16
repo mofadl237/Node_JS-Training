@@ -76,8 +76,7 @@ COPY --from=builder --chown=node:node /app/prisma ./prisma
 
 # If your Prisma config is needed for migrations,
 # keep it available in the production image
-COPY --from=builder --chown=node:node /app/prisma.config.ts ./prisma.config.ts
-
+COPY --from=builder --chown=node:node /app/prisma7.config.ts ./prisma7.config.ts
 # Run as non-root user
 USER node
 
