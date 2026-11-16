@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { cloudinaryUrlSchemaOptional } from "../../shared/cloudinary-url.js";
 
 export const createSearchLogSchema = z.object({
   rawQuery: z.string().trim().min(1, "must not be empty"),

@@ -28,7 +28,7 @@ interface IEnum {
 const ROOT = process.cwd();
 const SCHEMA_PATH = path.join(ROOT, "prisma", "schema.prisma");
 const MODULES_PATH = path.join(ROOT, "src", "modules");
-const PRESERVED_MODULE_FOLDERS = new Set(["auth", "productImport", "store", "reports"]);
+const PRESERVED_MODULE_FOLDERS = new Set(["auth", "productImport", "store", "reports", "uploads"]);
 // Internal auth infrastructure. Never expose these tables as employee CRUD:
 // Session and AuthVerificationToken rows hold token hashes, and AuthAccount
 // rows are managed exclusively by the identity services in src/services/.
@@ -39,6 +39,17 @@ const EXCLUDED_MODELS = new Set([
 ]);
 
 const passwordModels = new Set(["Employee", "Customer"]);
+
+// Models/fields whose String URL columns hold Cloudinary delivery URLs.
+// Everything else ending in "url" keeps the plain .url() rule.
+const cloudinaryUrlFields = new Set([
+  "ProductImage.url",
+  "Category.imageUrl",
+  "Subcategory.imageUrl",
+  "Banner.imageUrl",
+  "Banner.mobileImageUrl",
+  "Payment.proofImageUrl",
+]);
 const appendOnlyModels = new Set([
   "AuditLog",
   "OrderStatusHistory",
@@ -276,6 +287,11 @@ function zodType(field: IField, model: IModel, mode: "create" | "update"): strin
         } else if (field.name.toLowerCase().includes("slug")) {
           base +=
             '.regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "must be lowercase letters, numbers and hyphens only")';
+        } else if (cloudinaryUrlFields.has(`${model.name}.${field.name}`)) {
+          // Image URLs must be Cloudinary delivery URLs (section 6 of the
+          // storefront tasks) so next/image can transform them. Replaces the
+          // base entirely - the schema is a full zod object, not a chain step.
+          base = "cloudinaryUrlSchemaOptional";
         } else if (field.name.toLowerCase().endsWith("url")) {
           base += '.url("must be a valid URL")';
         } else {
@@ -360,6 +376,7 @@ function generateValidation(model: IModel, enums: IEnum[]): string {
   const baseName = modelName;
 
   return `import { z } from "zod";
+import { cloudinaryUrlSchemaOptional } from "../../shared/cloudinary-url.js";
 
 export const create${baseName}Schema = z.object({
 ${createParts.join("\n")}
@@ -885,12 +902,14 @@ async function main(): Promise<void> {
     'import productImportRouter from "./productImport/router.js";',
     'import storeRouter from "./store/routes.js";',
     'import reportsRouter from "./reports/routes.js";',
+    'import uploadsRouter from "./uploads/routes.js";',
   ];
   const mountLines: string[] = [
     'router.use("/auth", authRouter);',
     'router.use("/products/import", productImportRouter);',
     'router.use("/store", storeRouter);',
     'router.use("/reports", reportsRouter);',
+    'router.use("/uploads", uploadsRouter);',
   ];
 
   for (const model of models) {

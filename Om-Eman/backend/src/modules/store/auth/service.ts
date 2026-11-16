@@ -10,7 +10,7 @@ import {
 } from "../../../shared/errors.js";
 import { comparePassword, hashPassword } from "../../../utils/password.js";
 import { generateOpaqueToken, hashToken } from "../../../utils/secure-token.js";
-import { normalizePhone } from "../../../services/guest-checkout.service.js";
+import { normalizePhone } from "../../../utils/phone.js";
 import { resolveCustomerForAuthIdentity } from "../../../services/customer-claim.service.js";
 import type { IMessageResponse, IStoreCustomer } from "./types.js";
 

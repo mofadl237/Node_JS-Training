@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { cloudinaryUrlSchemaOptional } from "../../shared/cloudinary-url.js";
 
 export const createMarketingEventSchema = z.object({
   eventName: z.enum(["VIEW_CONTENT", "SEARCH", "ADD_TO_CART", "INITIATE_CHECKOUT", "PURCHASE"]),

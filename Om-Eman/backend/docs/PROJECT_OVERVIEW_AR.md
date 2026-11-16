@@ -671,6 +671,39 @@ subcategory_id_here,زعتر بلدي,Baladi Thyme,baladi-thyme,FINISHED,ACTIVE,
 
 ---
 
+### 10.9 Store API — واجهة المتجر للعملاء
+
+كل نقاطها تحت `/api/store` (عامة للتصفح، وجلسات العملاء عبر
+`customer-auth.middleware`)، والتنفيذ موثق بالتفصيل في
+`docs/STORE_BACKEND_TASKS.md` وحالته في `docs/BACKEND_PROGRESS.md`.
+
+| Method | Path | الوظيفة |
+| --- | --- | --- |
+| GET | `/api/store/products` | قائمة بطاقات المنتجات (فلترة/ترتيب/صفحات) |
+| GET | `/api/store/products/:slug` | صفحة المنتج: صور، عبوات، `pricePer100g`، مشابهة |
+| GET | `/api/store/categories` | شجرة الأقسام + عدّاد المنتجات |
+| GET | `/api/store/settings` | إعدادات عامة (ضريبة/شحن مجاني/تواصل/سوشيال) |
+| GET | `/api/store/banners` / `faqs` / `pages/:slug` | محتوى المتجر |
+| GET | `/api/store/sitemap` | فهرس SEO (slug + updatedAt) |
+| GET | `/api/store/shipping/areas` / `quote` | مناطق الشحن وحساب التكلفة |
+| POST | `/api/store/coupons/validate` | التحقق من كوبون بلا خصم فعلي |
+| GET/POST/PATCH/DELETE | `/api/store/cart...` | سلة الضيف/العميل (مُثراة ببيانات المنتج) |
+| GET | `/api/store/search` | بحث عربي رباعي الطبقات + اقتراحات |
+| POST | `/api/store/checkout` | طلب ضيف (COD أو تحويل بنكي) + إجماليات |
+| GET | `/api/store/track/:token` | تتبع الطلب |
+| POST | `/api/store/payments/proof` / `payments/status/:token` | إثبات التحويل وحالة الدفع |
+| POST | `/api/store/auth/*` | تسجيل/تحقق/دخول عميل (Email + Google) + استرجاع كلمة السر |
+| POST | `/api/uploads/sign` (موظف) و `/api/uploads/sign-proof` (عام) | توقيع رفع مباشر على Cloudinary |
+
+قواعد أساسية في الردود:
+
+- الأسعار والمبالغ تُعاد **كنصوص عشرية** (`"125.0000"`) لتفادي أخطاء float في JS.
+- الإعداد المفقود = `null` — لا اختراع قيم (قاعدة AGENTS.md رقم 10).
+- منطقة بلا تعرفة شحن → خطأ `SHIPPING_AREA_NOT_CONFIGURED` وليس شحن مجاني.
+- البحث يستخدم دوال SQL من `prisma/mvp/manual_constraints.sql` ويسجل في `SearchLog`.
+
+---
+
 ## 11. Swagger
 
 تم تركيب Swagger UI فعليًا.
@@ -892,6 +925,10 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f prisma/mvp/dry-run.sql
 - Prisma Client مولّد.
 - 38 CRUD module + Auth module.
 - استيراد المنتجات من CSV: `POST /api/products/import`.
+- **Store API كامل** (منتجات/أقسام/إعدادات/محتوى/sitemap/شحن/كوبونات/سلة/
+  بحث/checkout/تتبع/دفع) — انظر `docs/BACKEND_PROGRESS.md`.
+- **رفع صور Cloudinary مباشر** (توقيع فقط، بدون مرور الملف في الـ API).
+- **سكربت Seed أساسي** `npm run db:seed` (يحتاج `seed.config.json`).
 - `/api` router.
 - Swagger UI + OpenAPI JSON.
 - Zod validation.
@@ -928,35 +965,27 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f prisma/mvp/dry-run.sql
 
 ## 16. المتبقي — خطة عمل واضحة
 
-1. **Migration أولي**
+> تفاصيل وأوامر دقيقة: `docs/BACKEND_PROGRESS.md`.
+
+1. **تشغيل قاعدة البيانات المحلية** (حاليًا `prisma dev` يفشل بسبب قفل
+   مجلد Temp — أغلق عمليات node المعلقة).
+2. **Migration أولي**
    ```bash
    npm run db:migrate -- --name init
    ```
-2. **تطبيق Manual SQL**
+3. **تطبيق Manual SQL** (قيود + دوال البحث + views)
    ```bash
    npx prisma db execute --file prisma/mvp/manual_constraints.sql
    ```
-3. **Seed أساسي حقيقي**
-   - EGP.
-   - إعدادات المتجر.
-   - DocumentSequence.
-   - أول `OWNER`.
-4. **Business Layer**
-   - Order creation transaction.
-   - Totals calculation.
-   - Snapshots.
-   - AuditLog.
-   - Status transitions.
-   - Promotion redemption.
-   - Bundle pricing.
-5. **Auth تحسين**
-   - Refresh token.
-   - Permissions تفصيلية.
-6. **Jobs**
-   - إشعارات.
-   - Marketing events retry.
-7. **Tests**
-   - Unit للـ services.
+4. **Seed أساسي حقيقي**: انسخ `seed.config.example.json` إلى
+   `seed.config.json`، املأ OWNER + التسلسلات + الإعدادات، ثم
+   ```bash
+   npm run db:seed
+   ```
+5. **بيانات صاحب المتجر**: كتالوج CSV، تعرفات الشحن، واتساب/سوشيال،
+   ضريبة، شحن مجاني، كوبونات، حساب Cloudinary.
+6. **اختبارات Integration كاملة** (بدون skip) بعد تشغيل القاعدة.
+7. **Auth تحسين** (refresh token) و**Jobs** (إشعارات) عند الحاجة.
    - Integration للـ API.
    - SQL constraints tests.
 8. **Swagger تحسين مستمر**

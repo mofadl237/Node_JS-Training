@@ -1,13 +1,11 @@
 import type { NextFunction, Request, Response } from "express";
 import { ApiResponse } from "../../../shared/response.js";
 import { StoreProductService } from "./service.js";
+import { listStoreProducts } from "./list.js";
+import type { IListStoreProductsQuery } from "./validation.js";
 
 export class StoreProductController {
-  private readonly service: StoreProductService;
-
-  constructor() {
-    this.service = new StoreProductService();
-  }
+  private service = new StoreProductService();
 
   getBySlug = async (
     req: Request,
@@ -15,8 +13,40 @@ export class StoreProductController {
     next: NextFunction,
   ): Promise<Response | void> => {
     try {
-      const result = await this.service.getBySlug(req.params.slug as string);
-      return ApiResponse.ok(res, "Product fetched successfully", result);
+      const { slug } = req.params as { slug: string };
+      const product = await this.service.getStorefrontDetail(slug);
+      return ApiResponse.ok(res, "Product fetched successfully", product);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  list = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> => {
+    try {
+      const query = req.query as unknown as IListStoreProductsQuery;
+      const result = await listStoreProducts(
+        {
+          categorySlug: query.category,
+          subcategorySlug: query.subcategory,
+          featured: query.featured,
+          inStock: query.inStock,
+          minPrice: query.minPrice,
+          maxPrice: query.maxPrice,
+          sort: query.sort,
+        },
+        query.page,
+        query.limit,
+      );
+      return ApiResponse.paginated(
+        res,
+        "Products fetched successfully",
+        result.items,
+        result.meta,
+      );
     } catch (error) {
       next(error);
     }

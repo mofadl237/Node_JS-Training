@@ -1,5 +1,60 @@
 # Changelog
 
+## [0.6.0] - 2026-11-13
+
+### Added
+
+- Full storefront API under `/api/store` (task doc: `docs/STORE_BACKEND_TASKS.md`):
+  - Products: `GET /store/products` (one SQL query + lateral joins, filters,
+    sorting, pagination, `IStoreProductCard` shape) and `GET /store/products/:slug`
+    (images, packages, `pricePer100g`, bundle components, related products).
+  - Categories tree with product counts: `GET /store/categories`.
+  - Public settings whitelist: `GET /store/settings` (missing keys → null).
+  - Content: `GET /store/banners`, `GET /store/faqs`, `GET /store/pages/:slug`.
+  - SEO: `GET /store/sitemap`.
+  - Shipping: `GET /store/shipping/areas` and `GET /store/shipping/quote`
+    (cheapest active tariff rule shared with checkout).
+  - Coupons: `POST /store/coupons/validate` (never writes; rate limited).
+  - Enriched cart responses (product, image, size, availability, itemsCount).
+  - Enriched search: `IStoreProductCard` + matchTier/score/matchedTerm,
+    zero-result fallback via `suggest_similar()`, SearchLog logging.
+- Guest checkout now requires `paymentMethod` (`COD` | `ONLINE_TRANSFER`),
+  creates the pending Payment row with the intended method and the computed
+  totals, rejects out-of-stock packages (`PACKAGE_OUT_OF_STOCK`) and
+  unconfigured shipping areas (`SHIPPING_AREA_NOT_CONFIGURED`).
+- Payment proof flow: `POST /store/payments/proof` updates the PENDING row,
+  rejects COD orders (`PAYMENT_METHOD_NOT_ONLINE`) and confirmed payments.
+- Signed direct Cloudinary uploads: `POST /api/uploads/sign` (OWNER/ADMIN,
+  folders `om-eman/products|categories|banners`) and
+  `POST /api/uploads/sign-proof` (public, tracking-token ownership check,
+  10/hour). `cloudinary` dependency added; `CLOUDINARY_*` env vars.
+- Cloudinary URL rule in the CRUD generator for `ProductImage.url`,
+  `Category/Subcategory.imageUrl`, `Banner.imageUrl/mobileImageUrl`,
+  `Payment.proofImageUrl` (`src/shared/cloudinary-url.ts`).
+- `npm run db:seed`: idempotent base seed from gitignored
+  `seed.config.json` (OWNER employee, document sequences, system settings;
+  example in `seed.config.example.json`).
+- Swagger documentation for all storefront + upload endpoints
+  (`src/config/swagger-store.ts`; 116 paths, 168 schemas).
+- Extended integration tests: pending payment row assertions, out-of-stock
+  rejection, missing-tariff rejection, proof-signature access control.
+- `docs/BACKEND_PROGRESS.md` tracking done/remaining/owner responsibilities.
+
+### Changed
+
+- `npm run modules:generate` preserves and mounts `src/modules/uploads/` too.
+- Guest checkout split into focused services: `checkout-items.service.ts`
+  (package validation + snapshots), `checkout-totals.service.ts` (coupon,
+  shipping, tax, address snapshot), `checkout-contracts.ts` (shared types);
+  `normalizePhone` moved to `src/utils/phone.ts`.
+- Files stay under the 200-line limit.
+
+### Notes
+
+- Runtime steps still pending (require the local database): initial
+  migration, `prisma/mvp/manual_constraints.sql`, real seed, integration
+  tests without skip. See `docs/BACKEND_PROGRESS.md`.
+
 ## [0.5.0] - 2026-11-03
 
 ### Added

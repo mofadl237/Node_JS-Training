@@ -26,6 +26,9 @@ export interface IEnvConfig {
   readonly SESSION_TTL_DAYS: number;
   readonly EMAIL_VERIFY_TOKEN_TTL_HOURS: number;
   readonly PASSWORD_RESET_TOKEN_TTL_MINUTES: number;
+  readonly CLOUDINARY_CLOUD_NAME: string;
+  readonly CLOUDINARY_API_KEY: string;
+  readonly CLOUDINARY_API_SECRET: string;
 }
 
 function getEnv(key: string): string {
@@ -123,6 +126,9 @@ export const env: Readonly<IEnvConfig> = Object.freeze({
       "PASSWORD_RESET_TOKEN_TTL_MINUTES",
       30,
     ),
+    CLOUDINARY_CLOUD_NAME: getOptionalEnv("CLOUDINARY_CLOUD_NAME", ""),
+    CLOUDINARY_API_KEY: getOptionalEnv("CLOUDINARY_API_KEY", ""),
+    CLOUDINARY_API_SECRET: getOptionalEnv("CLOUDINARY_API_SECRET", ""),
 });
 
 export default env;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { deriveOrderPaymentStatus } from "../../src/services/order-payment-status.service.js";
-import { normalizePhone } from "../../src/services/guest-checkout.service.js";
+import { normalizePhone } from "../../src/utils/phone.js";
 import { generateOpaqueToken, hashToken } from "../../src/utils/secure-token.js";
 import { EPaymentStatus } from "@prisma/client";
 

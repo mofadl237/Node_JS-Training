@@ -1,0 +1,84 @@
+/* 1- zafran (default) — warm spices on cream */
+[data-theme="zafran"] {
+  --color-paper: #fbf4e6;
+  --color-surface: #fffbf2;
+  --color-surface-2: #f3e7ce;
+  --color-ink: #2b1a12;
+  --color-ink-soft: #6e574a;
+  --color-primary: #b8451f;
+  --color-on-primary: #fff6ea;
+  --color-accent: #e0a100;
+  --color-glow: #f2b134;
+  --color-card-1: #f3e2c2;
+  --color-card-2: #e3e4c8;
+  --color-card-3: #f0d4c2;
+  --color-card-4: #f2dacd;
+  color-scheme: light;
+}
+
+/* 2- attar — herbs, olive green + copper */
+[data-theme="attar"] {
+  --color-paper: #f6f3e8;
+  --color-surface: #fcfaf1;
+  --color-surface-2: #e7e7d6;
+  --color-ink: #1f2a1c;
+  --color-ink-soft: #5c6b57;
+  --color-primary: #3f6b3a;
+  --color-on-primary: #f4f8ee;
+  --color-accent: #c9822b;
+  --color-glow: #9bc46b;
+  --color-card-1: #e8ebd2;
+  --color-card-2: #dde6d0;
+  --color-card-3: #efe3c4;
+  --color-card-4: #e2e9db;
+  color-scheme: light;
+}
+
+/* 3- cinnamon (dark) — warm night, never cold black */
+[data-theme="cinnamon"] {
+  --color-paper: #1e130e;
+  --color-surface: #2a1b13;
+  --color-surface-2: #3a271c;
+  --color-ink: #f6e9d2;
+  --color-ink-soft: #c9ae92;
+  --color-primary: #e8892b;
+  --color-on-primary: #241105;
+  --color-accent: #f2c14e;
+  --color-glow: #f59e3b;
+  --color-card-1: #33231a;
+  --color-card-2: #40291d;
+  --color-card-3: #4a3323;
+  --color-card-4: #52382a;
+  color-scheme: dark;
+}
+
+/* 4- hibiscus — wine red + gold */
+[data-theme="hibiscus"] {
+  --color-paper: #fbf1ee;
+  --color-surface: #fffaf7;
+  --color-surface-2: #f4e1dc;
+  --color-ink: #2a1216;
+  --color-ink-soft: #6e5158;
+  --color-primary: #a3203a;
+  --color-on-primary: #fff4ef;
+  --color-accent: #d9902f;
+  --color-glow: #e5566f;
+  --color-card-1: #f5dfda;
+  --color-card-2: #efd6d8;
+  --color-card-3: #f2e2cc;
+  --color-card-4: #f7e3e0;
+  color-scheme: light;
+}
+
+/* 5- theme transition */
+html {
+  transition:
+    background-color var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    transition: none;
+  }
+}

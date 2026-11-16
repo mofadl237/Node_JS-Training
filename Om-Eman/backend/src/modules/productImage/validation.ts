@@ -1,8 +1,9 @@
 import { z } from "zod";
+import { cloudinaryUrlSchemaOptional } from "../../shared/cloudinary-url.js";
 
 export const createProductImageSchema = z.object({
   productId: z.string().trim().min(1, "must not be empty"),
-  url: z.string().trim().url("must be a valid URL"),
+  url: cloudinaryUrlSchemaOptional,
   altAr: z.string().trim().min(1, "must not be empty").optional().nullable(),
   altEn: z.string().trim().min(1, "must not be empty").optional().nullable(),
   sortOrder: z.coerce.number().int().optional(),
@@ -11,7 +12,7 @@ export const createProductImageSchema = z.object({
 
 export const updateProductImageSchema = z.object({
   productId: z.string().trim().min(1, "must not be empty").optional(),
-  url: z.string().trim().url("must be a valid URL").optional(),
+  url: cloudinaryUrlSchemaOptional.optional(),
   altAr: z.string().trim().min(1, "must not be empty").optional().nullable(),
   altEn: z.string().trim().min(1, "must not be empty").optional().nullable(),
   sortOrder: z.coerce.number().int().optional(),

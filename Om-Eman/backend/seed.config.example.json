@@ -1,0 +1,34 @@
+{
+  "owner": {
+    "fullName": "Om Eman",
+    "email": "owner@example.com",
+    "password": "change-me-min-8-chars"
+  },
+  "sequences": [
+    { "documentType": "ORDER", "prefix": "ORD", "padding": 6 },
+    { "documentType": "INVOICE", "prefix": "INV", "padding": 6 },
+    { "documentType": "SHIPMENT", "prefix": "SHP", "padding": 6 }
+  ],
+  "settings": [
+    {
+      "key": "TAX_RATE",
+      "value": { "rate": 0 },
+      "description": "VAT rate as a fraction (0.14 = 14%). 0 = no tax."
+    },
+    {
+      "key": "FREE_SHIPPING_THRESHOLD",
+      "value": { "amount": 0 },
+      "description": "Cart subtotal (EGP) above which shipping is free. 0 = disabled."
+    },
+    {
+      "key": "STORE_CONTACT",
+      "value": { "phone": "", "whatsapp": "", "email": "", "address": "" },
+      "description": "Public contact details shown in the storefront footer."
+    },
+    {
+      "key": "STORE_SOCIAL",
+      "value": { "facebook": "", "instagram": "", "tiktok": "" },
+      "description": "Public social links shown in the storefront footer."
+    }
+  ]
+}

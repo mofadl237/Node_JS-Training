@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "title": "Om Eman | Natural Spices & Herbs",
+    "description": "Om Eman store for natural spices and herbs — clear prices and delivery to your door."
+  },
+  "home": {
+    "title": "Om Eman Store",
+    "body": "The main page is built during the storefront days — the final design is decided together."
+  },
+  "design": {
+    "title": "Design System",
+    "subtitle": "Internal page to pick the theme, fonts, and colors before building the real screens.",
+    "themes": "Themes",
+    "themeDefault": "Default",
+    "themeDark": "Dark",
+    "themeZafran": "Zafran",
+    "themeAttar": "Attar",
+    "themeCinnamon": "Cinnamon",
+    "themeHibiscus": "Hibiscus",
+    "fonts": "Fonts",
+    "fontDisplay": "Display font",
+    "fontBody": "Body font",
+    "fontSample": "Om Eman spices and herbs — authentic, with clear prices",
+    "tokens": "Brand colors",
+    "ui": "UI elements",
+    "motion": "Motion",
+    "inputPlaceholder": "Type something...",
+    "badgeNew": "New",
+    "badgeSale": "Sale",
+    "discountNumber": "{percent}% off"
+  },
+  "errors": {
+    "title": "Something unexpected happened",
+    "body": "Try again, and if the problem stays contact us on WhatsApp.",
+    "backHome": "Back to home",
+    "retry": "Try again"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The link looks old or wrong.",
+    "backHome": "Back to home"
+  },
+  "common": {
+    "backToTop": "Back to top",
+    "currencyEgp": "EGP"
+  }
+}

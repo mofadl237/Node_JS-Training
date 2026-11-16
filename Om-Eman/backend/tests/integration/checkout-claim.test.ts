@@ -1,7 +1,8 @@
 import { beforeAll, afterAll, describe, expect, it } from "vitest";
 import { ECartStatus, ECustomerStatus, EOrderStatus, EPaymentStatus } from "@prisma/client";
 import { prisma, isDatabaseUp } from "../helpers/db.js";
-import { createGuestOrder, normalizePhone } from "../../src/services/guest-checkout.service.js";
+import { createGuestOrder } from "../../src/services/guest-checkout.service.js";
+import { normalizePhone } from "../../src/utils/phone.js";
 import { refreshOrderPaymentStatus } from "../../src/services/order-payment-status.service.js";
 import { markOrderDelivered } from "../../src/services/order-payment-status.service.js";
 import {
@@ -12,6 +13,7 @@ import {
 } from "../../src/services/customer-claim.service.js";
 import { recalculateCustomerStatsStandalone } from "../../src/services/customer-stats.service.js";
 import { generateOpaqueToken } from "../../src/utils/secure-token.js";
+import { UploadsService } from "../../src/modules/uploads/service.js";
 
 const isDbUp = await isDatabaseUp();
 
@@ -22,6 +24,7 @@ const email = `test-${runId}@om-eman.test`;
 
 const createdCustomerIds: string[] = [];
 const createdProductIds: string[] = [];
+const createdCarrierIds: string[] = [];
 let categorySetup = false;
 let categoryId = "";
 
@@ -77,6 +80,28 @@ async function seedCatalog(): Promise<{ packageId: string; price: number }> {
   });
   createdProductIds.push(product.id);
 
+  // A zero-cost test tariff keeps totals deterministic (200 subtotal). A
+  // missing tariff would make checkout fail with SHIPPING_AREA_NOT_CONFIGURED.
+  const carrier = await prisma.shippingCarrier.create({
+    data: {
+      nameAr: `ناقل اختبار ${runId}`,
+      nameEn: `test-carrier-${runId}`,
+      isActive: true,
+      tariffs: {
+        create: {
+          governorate: "Cairo",
+          city: "Nasr City",
+          baseCost: 0,
+          etaMinDays: 2,
+          etaMaxDays: 4,
+          isActive: true,
+        },
+      },
+    },
+    include: { tariffs: true },
+  });
+  createdCarrierIds.push(carrier.id);
+
   return { packageId: product.packages[0]!.id, price: 100 };
 }
 
@@ -103,6 +128,9 @@ describe.skipIf(!isDbUp)("guest checkout, delivery, claim and merge (integration
     });
     await prisma.customer.deleteMany({ where: { id: { in: createdCustomerIds } } });
     await prisma.product.deleteMany({ where: { id: { in: createdProductIds } } });
+    await prisma.shippingCarrier.deleteMany({
+      where: { id: { in: createdCarrierIds } },
+    });
     if (categorySetup) {
       await prisma.subcategory.deleteMany({ where: { categoryId: categoryId } });
       await prisma.category.deleteMany({ where: { id: categoryId } });
@@ -119,6 +147,7 @@ describe.skipIf(!isDbUp)("guest checkout, delivery, claim and merge (integration
         street: "Street 10",
       },
       items: [{ productPackageId: packageId, quantity: 2 }],
+      paymentMethod: "COD",
       clientIp: "127.0.0.1",
     });
 
@@ -127,6 +156,25 @@ describe.skipIf(!isDbUp)("guest checkout, delivery, claim and merge (integration
 
     expect(result.orderNumber).toMatch(/^ORD-\d{4}-\d{6}$/);
     expect(trackingToken.length).toBeGreaterThanOrEqual(40);
+    expect(result.paymentMethod).toBe("COD");
+    expect(result.paymentId).toBeTruthy();
+    expect(result.totals).toEqual({
+      subtotal: "200.0000",
+      discountTotal: "0.0000",
+      shippingTotal: "0.0000",
+      taxTotal: "0.0000",
+      grandTotal: "200.0000",
+      currency: "EGP",
+    });
+
+    // Checkout must create the pending payment row with the intended method.
+    const payment = await prisma.payment.findUniqueOrThrow({
+      where: { id: result.paymentId },
+      select: { method: true, status: true, amount: true },
+    });
+    expect(payment.method).toBe("COD");
+    expect(payment.status).toBe(EPaymentStatus.PENDING);
+    expect(payment.amount.toString()).toBe("200.0000");
 
     const order = await prisma.order.findUniqueOrThrow({
       where: { id: result.orderId },
@@ -154,6 +202,7 @@ describe.skipIf(!isDbUp)("guest checkout, delivery, claim and merge (integration
       recipientName: "عميل ضيف",
       address: { governorate: "Cairo", city: "Nasr City", street: "Street 10" },
       items: [{ productPackageId: packageId, quantity: 1 }],
+      paymentMethod: "ONLINE_TRANSFER",
     });
     createdCustomerIds.push(
       (
@@ -169,6 +218,60 @@ describe.skipIf(!isDbUp)("guest checkout, delivery, claim and merge (integration
       select: { customerId: true },
     });
     expect(second.customerId).toBe(first.customerId);
+  });
+
+  it("rejects checkout for an out-of-stock package", async () => {
+    const pkg = await prisma.productPackage.findUniqueOrThrow({
+      where: { id: packageId },
+      select: { sku: true },
+    });
+    await prisma.productPackage.update({
+      where: { id: packageId },
+      data: { stockStatus: "OUT_OF_STOCK" },
+    });
+    try {
+      await expect(
+        createGuestOrder({
+          phone,
+          recipientName: "عميل ضيف",
+          address: { governorate: "Cairo", city: "Nasr City", street: "Street 10" },
+          items: [{ productPackageId: packageId, quantity: 1 }],
+          paymentMethod: "COD",
+        }),
+      ).rejects.toMatchObject({ code: "PACKAGE_OUT_OF_STOCK" });
+    } finally {
+      await prisma.productPackage.update({
+        where: { id: packageId },
+        data: { stockStatus: "IN_STOCK" },
+      });
+    }
+    expect(pkg.sku).toBeTruthy();
+  });
+
+  it("rejects checkout when the area has no shipping tariff", async () => {
+    await expect(
+      createGuestOrder({
+        phone,
+        recipientName: "عميل ضيف",
+        address: { governorate: "Aswan", city: "Kom Ombo", street: "Street 1" },
+        items: [{ productPackageId: packageId, quantity: 1 }],
+        paymentMethod: "COD",
+      }),
+    ).rejects.toMatchObject({ code: "SHIPPING_AREA_NOT_CONFIGURED" });
+  });
+
+  it("signs proof uploads only for online-transfer orders the caller owns", async () => {
+    const uploads = new UploadsService();
+
+    // Wrong tracking token = no access, checked before any Cloudinary config.
+    await expect(
+      uploads.signProof({ orderId, trackingToken: "x".repeat(48) }),
+    ).rejects.toMatchObject({ code: "ORDER_ACCESS_DENIED" });
+
+    // The order pays cash on delivery: no proof is ever needed.
+    await expect(
+      uploads.signProof({ orderId, trackingToken }),
+    ).rejects.toMatchObject({ code: "PAYMENT_METHOD_NOT_ONLINE" });
   });
 
   it("derives paymentStatus from Payment rows", async () => {

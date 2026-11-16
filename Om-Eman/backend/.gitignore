@@ -10,3 +10,5 @@ logs/*.log
 !logs/.gitkeep
 
 /generated/prisma
+# Real seed configuration (owner password etc.) stays out of Git
+seed.config.json

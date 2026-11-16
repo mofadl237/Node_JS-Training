@@ -1,0 +1,45 @@
+@theme inline {
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+}
+
+@theme {
+  /* 1- colors — zafran defaults, themes.css overrides per data-theme */
+  --color-paper: #fbf4e6;
+  --color-surface: #fffbf2;
+  --color-surface-2: #f3e7ce;
+  --color-ink: #2b1a12;
+  --color-ink-soft: #6e574a;
+  --color-primary: #b8451f;
+  --color-on-primary: #fff6ea;
+  --color-accent: #e0a100;
+  --color-glow: #f2b134;
+  --color-success: #2f7d4f;
+  --color-danger: #b3382c;
+  --color-card-1: #f3e2c2;
+  --color-card-2: #e3e4c8;
+  --color-card-3: #f0d4c2;
+  --color-card-4: #f2dacd;
+
+  /* 2- radius */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+
+  /* 3- shadows — warm brown, never black */
+  --shadow-rest: 0 2px 8px rgb(43 26 18 / 0.12);
+  --shadow-hover: 0 8px 20px rgb(43 26 18 / 0.16);
+  --shadow-floating: 0 16px 40px rgb(43 26 18 / 0.2);
+
+  /* 4- ambient animations (keyframes in animations.css) */
+  --animate-pulse-ring: pulse-ring 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+:root {
+  --dur-fast: 150ms;
+  --dur-base: 300ms;
+  --dur-slow: 600ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --spring-card: 300;
+  --spring-damping: 24;
+}

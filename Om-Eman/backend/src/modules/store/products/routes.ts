@@ -1,11 +1,24 @@
 import { Router } from "express";
-import { validateParams } from "../../../middlewares/validate.middleware.js";
+import { validateParams, validateQuery } from "../../../middlewares/validate.middleware.js";
 import { StoreProductController } from "./controller.js";
-import { slugParamSchema } from "./validation.js";
+import {
+  listStoreProductsQuerySchema,
+  slugParamSchema,
+} from "./validation.js";
 
 const router = Router();
 const controller = new StoreProductController();
 
-router.get("/products/:slug", validateParams(slugParamSchema), controller.getBySlug);
+// Storefront catalog. Public: ACTIVE products with published packages only.
+router.get(
+  "/products",
+  validateQuery(listStoreProductsQuerySchema),
+  controller.list,
+);
+router.get(
+  "/products/:slug",
+  validateParams(slugParamSchema),
+  controller.getBySlug,
+);
 
 export default router;

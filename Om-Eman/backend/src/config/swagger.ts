@@ -4,6 +4,7 @@ import type {
   IModuleMetadata,
 } from "../modules/module-metadata.js";
 import { moduleMetadata } from "../modules/module-metadata.js";
+import { buildStorePaths, storeSchemas } from "./swagger-store.js";
 
 type TOpenApiSchema = Record<string, unknown>;
 type TOpenApiResponses = Record<string, unknown>;
@@ -26,6 +27,14 @@ const tagDescriptions: Record<string, string> = {
   Content: "Banners, static pages, and FAQs.",
   Notifications: "Customer and employee notifications.",
   Settings: "System settings and document sequences.",
+  Store: "Storefront browsing, checkout, tracking, and cart (public).",
+  "Store Auth": "Customer accounts, sessions, and password flows.",
+  "Store Cart": "Guest/customer cart operations.",
+  "Store Catalog": "Storefront products, categories, and search.",
+  "Store Content": "Storefront banners, pages, and FAQs.",
+  "Store Payments": "Payment proof and payment status for customers.",
+  "Store Shipping": "Shipping areas and quotes for customers.",
+  Uploads: "Signed direct Cloudinary uploads (dashboard + proof).",
 };
 
 function ref(name: string): TOpenApiSchema {
@@ -422,7 +431,7 @@ function buildPaths(): Record<string, TOpenApiSchema> {
     paths[`/${meta.route}/{id}`] = itemPath;
   }
 
-  return paths;
+  return { ...paths, ...buildStorePaths() };
 }
 
 function buildModelSchemas(): Record<string, TOpenApiSchema> {
@@ -447,9 +456,18 @@ function buildModelSchemas(): Record<string, TOpenApiSchema> {
 const uniqueTags = [
   "Auth",
   ...Array.from(new Set(moduleMetadata.map((meta) => meta.tag))),
+  "Store",
+  "Store Auth",
+  "Store Cart",
+  "Store Catalog",
+  "Store Content",
+  "Store Payments",
+  "Store Shipping",
+  "Uploads",
 ];
 
 const schemas: Record<string, TOpenApiSchema> = {
+  ...storeSchemas,
   ErrorResponse: {
     type: "object",
     required: ["success", "message", "code"],
@@ -616,6 +634,12 @@ export const swaggerSpec: Record<string, unknown> = {
         scheme: "bearer",
         bearerFormat: "JWT",
         description: "JWT access token issued by POST /auth/login.",
+      },
+      bearerCustomerAuth: {
+        type: "http",
+        scheme: "bearer",
+        description:
+          "Opaque customer session token issued by the /store/auth endpoints.",
       },
     },
     schemas,

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { cloudinaryUrlSchemaOptional } from "../../shared/cloudinary-url.js";
 
 export const createCustomerAddressSchema = z.object({
   customerId: z.string().trim().min(1, "must not be empty"),

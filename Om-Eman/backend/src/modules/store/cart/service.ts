@@ -54,8 +54,25 @@ async function loadCart(cartId: string): Promise<IStoreCart> {
       sku: true,
       nameAr: true,
       sellingPrice: true,
+      compareAtPrice: true,
+      sizeValue: true,
+      sizeUnit: true,
+      stockStatus: true,
       isActive: true,
       isPublished: true,
+      product: {
+        select: {
+          id: true,
+          slug: true,
+          nameAr: true,
+          nameEn: true,
+          images: {
+            select: { url: true },
+            orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }],
+            take: 1,
+          },
+        },
+      },
     },
   });
   const packagesById = new Map(packages.map((pkg) => [pkg.id, pkg]));
@@ -71,8 +88,21 @@ async function loadCart(cartId: string): Promise<IStoreCart> {
             id: pkg.id,
             sku: pkg.sku,
             sellingPrice: pkg.sellingPrice.toString(),
-            isAvailable: pkg.isActive && pkg.isPublished,
+            isAvailable:
+              pkg.isActive &&
+              pkg.isPublished &&
+              pkg.stockStatus === "IN_STOCK",
             nameAr: pkg.nameAr,
+            productId: pkg.product.id,
+            productSlug: pkg.product.slug,
+            productNameAr: pkg.product.nameAr,
+            productNameEn: pkg.product.nameEn,
+            imageUrl: pkg.product.images[0]?.url ?? null,
+            sizeValue: pkg.sizeValue.toString(),
+            sizeUnit: pkg.sizeUnit,
+            compareAtPrice:
+              pkg.compareAtPrice !== null ? pkg.compareAtPrice.toString() : null,
+            stockStatus: pkg.stockStatus,
           }
         : null,
     };
@@ -82,6 +112,7 @@ async function loadCart(cartId: string): Promise<IStoreCart> {
     id: cart.id,
     guestToken: cart.guestToken ?? "",
     status: cart.status,
+    itemsCount: lines.reduce((sum, line) => sum + Number(line.quantity), 0),
     lines,
     subtotal: computeSubtotal(lines),
   };

@@ -2,6 +2,9 @@
 
 > Read this file before writing or modifying any code.
 > These are my conventions, not suggestions. Follow them unless I explicitly ask otherwise.
+> Last synced with the real project state: 2026-11-16 (after Foundation Day 1).
+> Project docs to read next: `docs/PROGRESS.md` (what is done / what is left),
+> `docs/DESIGN_SYSTEM.md` (colors, themes, motion), `docs/FRONTEND_TASKS_10_DAYS.md` (plan).
 
 I build **React + TypeScript** applications (mostly **Next.js App Router**) with a strong focus on:
 clean architecture, **small files**, domain-based organization, strict typing, explicit validation,
@@ -53,28 +56,36 @@ Split it before adding anything else.
 
 ## 2. Default stack
 
-This repository is the reference implementation:
+This repository is the reference implementation. Versions are the real installed ones:
 
-| Concern | Choice |
-|---|---|
-| Framework | Next.js 15 App Router + React 19 + TypeScript |
-| Styling | Tailwind CSS v4 + shadcn/ui + `class-variance-authority` |
-| Routing | Next.js App Router (`app/[locale]`) + `next-intl` |
-| Global client state | Redux Toolkit (`createSlice`) |
-| Server state | **RTK Query** (`createApi` + `fetchBaseQuery`) |
-| Forms | React Hook Form + `zodResolver` |
-| Validation | **Zod** schemas |
-| i18n | `next-intl` (`en`, `ar`, RTL support) |
-| Toasts | `sonner` |
-| Icons | `lucide-react` |
-| Animation | `framer-motion` wrappers |
-| Charts | `recharts` |
-| Email/server | Next.js Route Handlers + `resend` |
-| Utilities | `clsx` + `tailwind-merge` via `cn` |
+| Concern | Choice | Status |
+|---|---|---|
+| Framework | Next.js **16.4** App Router (Turbopack) + React 19.3 + TypeScript (strict) | installed |
+| Next config | `cacheComponents: true`, `partialPrefetching`, `createNextIntlPlugin()` wrapper in `next.config.ts` | active |
+| Styling | Tailwind CSS v4 (`@theme` tokens in `styles/`) + `class-variance-authority` | installed |
+| UI primitives | Hand-written in `components/ui/` with `cva` + tokens (no shadcn CLI) | Button, Input, Skeleton, Badge |
+| Routing / i18n | `app/[locale]` + `next-intl` 4 (`ar` default RTL, `en`) | installed |
+| Locale middleware | **`proxy.ts`** at the project root (Next 16 name for `middleware.ts`) | active |
+| Global client state | Redux Toolkit (`createSlice`) | store ready, no slices yet |
+| Server state | **RTK Query** (`createApi`, custom base query in `store/baseApi.ts`) | base ready, no endpoints yet |
+| Forms | React Hook Form + `zodResolver` | installed, unused yet |
+| Validation | **Zod 4** schemas | installed, unused yet |
+| Toasts | `sonner` | installed, `Toaster` not mounted yet |
+| Icons | `lucide-react` | installed |
+| Animation | **`motion`** (import from `motion/react`) with `LazyMotion` + `m.*` | installed |
+| Utilities | `clsx` + `tailwind-merge` via `cn` in `lib/utils.ts` | installed |
+| Charts | `recharts` | NOT installed (add on the reports day) |
+| Email/server | Route Handlers + `resend` | NOT installed (add only when needed) |
+| Smooth scroll | `lenis` | NOT installed (undecided, see `docs/DESIGN_SYSTEM.md`) |
 
 Rules:
 
+- Do not import `framer-motion` directly. Use `motion/react` (it is a transitive dependency only).
 - Environment variables are read from `process.env`; only `NEXT_PUBLIC_*` may reach the client.
+  Required: `NEXT_PUBLIC_API_URL` (backend, port 3000) and `NEXT_PUBLIC_SITE_URL`. See `.env.example`.
+  `lib/config.ts` throws at import time when `NEXT_PUBLIC_API_URL` is missing.
+- The frontend dev/start server runs on **port 3001** (`npm run dev` already passes `-p 3001`);
+  the backend owns 3000.
 - If a project is **React + Vite** instead of Next.js, use React Router v7, `VITE_*` env vars, and
   `src/pages` + `src/router`; keep every other rule in this file unchanged.
 - If a project already uses TanStack Query or Axios, keep it and follow the same separation rules.
@@ -86,58 +97,70 @@ Rules:
 
 ### 3.1 Next.js App Router (this repo)
 
+Legend: **[exists]** = already in the repo today, **[planned]** = created on the day it is needed
+(see `docs/FRONTEND_TASKS_10_DAYS.md`). Do not create planned folders early.
+
 ```txt
 app/
 ├── [locale]/
-│   ├── (Dashboard)/dashboard/    # route group, one folder per route
-│   │   ├── layout.tsx
-│   │   └── <page>/page.tsx
-│   ├── e-commerce/
-│   │   ├── layout.tsx
-│   │   ├── <page>/page.tsx
-│   │   └── [productID]/page.tsx  # dynamic route
-│   ├── layout.tsx                # root layout: html/body/providers
-│   ├── error.tsx                 # route error boundary
-│   └── page.tsx
-└── api/
-    └── <endpoint>/route.ts       # route handler, validate + type payloads
+│   ├── layout.tsx            # [exists] ONLY root layout: <html lang dir data-theme>, fonts, providers
+│   ├── page.tsx              # [exists] placeholder home
+│   ├── design/page.tsx       # [exists] internal design-system page (noindex)
+│   ├── error.tsx             # [exists] client error boundary (messages from `errors`)
+│   ├── not-found.tsx         # [exists] client 404 (messages from `notFound`)
+│   ├── [...rest]/page.tsx    # [exists] catch-all -> notFound(), so unknown URLs get a translated 404
+│   ├── (Store)/...           # [planned] storefront routes (days 3-7)
+│   └── (Dashboard)/dashboard/# [planned] employee dashboard routes
+├── api/<endpoint>/route.ts   # [planned] route handlers (e.g. session cookie proxy)
+├── globals.css               # [exists] only @imports tailwind + styles/*.css (<= 30 lines)
+├── sitemap.ts                # [exists] skeleton, filled with products later
+└── robots.ts                 # [exists] disallows /ar/design and /en/design
 components/
-├── ui/                 # shadcn primitives (treat as library, do not restructure)
-├── shared/             # composed cross-feature UI (create when needed)
-├── Action/             # per-row table actions + mutations
-├── Animation/          # framer-motion wrappers
-├── Card/               # presentational cards
-├── DataAnalysis/       # dashboard analysis sections
-├── ECommerce/          # e-commerce sections
-├── Model/              # dialogs: add/edit forms ("Model" = modal in this repo)
-├── Render/             # data-driven sections that compose cards/tables
-├── Skelton/            # loading skeletons matching real layout
-├── Statiscs/           # charts/statistics
-└── Table/              # table layout only, actions delegated to Action/
-hooks/                  # custom hooks (useAppDispatch, useX, ...)
-interface/              # shared interfaces + barrel index.ts
-lib/                    # utils.ts: cn + storage helpers
-Providers/              # ReduxProvider, ThemeProvider, ...
-store/
-├── store.ts            # configureStore + typed RootState/AppDispatch
-├── <Domain>/<name>Slice.ts
-└── services/<domain>Api.ts
-validation/             # Zod schemas + barrel index.ts
-i18n/                   # routing.ts, navigation.ts, request.ts
-messages/               # en.json, ar.json
-middleware.ts           # next-intl middleware
+├── ui/                 # [exists] hand-written cva primitives: Button, Input, Skeleton, Badge (named exports)
+├── shared/             # [exists] ThemeScript, ThemeSwitcher, JsonLd — cross-feature composed UI
+├── Animation/          # [exists] motion wrappers (see 3.2)
+├── design/             # [exists] sections of the internal /design page only
+├── Action/ Card/ ECommerce/ Model/ Render/ Skelton/ Table/ DataAnalysis/ Statiscs/   # [planned]
+hooks/                  # [exists] useAppDispatch.ts (exports useAppDispatch + useAppSelector)
+interface/              # [exists] api.ts (envelope/pagination types); [planned] index.ts barrel
+lib/                    # [exists] utils (cn), config, locale, theme, seo, motion helpers
+Providers/              # [exists] ReduxProvider, ThemeProvider (PascalCase folder)
+store/                  # [exists] store.ts + baseApi.ts; [planned] <Domain>/<name>Slice.ts, services/<domain>Api.ts
+styles/                 # [exists] tokens.css (@theme), themes.css ([data-theme]), animations.css (ambient keyframes)
+validation/             # [planned] Zod schemas + barrel index.ts
+i18n/                   # [exists] routing.ts, navigation.ts, request.ts
+messages/               # [exists] ar.json, en.json (identical keys)
+proxy.ts                # [exists] next-intl locale proxy (Next 16 name; there is NO middleware.ts)
+docs/                   # PROGRESS.md, DAY<N>_TASKS.md, DESIGN_SYSTEM.md, FRONTEND_TASKS_10_DAYS.md
 ```
 
 Casing rules:
 
-- **PascalCase** for component/route folders and component files (`components/Table/CattleTable.tsx`).
+- **PascalCase** for component/route-group folders and component files (`components/Table/CattleTable.tsx`).
 - **lowercase/camelCase** for non-component folders (`store`, `hooks`, `validation`, `interface`,
-  `lib`, `i18n`, `messages`, `services`).
+  `lib`, `i18n`, `messages`, `styles`). `Providers/` is the one PascalCase exception and stays.
 - This repo uses the singular `interface/` folder. Keep that name in this repo; do not rename it.
-- Keep `Model/` for dialogs if the project already uses it. In a new project, prefer `Modal/`.
-- `components/ui/` is generated/library code. Do not add business logic there. Prefer feature folders.
+- Keep `Model/` for dialogs (this repo's name for "modal").
+- `components/ui/` holds generic primitives only. No business logic. Prefer feature folders.
 
-### 3.2 React + Vite variant
+### 3.2 Where the shared pieces live (use these, do not re-invent)
+
+| Need | Use |
+|---|---|
+| Merge class names | `cn()` from `@/lib/utils` |
+| Localized link / redirect / router | `@/i18n/navigation` (never `next/link` for internal routes) |
+| Locale type, direction, guard | `TLocale`, `getLocaleDirection`, `isLocale` from `@/lib/locale` |
+| Page metadata (canonical, hreflang, OG, Twitter) | `buildMetadata()` from `@/lib/seo` |
+| JSON-LD | `<JsonLd data={...} />` from `@/components/shared/JsonLd` |
+| Theme names, cookie, no-flash script | `@/lib/theme` + `ThemeScript` + `ThemeProvider` + `useTheme()` |
+| Motion constants | `EASE_OUT`, `SPRING_CARD` from `@/lib/motion` |
+| API base + errors | `baseApi`, `unwrapEnvelope` from `@/store/baseApi`; types in `@/interface/api` |
+| Animation wrappers | `FadeIn`, `Stagger` + `StaggerItem`, `ScaleOnHover`, `Shake`, `CountUp`, `ScrollProgressBar`, `BackToTop`, `MotionProvider` in `components/Animation/` |
+
+Provider order in `app/[locale]/layout.tsx` (keep it): `NextIntlClientProvider` > `ReduxProvider`
+> `ThemeProvider` > `MotionProvider` > children. `ThemeScript` sits in `<head>`.
+
+### 3.3 React + Vite variant (not used by this repo)
 
 ```txt
 src/
@@ -348,7 +371,7 @@ export default memo(FarmCard);
   - `Model/*` — dialog shell + trigger. Form pieces go in `Model/<Feature>/`.
   - `Card/*` — presentational, memoized, no API calls.
   - `Skelton/*` — loading placeholders matching the final layout.
-  - `Animation/*` — motion wrappers only.
+  - `Animation/*` — `motion/react` wrappers only (use `m.*`, never `motion.*`, because `LazyMotion strict` is on).
 - Never put business logic directly in JSX. Compute first, render second.
 - Never hardcode user-facing text in components. Use `next-intl`.
 
@@ -588,49 +611,57 @@ const Page = () => (
 export default Page;
 ```
 
-- Next.js 15 `params` are async: `params: Promise<{ id: string }>` and `await params`.
+- Next.js 16 `params` and `searchParams` are async: `params: Promise<{ locale: string }>` and `await params`.
+- `cacheComponents` is enabled. Reading `cookies()`, `headers()` or doing a dynamic `fetch` in a
+  layout/page makes that route dynamic. Wrap such parts in `<Suspense>` or use `"use cache"`.
+  Never read the theme cookie in a layout (the no-flash `ThemeScript` does it in the browser).
+- Server pages call `setRequestLocale(locale)` before translations so `next-intl` stays static.
+  `generateStaticParams` in the locale layout returns every locale.
+- `generateMetadata` receives `locale` as a plain `string`; narrow it with `isLocale()` (fallback
+  `routing.defaultLocale`) before passing it to `buildMetadata`.
 - One root layout owns `<html>`, `<body>`, fonts, providers, and global metadata. Nested layouts only
-  wrap their segment. Do not duplicate `<html>`/`<body>` in nested layouts.
+  wrap their segment. Do not duplicate `<html>`/`<body>` in nested layouts. In this repo the root
+  layout is `app/[locale]/layout.tsx` (there is no `app/layout.tsx`).
 - Route groups (`(Dashboard)`) group layouts without changing the URL.
 - Every route segment gets `metadata` when it is a real page.
 - Add `error.tsx`, `not-found.tsx`, and `loading.tsx` where the segment needs them.
 - Use `next/image` and `next/link`, never raw `<img>` or `<a>` for internal navigation.
 - Providers live in `Providers/` and are mounted once in the root layout.
-- Keep `components/ui/*` untouched except design tokens. Business code goes in feature folders.
+- Keep `components/ui/*` free of business logic. Business code goes in feature folders.
+- Every page uses `generateMetadata` + `buildMetadata()` (canonical, hreflang, OG, Twitter). Internal
+  pages pass `isNoIndex: true` and are also disallowed in `app/robots.ts`.
+- Unknown URLs reach `app/[locale]/[...rest]/page.tsx`, which calls `notFound()`, so the translated
+  `not-found.tsx` renders inside the providers.
 
 ---
 
 ## 13. Routing, auth, and i18n
 
-- `i18n/routing.ts` defines locales (`en`, `ar`) and the default locale.
+- `i18n/routing.ts` defines locales (`ar` default, `en`) with `localePrefix: "always"`.
 - `i18n/navigation.ts` exports the localized `Link`, `redirect`, `usePathname`, `useRouter`.
-- `middleware.ts` uses the `next-intl` middleware with the correct matcher.
+- `i18n/request.ts` loads `messages/<locale>.json`. `next.config.ts` wraps the config with
+  `createNextIntlPlugin()` (without it `getTranslations` throws "Couldn't find next-intl config").
+- **`proxy.ts`** (project root, Next 16) runs the `next-intl` middleware. Do not create `middleware.ts`.
+- `ar.json` and `en.json` must always have identical keys.
 - Messages live in `messages/<locale>.json`. Never hardcode user-facing strings.
 - Use `useTranslations("Namespace")` and `useLocale()` in client components.
 - Do not hardcode `/en/` in links. Build localized paths with the active locale or the navigation helpers.
 - Set `dir` from the locale (`ar` -> `rtl`, otherwise `ltr`) once in the root layout.
 - Use logical Tailwind utilities (`ms-*`, `me-*`, `start-*`, `end-*`) and `rtl:` modifiers, not
   left/right assumptions.
-- Auth guard pattern:
-  - Client: read the token through `lib/` helpers, decode with `jwtDecode<IJwtPayload>`, and redirect
-    to the localized login route.
-  - Server: prefer validating the token in middleware or a layout before rendering protected pages.
-  - Role-based UI derives from the decoded role (`admin`, `manager`, `Worker`), not from a hardcoded page.
-  - Protected route component contract:
-
-```tsx
-interface IProps {
-  isAllowed: boolean;
-  redirectPath: string;
-  children: ReactNode;
-}
-
-const ProtectedRoute = ({ isAllowed, redirectPath, children }: IProps) =>
-  isAllowed ? children : <Navigate to={redirectPath} replace />;
-```
-
-- Never trust the JWT payload for authorization on the server without verification. Decoding is not
+- Auth model of this project (backend contract, implemented on the dashboard/customer days, **[planned]**):
+  - **Employees** (dashboard): `POST /api/auth/login` returns `{ employee, token }` in the body (JWT).
+    The token must be stored in an httpOnly cookie through a Next route handler (`app/api/session/route.ts`)
+    and never in `localStorage`. Roles are `OWNER` and `ADMIN`.
+  - **Customers** (store): `POST /api/store/auth/*` returns `{ customer, token, expiresInDays }`. The token is
+    an opaque session token (not a JWT) sent as `Authorization: Bearer <token>`. Guests use a `guestToken`.
+  - Guard protected dashboard routes on the server (layout or `proxy.ts`) by validating the session,
+    and redirect with the localized `redirect` from `@/i18n/navigation`.
+  - Role-based UI derives from the verified session role, not from a hardcoded page.
+- Never trust a decoded token for authorization on the server without verification. Decoding is not
   verification.
+- Backend errors arrive as `{ success: false, message, code }`. `store/baseApi.ts` turns them into
+  `IApiError`; show a translated message keyed by `code` from `messages/`, never the raw code.
 
 ---
 
@@ -639,15 +670,29 @@ const ProtectedRoute = ({ isAllowed, redirectPath, children }: IProps) =>
 - Tailwind utility-first, mobile-first (`sm:`, `md:`, `lg:`).
 - Conditional classes through `cn(...)` (clsx + tailwind-merge).
 - Variant styling with `cva` when variants multiply. Do not create boolean prop explosions.
-- Use the project design tokens. This repo uses a green primary, dark mode, and neutral surfaces.
-  Follow the existing palette; do not introduce random colors.
-- Shared primitives: `Button`, `Input`, `Card`, `Dialog`, `Table`, `Select`, `Paginator`, `Skeleton`.
-  Extend them with `className`/variants; do not duplicate them.
+- **Colors come only from semantic tokens** (`bg-paper`, `bg-surface`, `bg-surface-2`, `text-ink`,
+  `text-ink-soft`, `bg-primary`, `text-on-primary`, `bg-accent`, `bg-glow`, `bg-success`, `bg-danger`,
+  `bg-card-1..4`). Never write a raw hex/rgb color in a component. The one exception is
+  `lib/theme.ts` (`THEMES` data used to paint theme swatches).
+- Tokens live in `styles/tokens.css` (`@theme`, zafran defaults), per-theme values in
+  `styles/themes.css` (`[data-theme="zafran|attar|cinnamon|hibiscus"]`), ambient keyframes in
+  `styles/animations.css`. `app/globals.css` only imports them. Tailwind classes must be written
+  statically (no `bg-${name}` string building) so the compiler can see them.
+- Themes: `data-theme` on `<html>`, cookie `oe-theme`, default `zafran`. Add colors by adding a token
+  to all four themes, never to one component. No SASS/SCSS.
+- Shared primitives today: `Button` (`primary|soft|ghost`, `sm|md|lg`, `isLoading`), `Input`
+  (`forwardRef`, `hasError`), `Skeleton` (`skeleton-shimmer`), `Badge`
+  (`neutral|primary|accent|outline`). `Dialog`, `Table`, `Tabs`, `Select`, `Sheet`, `Toaster` are
+  **[planned]** and are written by hand with `cva`, not generated.
+  Extend primitives with `className`/variants; do not duplicate them.
 - Icons: `lucide-react`.
 - Toasts: `sonner` only (`toast.success`, `toast.error`).
-- Animations: `framer-motion` wrappers (`AnimatedSection`, `AnimatedHeader`, `AnimatedImage`).
-- `components/ui/` is shadcn-generated. Change tokens and class variants, not component architecture.
+- Animations: `motion/react` through the wrappers in `components/Animation/`. Use `m.*` inside the
+  `MotionProvider` (`LazyMotion` + `domAnimation`, which has no layout animations: no `layoutId`).
+  Repeating animations animate `transform` + `opacity` only and honour `prefers-reduced-motion`
+  (`MotionConfig reducedMotion="user"` for JS, media query for CSS ambient loops).
 - Every new UI must be responsive and RTL-safe.
+- Any number shown with a currency or unit comes from `messages/` (see `common.currencyEgp`), never a literal.
 - Never leave the same long Tailwind class block copied in multiple files. Extract a component.
 
 ---
@@ -731,6 +776,13 @@ if (!data?.length) return <EmptyState />;
 - Large generated/sidebar files mixed with business logic: keep generated UI isolated.
 - Commented-out code blocks left in source.
 - Reading `localStorage` during render without an SSR guard.
+- Calling `setState` synchronously inside `useEffect` (the React 19 lint rule `react-hooks/set-state-in-effect`
+  fails the build). Sync with an external source through `useSyncExternalStore` (see `ThemeProvider`).
+- Reading `cookies()` in a layout with `cacheComponents` on (turns the whole shell dynamic).
+- Creating `middleware.ts` (Next 16 uses `proxy.ts`) or importing `framer-motion` directly.
+- Hardcoded user-facing text, including units/currency suffixes, anywhere in JSX.
+- Exporting more than one component/hook from one file. Known leftover to fix when touched:
+  `hooks/useAppDispatch.ts` also exports `useAppSelector` (split into `useAppSelector.ts`).
 
 ---
 

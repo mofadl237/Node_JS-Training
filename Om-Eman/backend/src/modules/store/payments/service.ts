@@ -26,7 +26,7 @@ export class StorePaymentService {
         customerId: true,
         trackingToken: true,
         payments: {
-          select: { status: true },
+          select: { id: true, method: true, status: true },
           orderBy: { createdAt: "desc" },
           take: 1,
         },
@@ -46,35 +46,54 @@ export class StorePaymentService {
       );
     }
 
-    const lastStatus = order.payments[0]?.status;
+    const lastPayment = order.payments[0];
+    const lastStatus = lastPayment?.status;
     if (lastStatus === EPaymentStatus.CONFIRMED) {
       throw new BadRequestError(
         "This order is already paid",
         "PAYMENT_ALREADY_CONFIRMED",
       );
     }
-    if (
-      lastStatus === EPaymentStatus.PROOF_UPLOADED ||
-      lastStatus === EPaymentStatus.PENDING
-    ) {
+    if (lastStatus === EPaymentStatus.PROOF_UPLOADED) {
       throw new BadRequestError(
         "A payment proof is already under review",
         "PAYMENT_UNDER_REVIEW",
       );
     }
+    // COD orders are settled with the courier, not with a transfer proof.
+    if (lastPayment?.method === EPaymentMethod.COD) {
+      throw new BadRequestError(
+        "This order is cash on delivery; no transfer proof is needed",
+        "PAYMENT_METHOD_NOT_ONLINE",
+      );
+    }
 
-    const payment = await prisma.payment.create({
-      data: {
-        orderId: order.id,
-        method: EPaymentMethod.ONLINE_TRANSFER,
-        status: EPaymentStatus.PROOF_UPLOADED,
-        amount: dto.amount,
-        proofImageUrl: dto.proofImageUrl,
-        proofUploadedAt: new Date(),
-        transactionReference: dto.transactionReference ?? null,
-      },
-      select: { id: true },
-    });
+    const proofData = {
+      amount: dto.amount,
+      proofImageUrl: dto.proofImageUrl,
+      proofUploadedAt: new Date(),
+      transactionReference: dto.transactionReference ?? null,
+    } as const;
+
+    // Checkout creates a pending ONLINE_TRANSFER payment row (B10). The first
+    // proof fills that row instead of creating a second one; a new row is only
+    // needed after an employee REJECTED the previous proof.
+    const payment =
+      lastPayment && lastStatus === EPaymentStatus.PENDING
+        ? await prisma.payment.update({
+            where: { id: lastPayment.id },
+            data: { ...proofData, status: EPaymentStatus.PROOF_UPLOADED },
+            select: { id: true },
+          })
+        : await prisma.payment.create({
+            data: {
+              orderId: order.id,
+              method: EPaymentMethod.ONLINE_TRANSFER,
+              status: EPaymentStatus.PROOF_UPLOADED,
+              ...proofData,
+            },
+            select: { id: true },
+          });
 
     const paymentStatus = await refreshOrderPaymentStatus(order.id);
 

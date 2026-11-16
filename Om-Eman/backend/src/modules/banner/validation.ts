@@ -1,10 +1,11 @@
 import { z } from "zod";
+import { cloudinaryUrlSchemaOptional } from "../../shared/cloudinary-url.js";
 
 export const createBannerSchema = z.object({
   titleAr: z.string().trim().min(1, "must not be empty"),
   titleEn: z.string().trim().min(1, "must not be empty").optional().nullable(),
-  imageUrl: z.string().trim().url("must be a valid URL"),
-  mobileImageUrl: z.string().trim().url("must be a valid URL").optional().nullable(),
+  imageUrl: cloudinaryUrlSchemaOptional,
+  mobileImageUrl: cloudinaryUrlSchemaOptional.optional().nullable(),
   linkUrl: z.string().trim().url("must be a valid URL").optional().nullable(),
   startsAt: z.coerce.date().optional().nullable(),
   endsAt: z.coerce.date().optional().nullable(),
@@ -15,8 +16,8 @@ export const createBannerSchema = z.object({
 export const updateBannerSchema = z.object({
   titleAr: z.string().trim().min(1, "must not be empty").optional(),
   titleEn: z.string().trim().min(1, "must not be empty").optional().nullable(),
-  imageUrl: z.string().trim().url("must be a valid URL").optional(),
-  mobileImageUrl: z.string().trim().url("must be a valid URL").optional().nullable(),
+  imageUrl: cloudinaryUrlSchemaOptional.optional(),
+  mobileImageUrl: cloudinaryUrlSchemaOptional.optional().nullable(),
   linkUrl: z.string().trim().url("must be a valid URL").optional().nullable(),
   startsAt: z.coerce.date().optional().nullable(),
   endsAt: z.coerce.date().optional().nullable(),

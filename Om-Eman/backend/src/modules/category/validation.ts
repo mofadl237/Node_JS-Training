@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { cloudinaryUrlSchemaOptional } from "../../shared/cloudinary-url.js";
 
 export const createCategorySchema = z.object({
   nameAr: z.string().trim().min(1, "must not be empty"),
@@ -6,7 +7,7 @@ export const createCategorySchema = z.object({
   slug: z.string().trim().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "must be lowercase letters, numbers and hyphens only"),
   descriptionAr: z.string().trim().min(1, "must not be empty").optional().nullable(),
   descriptionEn: z.string().trim().min(1, "must not be empty").optional().nullable(),
-  imageUrl: z.string().trim().url("must be a valid URL").optional().nullable(),
+  imageUrl: cloudinaryUrlSchemaOptional.optional().nullable(),
   sortOrder: z.coerce.number().int().optional(),
   isActive: z.boolean().optional(),
 });
@@ -17,7 +18,7 @@ export const updateCategorySchema = z.object({
   slug: z.string().trim().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "must be lowercase letters, numbers and hyphens only").optional(),
   descriptionAr: z.string().trim().min(1, "must not be empty").optional().nullable(),
   descriptionEn: z.string().trim().min(1, "must not be empty").optional().nullable(),
-  imageUrl: z.string().trim().url("must be a valid URL").optional().nullable(),
+  imageUrl: cloudinaryUrlSchemaOptional.optional().nullable(),
   sortOrder: z.coerce.number().int().optional(),
   isActive: z.boolean().optional(),
 });

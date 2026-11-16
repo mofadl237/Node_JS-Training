@@ -1,11 +1,12 @@
 import { z } from "zod";
+import { cloudinaryUrlSchemaOptional } from "../../shared/cloudinary-url.js";
 
 export const createPaymentSchema = z.object({
   orderId: z.string().trim().min(1, "must not be empty"),
   method: z.enum(["ONLINE_TRANSFER", "COD"]),
   status: z.enum(["PENDING", "PROOF_UPLOADED", "CONFIRMED", "REJECTED", "CANCELED"]).optional(),
   amount: z.union([z.string().trim().regex(/^-?\d+(?:\.\d+)?$/, "must be a decimal number"), z.number().finite()]),
-  proofImageUrl: z.string().trim().url("must be a valid URL").optional().nullable(),
+  proofImageUrl: cloudinaryUrlSchemaOptional.optional().nullable(),
   proofUploadedAt: z.coerce.date().optional().nullable(),
   confirmedAt: z.coerce.date().optional().nullable(),
   confirmedByEmployeeId: z.string().trim().min(1, "must not be empty").optional().nullable(),
@@ -19,7 +20,7 @@ export const updatePaymentSchema = z.object({
   method: z.enum(["ONLINE_TRANSFER", "COD"]).optional(),
   status: z.enum(["PENDING", "PROOF_UPLOADED", "CONFIRMED", "REJECTED", "CANCELED"]).optional(),
   amount: z.union([z.string().trim().regex(/^-?\d+(?:\.\d+)?$/, "must be a decimal number"), z.number().finite()]).optional(),
-  proofImageUrl: z.string().trim().url("must be a valid URL").optional().nullable(),
+  proofImageUrl: cloudinaryUrlSchemaOptional.optional().nullable(),
   proofUploadedAt: z.coerce.date().optional().nullable(),
   confirmedAt: z.coerce.date().optional().nullable(),
   confirmedByEmployeeId: z.string().trim().min(1, "must not be empty").optional().nullable(),

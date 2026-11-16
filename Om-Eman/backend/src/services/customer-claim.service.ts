@@ -7,7 +7,7 @@ import { prisma } from "../config/prisma.js";
 import { BadRequestError, ConflictError, NotFoundError } from "../shared/errors.js";
 import type { ITransactionClient } from "./document-number.service.js";
 import { recalculateCustomerStats } from "./customer-stats.service.js";
-import { normalizePhone } from "./guest-checkout.service.js";
+import { normalizePhone } from "../utils/phone.js";
 
 // ---------------------------------------------------------------------------
 // Claim & merge security model
@@ -487,6 +487,3 @@ async function mergeCartsInTransaction(
     });
   }
 }
-
-// Convenience for normalizing a registration phone input before storing it.
-export { normalizePhone };

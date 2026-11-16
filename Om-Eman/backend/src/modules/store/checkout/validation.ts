@@ -35,4 +35,7 @@ export const guestCheckoutSchema = z.object({
   customerNotes: z.string().trim().max(1000).optional(),
   guestToken: z.string().trim().min(10).max(200).optional(),
   clientIp: z.string().trim().max(60).optional(),
+  paymentMethod: z.enum(["COD", "ONLINE_TRANSFER"], {
+    message: "paymentMethod must be COD or ONLINE_TRANSFER",
+  }),
 });

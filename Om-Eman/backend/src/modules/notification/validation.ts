@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { cloudinaryUrlSchemaOptional } from "../../shared/cloudinary-url.js";
 
 export const createNotificationSchema = z.object({
   recipientType: z.enum(["CUSTOMER", "EMPLOYEE"]),

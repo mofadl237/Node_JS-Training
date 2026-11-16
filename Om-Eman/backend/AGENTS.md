@@ -1,7 +1,7 @@
 # AGENTS.md — ذاكرة مشروع Om Eman
 
 > هذا الملف مخصص لأي AI أو مطور يعمل على المشروع لاحقًا. اقرأه قبل أي تعديل.
-> آخر تحديث: 2026-11-03.
+> آخر تحديث: 2026-11-13.
 
 ## 1. نظرة عامة
 
@@ -185,7 +185,15 @@ src/utils/password.ts                # bcrypt hash/compare
 src/modules/index.ts                 # Auth + 38 module + CSV import + store + reports
 src/modules/module-metadata.ts       # مولّد — يستخدمه Swagger
 src/modules/auth/                    # login/me (موظفين)
-src/modules/store/                   # API المتجر: auth عميل (Google/Email + Sessions)، checkout، track، cart، search، payment proof، product by slug
+src/modules/store/                   # API المتجر: auth عميل (Google/Email + Sessions)، checkout، track، cart، search، payment proof، منتجات/أقسام/إعدادات/محتوى/sitemap/شحن/كوبونات
+src/modules/uploads/                 # توقيع رفع Cloudinary مباشر (dashboard + proof) — محفوظ من المولّد
+src/services/coupon.service.ts       # قاعدة الكوبون الوحيدة (checkout + validate)
+src/services/shipping.service.ts     # قاعدة التعرفة الوحيدة + قائمة المناطق
+src/services/checkout-items.service.ts    # تحقق العبوات + سناپشوتس بنود الطلب
+src/services/checkout-totals.service.ts   # كوبون + شحن + ضريبة + سناپشوت العنوان
+src/services/checkout-contracts.ts        # أنواع مشتركة للـ checkout
+src/shared/cloudinary-url.ts         # مخطط روابط Cloudinary للمولّد والموديولات
+scripts/seed-base.ts                 # Seed أساسي idempotent من seed.config.json
 src/modules/reports/                 # تقارير OWNER/ADMIN من الـ views
 src/middlewares/customer-auth.middleware.ts # جلسات العملاء (opaque token + SHA-256 hash)
 src/modules/productImport/           # استيراد المنتجات من CSV
@@ -280,7 +288,14 @@ docs/assumptions.md
 
 - `POST /api/auth/login` و`GET /api/auth/me`.
 - `src/modules/index.ts` يجمع Auth + 38 CRUD module مولدة من الـ Schema +
-  CSV product import.
+  CSV product import + Store API (`/api/store`) + Uploads (`/api/uploads`) +
+  Reports.
+- `npm run modules:generate` يحافظ على `auth/` و`productImport/` و`store/`
+  و`reports/` و`uploads/` (PRESERVED_MODULE_FOLDERS) — أي موديول أعمال جديد
+  يجب إضافته لهذه القائمة.
+- حقول روابط الصور تُتحقق عبر `cloudinaryUrlSchemaOptional` من
+  `src/shared/cloudinary-url.ts` (توليد تلقائي، انظر `cloudinaryUrlFields`
+  في المولّد).
 - كل module فيه: `controller.ts`, `service.ts`, `router.ts`, `validation.ts`,
   `types.ts`.
 - القراءة العامة: `Category`, `Subcategory`, `Product`, `ProductImage`,
@@ -294,11 +309,34 @@ docs/assumptions.md
 - `POST /api/products/import` يستورد منتجات من CSV (multipart، الحقل `file`،
   OWNER/ADMIN، بحد أقصى 5 MB)، مع إنشاء `ProductPackage` اختياريًا عند وجود
   `sku`. الإضافة اليدوية عبر `POST /api/products` ما زالت تعمل.
-- `npm run modules:generate` يعيد توليد الـ modules ويحافظ على `auth/` و
-  `productImport/`، ويولّد `src/modules/module-metadata.ts` المستخدم في Swagger.
+- `npm run modules:generate` يعيد توليد الـ modules ويولّد
+  `src/modules/module-metadata.ts` المستخدم في Swagger.
 - Swagger UI: `/api/docs`، وJSON: `/api/docs.json`.
 - الـ modules CRUD عامة؛ القواعد التجارية الدقيقة تحتاج تنفيذًا يدويًا.
 - الدليل العربي الكامل: `docs/PROJECT_OVERVIEW_AR.md`.
+
+### 7.5 Store API (المتجر)
+
+المواصفة الكاملة والـ response shapes: `docs/STORE_BACKEND_TASKS.md`،
+وحالة التنفيذ: `docs/BACKEND_PROGRESS.md`. أهم القواعد:
+
+- كل الموديولات تحت `src/modules/store/` بنفس نمط
+  controller/service/routes/validation (+ card/list للأدوات المشتركة).
+- **المال والأسعار تُعاد كنصوص عشرية** دائمًا (Decimal strings).
+- **لا قيم أعمال مختلقة**: إعداد `SystemSetting` مفقود = `null` في
+  `GET /store/settings`، ومنطقة شحن بلا تعرفة = خطأ
+  `SHIPPING_AREA_NOT_CONFIGURED` (لا شحن مجاني ضمنيًا).
+- قواعد واحدة مشتركة: `coupon.service.resolveCoupon` (checkout + validate)،
+  `shipping.service.resolveShippingTariff` (checkout + quote).
+- Checkout إجباري `paymentMethod: COD | ONLINE_TRANSFER` وينشئ صف `Payment`
+  PENDING داخل نفس المعاملة؛ إثبات التحويل يحدّث الصف نفسه.
+- البحث يستخدم دوال SQL `search_products` و`suggest_similar` من
+  `prisma/mvp/manual_constraints.sql`، ويسجل كل بحث في `SearchLog`.
+- رفع الصور: توقيع مباشر على Cloudinary فقط (`/api/uploads/sign` للموظفين،
+  `/api/uploads/sign-proof` للعملاء مع tracking token) — الملف لا يمر عبر
+  الـ API أبدًا.
+- سكربت الـ Seed: `npm run db:seed` يقرأ `seed.config.json` (gitignored) —
+  بيانات حقيقية فقط، بلا بيانات وهمية.
 
 ## 8. الريسلر — أهم القواعد (مؤرشف)
 

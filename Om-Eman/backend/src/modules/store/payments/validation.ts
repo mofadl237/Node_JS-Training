@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { cloudinaryUrlSchema } from "../../../shared/cloudinary-url.js";
 
 export const paymentProofSchema = z.object({
   orderId: z.string().min(1, "orderId is required"),
@@ -12,6 +13,6 @@ export const paymentProofSchema = z.object({
   // The amount the customer actually transferred. The employee verifies it
   // against the order grandTotal at confirmation.
   amount: z.number().positive().max(1000000),
-  proofImageUrl: z.string().url().max(500),
+  proofImageUrl: cloudinaryUrlSchema,
   transactionReference: z.string().trim().max(100).optional(),
 });
