@@ -32,8 +32,3 @@ export interface IUnwrapped<T> {
   data: T;
   meta?: IPaginationMeta;
 }
-
-export interface IPaginated<T> {
-  items: T[];
-  meta: IPaginationMeta;
-}

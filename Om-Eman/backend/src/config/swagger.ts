@@ -419,7 +419,7 @@ function buildPaths(): Record<string, TOpenApiSchema> {
     },
   };
 
-  for (const meta of moduleMetadata) {
+  for (const meta of exposedMetadata) {
     const collectionPath: TOpenApiSchema = {
       get: buildListOperation(meta),
       post: buildCreateOperation(meta),
@@ -437,12 +437,12 @@ function buildPaths(): Record<string, TOpenApiSchema> {
     paths[`/${meta.route}/{id}`] = itemPath;
   }
 
-  return { ...paths, ...buildStorePaths() };
+  return { ...paths, ...buildStorePaths(), ...buildReportsPaths() };
 }
 
 function buildModelSchemas(): Record<string, TOpenApiSchema> {
   const schemas: Record<string, TOpenApiSchema> = {};
-  for (const meta of moduleMetadata) {
+  for (const meta of exposedMetadata) {
     schemas[`${meta.modelName}Response`] = objectSchema(
       meta.responseFields,
       "response",
@@ -461,7 +461,7 @@ function buildModelSchemas(): Record<string, TOpenApiSchema> {
 
 const uniqueTags = [
   "Auth",
-  ...Array.from(new Set(moduleMetadata.map((meta) => meta.tag))),
+  ...Array.from(new Set(exposedMetadata.map((meta) => meta.tag))),
   "Store",
   "Store Auth",
   "Store Cart",

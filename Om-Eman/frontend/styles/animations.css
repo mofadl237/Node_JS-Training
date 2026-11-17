@@ -22,13 +22,15 @@
   animation: shimmer 1.6s infinite;
 }
 
-/* 2- pulse ring (whatsapp floating button, ambient layer) */
+/* 2- pulse ring (whatsapp floating button, ambient layer).
+   Full cycle is 6s: the ring moves during the first ~35% then rests — the
+   button "breathes" occasionally instead of pulsing forever. */
 @keyframes pulse-ring {
   0% {
     transform: scale(0.9);
     opacity: 0.7;
   }
-  70% {
+  35% {
     transform: scale(1.6);
     opacity: 0;
   }
@@ -38,9 +40,186 @@
   }
 }
 
-/* 3- reduced motion kills every ambient loop */
+.pulse-ring-layer {
+  animation: pulse-ring 6s var(--ease-out) infinite;
+}
+
+[data-paused="true"] .pulse-ring-layer {
+  animation-play-state: paused;
+}
+
+/* 3- SSR-visible entrances (above-the-fold rule: CSS-only, no JS needed).
+   fade-up: opacity 0→1 + translateY 16→0. page-in: translateY 8→0 and the
+   final keyframe is transform:none so the element ends "clean". */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes page-in {
+  from {
+    transform: translateY(8px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* 4- spotlight (B1) — pointer-following glow, hover-capable devices only.
+   Colors come from the theme glow token via color-mix. */
+.spotlight-overlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out);
+  background: radial-gradient(
+    circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, var(--color-glow) 25%, transparent),
+    transparent 60%
+  );
+}
+
+@media (hover: hover) {
+  .spotlight:hover > .spotlight-overlay {
+    opacity: 1;
+  }
+}
+
+/* 5- border beam (B2) — a conic-gradient edge that rotates via @property.
+   --beam-angle is registered so the browser can animate it; where @property
+   is unsupported the beam stays a static edge (no animation, still visible).
+   The white gradient stops in the mask are not colors — they are the standard
+   content-box ring technique. isActive toggles via data-active. */
+@property --beam-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.border-beam {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  pointer-events: none;
+  background: conic-gradient(
+    from var(--beam-angle),
+    transparent 0deg,
+    transparent 250deg,
+    var(--color-glow) 300deg,
+    var(--color-accent) 340deg,
+    transparent 360deg
+  );
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  opacity: 0;
+  animation: border-beam-rotate 4s linear infinite;
+}
+
+.border-beam[data-active="true"] {
+  opacity: 1;
+}
+
+.border-beam[data-active="false"] {
+  animation-play-state: paused;
+}
+
+@keyframes border-beam-rotate {
+  to {
+    --beam-angle: 360deg;
+  }
+}
+
+/* 6- marquee (B5) — one track translated from 0 to -50% over its duplicated
+   content. In RTL the direction reverses; hover pauses; edges fade via mask.
+   Reduced motion: no animation at all (the row just wraps via flex-wrap on
+   the fallback class). */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee var(--marquee-duration, 30s) linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+[dir="rtl"] .marquee-track {
+  animation-direction: reverse;
+}
+
+.marquee-edge {
+  mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+    width: auto;
+  }
+}
+
+/* 7- button shine (C1) — a sheen sweep driven by transform on hover only
+   (hover-capable devices). The sheen color mixes the fixed on-whatsapp token. */
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%) skewX(-12deg);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-on-whatsapp) 35%, transparent),
+    transparent
+  );
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .btn-shine:hover::after {
+    transform: translateX(120%) skewX(-12deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-shine::after {
+    transition: none;
+  }
+}
+
+/* 8- reduced motion kills every ambient loop */
 @media (prefers-reduced-motion: reduce) {
   .skeleton-shimmer::after {
+    animation: none;
+  }
+  .animate-fade-up,
+  .animate-page-in {
+    animation: none;
+  }
+  .spotlight-overlay {
+    transition: none;
+  }
+  .border-beam,
+  .pulse-ring-layer,
+  .marquee-track {
     animation: none;
   }
 }

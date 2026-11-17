@@ -10,6 +10,7 @@ import { ThemeScript } from "@/components/shared/ThemeScript";
 import { ThemeProvider } from "@/Providers/ThemeProvider";
 import { ReduxProvider } from "@/Providers/ReduxProvider";
 import { MotionProvider } from "@/components/Animation/MotionProvider";
+import { Toaster } from "@/components/ui/Toaster";
 import { El_Messiri, IBM_Plex_Sans_Arabic } from "next/font/google";
 import "../globals.css";
 
@@ -66,7 +67,10 @@ export default async function LocaleLayout({ children, params }: IProps) {
         <NextIntlClientProvider>
           <ReduxProvider>
             <ThemeProvider>
-              <MotionProvider>{children}</MotionProvider>
+              <MotionProvider>
+                {children}
+                <Toaster />
+              </MotionProvider>
             </ThemeProvider>
           </ReduxProvider>
         </NextIntlClientProvider>

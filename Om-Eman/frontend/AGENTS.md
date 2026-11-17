@@ -70,7 +70,7 @@ This repository is the reference implementation. Versions are the real installed
 | Server state | **RTK Query** (`createApi`, custom base query in `store/baseApi.ts`) | base ready, no endpoints yet |
 | Forms | React Hook Form + `zodResolver` | installed, unused yet |
 | Validation | **Zod 4** schemas | installed, unused yet |
-| Toasts | `sonner` | installed, `Toaster` not mounted yet |
+| Toasts | `sonner` | installed, `Toaster` mounted in the root layout |
 | Icons | `lucide-react` | installed |
 | Animation | **`motion`** (import from `motion/react`) with `LazyMotion` + `m.*` | installed |
 | Utilities | `clsx` + `tailwind-merge` via `cn` in `lib/utils.ts` | installed |
@@ -82,10 +82,10 @@ Rules:
 
 - Do not import `framer-motion` directly. Use `motion/react` (it is a transitive dependency only).
 - Environment variables are read from `process.env`; only `NEXT_PUBLIC_*` may reach the client.
-  Required: `NEXT_PUBLIC_API_URL` (backend, port 3000) and `NEXT_PUBLIC_SITE_URL`. See `.env.example`.
+  Required: `NEXT_PUBLIC_API_URL` (backend, `http://localhost:3002/api`) and `NEXT_PUBLIC_SITE_URL`. See `.env.example`.
   `lib/config.ts` throws at import time when `NEXT_PUBLIC_API_URL` is missing.
 - The frontend dev/start server runs on **port 3001** (`npm run dev` already passes `-p 3001`);
-  the backend owns 3000.
+  the backend owns **3002** (decided 2026-11-17 — backend `.env` `PORT=3002`; do not edit backend `.env`).
 - If a project is **React + Vite** instead of Next.js, use React Router v7, `VITE_*` env vars, and
   `src/pages` + `src/router`; keep every other rule in this file unchanged.
 - If a project already uses TanStack Query or Axios, keep it and follow the same separation rules.
@@ -105,7 +105,8 @@ app/
 ├── [locale]/
 │   ├── layout.tsx            # [exists] ONLY root layout: <html lang dir data-theme>, fonts, providers
 │   ├── page.tsx              # [exists] placeholder home
-│   ├── design/page.tsx       # [exists] internal design-system page (noindex)
+│   ├── template.tsx          # [exists] CSS-only page-in (remounts when the direct child segment changes)
+│   ├── design/page.tsx       # [exists] internal design-system page (noindex) + metadata.ts
 │   ├── error.tsx             # [exists] client error boundary (messages from `errors`)
 │   ├── not-found.tsx         # [exists] client 404 (messages from `notFound`)
 │   ├── [...rest]/page.tsx    # [exists] catch-all -> notFound(), so unknown URLs get a translated 404
@@ -116,14 +117,14 @@ app/
 ├── sitemap.ts                # [exists] skeleton, filled with products later
 └── robots.ts                 # [exists] disallows /ar/design and /en/design
 components/
-├── ui/                 # [exists] hand-written cva primitives: Button, Input, Skeleton, Badge (named exports)
-├── shared/             # [exists] ThemeScript, ThemeSwitcher, JsonLd — cross-feature composed UI
+├── ui/                 # [exists] hand-written cva primitives: Button, Input, Skeleton, Badge, Toaster (named exports)
+├── shared/             # [exists] ThemeScript, ThemeSwitcher, JsonLd, PriceTag, SectionHeading, TrustStrip, Empty/ErrorState, GlowCard
 ├── Animation/          # [exists] motion wrappers (see 3.2)
 ├── design/             # [exists] sections of the internal /design page only
 ├── Action/ Card/ ECommerce/ Model/ Render/ Skelton/ Table/ DataAnalysis/ Statiscs/   # [planned]
-hooks/                  # [exists] useAppDispatch.ts (exports useAppDispatch + useAppSelector)
-interface/              # [exists] api.ts (envelope/pagination types); [planned] index.ts barrel
-lib/                    # [exists] utils (cn), config, locale, theme, seo, motion helpers
+hooks/                  # [exists] useAppDispatch, useAppSelector, useFlyToCart, useConfetti, useRotatingIndex (one hook per file)
+interface/              # [exists] api.ts (envelope types), store.ts (storefront contracts), index.ts (barrel)
+lib/                    # [exists] utils (cn), config, locale, theme, seo, motion, price, confetti helpers
 Providers/              # [exists] ReduxProvider, ThemeProvider (PascalCase folder)
 store/                  # [exists] store.ts + baseApi.ts; [planned] <Domain>/<name>Slice.ts, services/<domain>Api.ts
 styles/                 # [exists] tokens.css (@theme), themes.css ([data-theme]), animations.css (ambient keyframes)
@@ -155,7 +156,10 @@ Casing rules:
 | Theme names, cookie, no-flash script | `@/lib/theme` + `ThemeScript` + `ThemeProvider` + `useTheme()` |
 | Motion constants | `EASE_OUT`, `SPRING_CARD` from `@/lib/motion` |
 | API base + errors | `baseApi`, `unwrapEnvelope` from `@/store/baseApi`; types in `@/interface/api` |
-| Animation wrappers | `FadeIn`, `Stagger` + `StaggerItem`, `ScaleOnHover`, `Shake`, `CountUp`, `ScrollProgressBar`, `BackToTop`, `MotionProvider` in `components/Animation/` |
+| Animation wrappers | `FadeIn`, `Stagger` + `StaggerItem`, `ScaleOnHover`, `Shake`, `CountUp` (has `decimals`), `ScrollProgressBar`, `BackToTop`, `MotionProvider`, `Spotlight`, `BorderBeam` (+ `useRotatingIndex`), `PulseRing`, `Marquee`, `useFlyToCart` + `CartBounce`, `useConfetti` in `components/Animation/` / `hooks/` |
+| SSR-visible entrances | Above the fold = CSS only: `animate-fade-up` / `animate-page-in` (keyframes in `styles/animations.css`, tokens in `styles/tokens.css`) — they run without JS. `FadeIn`/`Stagger` (whileInView) stay below the fold only. |
+| Shared recipes | `PriceTag`, `SectionHeading`, `TrustStrip`, `EmptyState`/`ErrorState` (+ their SVG illustrations), `GlowCard` in `components/shared/`; `Toaster` in `components/ui/` |
+| Store contracts | Types in `interface/store.ts` (literal copies of backend `card.ts` + `settings/service.ts`), barrel `interface/index.ts`; price display helpers in `lib/price.ts` |
 
 Provider order in `app/[locale]/layout.tsx` (keep it): `NextIntlClientProvider` > `ReduxProvider`
 > `ThemeProvider` > `MotionProvider` > children. `ThemeScript` sits in `<head>`.
@@ -643,6 +647,9 @@ export default Page;
   `createNextIntlPlugin()` (without it `getTranslations` throws "Couldn't find next-intl config").
 - **`proxy.ts`** (project root, Next 16) runs the `next-intl` middleware. Do not create `middleware.ts`.
 - `ar.json` and `en.json` must always have identical keys.
+- Message arguments use ICU single braces: `"savedPercent": "You saved {percent}%"`. Never `{{percent}}`
+  (mustache) — next-intl throws `INVALID_MESSAGE` and the build logs it. Plurals use ICU `{count, plural, ...}`
+  with every Arabic category (`zero one two few many other`).
 - Messages live in `messages/<locale>.json`. Never hardcode user-facing strings.
 - Use `useTranslations("Namespace")` and `useLocale()` in client components.
 - Do not hardcode `/en/` in links. Build localized paths with the active locale or the navigation helpers.
@@ -680,10 +687,11 @@ export default Page;
   statically (no `bg-${name}` string building) so the compiler can see them.
 - Themes: `data-theme` on `<html>`, cookie `oe-theme`, default `zafran`. Add colors by adding a token
   to all four themes, never to one component. No SASS/SCSS.
-- Shared primitives today: `Button` (`primary|soft|ghost`, `sm|md|lg`, `isLoading`), `Input`
-  (`forwardRef`, `hasError`), `Skeleton` (`skeleton-shimmer`), `Badge`
-  (`neutral|primary|accent|outline`). `Dialog`, `Table`, `Tabs`, `Select`, `Sheet`, `Toaster` are
-  **[planned]** and are written by hand with `cva`, not generated.
+- Shared primitives today: `Button` (`primary|soft|ghost|whatsapp` + `.btn-shine`, `sm|md|lg`,
+  `isLoading`), `Input` (`forwardRef`, `hasError`), `Skeleton` (`skeleton-shimmer`), `Badge`
+  (`neutral|primary|accent|outline|bundle|soldOut`), `Toaster` (token-colored sonner wrapper).
+  `Dialog`, `Table`, `Tabs`, `Select`, `Sheet` are **[planned]** and are written by hand with
+  `cva`, not generated.
   Extend primitives with `className`/variants; do not duplicate them.
 - Icons: `lucide-react`.
 - Toasts: `sonner` only (`toast.success`, `toast.error`).
@@ -781,8 +789,12 @@ if (!data?.length) return <EmptyState />;
 - Reading `cookies()` in a layout with `cacheComponents` on (turns the whole shell dynamic).
 - Creating `middleware.ts` (Next 16 uses `proxy.ts`) or importing `framer-motion` directly.
 - Hardcoded user-facing text, including units/currency suffixes, anywhere in JSX.
-- Exporting more than one component/hook from one file. Known leftover to fix when touched:
-  `hooks/useAppDispatch.ts` also exports `useAppSelector` (split into `useAppSelector.ts`).
+- Exporting more than one component/hook from one file.
+- A "last items"/inventory-count badge (`lastItems`): the MVP has no stock counter
+  (`stockStatus` is IN_STOCK/OUT_OF_STOCK only) and inventing business values is banned
+  (DESIGN_SYSTEM §6). Use the existing `soldOut` Badge variant instead.
+- Hiding above-the-fold content behind `whileInView`/`initial` opacity (server HTML must
+  never ship `opacity: 0` on content that is visible without JS).
 
 ---
 

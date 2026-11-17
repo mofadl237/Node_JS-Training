@@ -94,6 +94,26 @@ idempotent). النتيجة المتحقق منها بالاستعلام الم�
 
 بقايا جولات الاختبار القديمة نُظفت يدويًا مرة واحدة (القاعدة رجعت: 0 عملاء/طلبات، 10 منتجات demo، 11 عبوة، ناقل واحد).
 
+## 📚 جرد Swagger مقابل الـ API الفعلي (2026-11-17)
+
+سؤال صاحب المتجر: "هل كل الـ endpoints طالعة في الـ Swagger؟" — تم البناء بمقارنة
+آلية: جرد الـ routes من ملفات الـ routers + مقارنتها بـ `swaggerSpec` المولد.
+سكربت دائم: `npx tsx scripts/verify-swagger.ts` (exit 1 عند أي فرق).
+
+**النتيجة قبل الإصلاح:** 11 endpoint حي غير موثق + 8 عناصر موثقة بدون كود حي.
+**النتيجة بعد الإصلاح:** مطابقة تامة — **119 مسار / 222 عملية** على الطرفين.
+
+| الفرق | الحقيقة | الإصلاح |
+| --- | --- | --- |
+| `GET /reports/*` (10 endpoints) | موجودة وتركيب على `/api` لكن غير موثقة إطلاقًا | توثيقها في `buildReportsPaths()` الجديدة (تاج Reports + bearerAuth + 401/403) |
+| `POST /store/auth/logout` | الـ route حي بـ POST، لكن الـ spec وثّقها GET (helper كان يخمن الطريقة من وجود body) | خيار `method` صريح في `path()` + `method: "post"` للـ logout |
+| `/store/payments/status/{trackingToken}` + schema `PaymentStatus` | موثقة لكن **لا يوجد route حي** (تتبع الطلب يتم عبر `/store/track`) | حذف من الـ spec (endpoint + schema يتيم) |
+| CRUD `/auth-accounts` + `/auth-verification-tokens` + `/sessions` (6 paths) | موثقة لكن ممنوع توليد CRUD لها (EXCLUDED_MODELS عمدًا في المولّد — بدون routes حية) | فلترة `exposedMetadata` في `swagger.ts` بعيدًا عن الـ spec |
+| 10 views تقارير | `report_*` (9) + `cod_awaiting_settlement` (1) — التحقق من أسمائها من `manual_constraints.sql` | الأسماء موثقة كما هي فعليًا |
+
+- السكربت يستثني مسارات الـ docs نفسها (`/api/docs`, `/api/docs.json`) — UI وليست API.
+- التحقق بعد الإصلاح: typecheck ✅، build ✅، npm test 24/24 ✅، و`verify-swagger` = "matches exactly".
+
 ## 🙋 ما مطلوب من صاحب المتجر
 
 

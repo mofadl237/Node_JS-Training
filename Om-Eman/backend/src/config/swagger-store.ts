@@ -23,6 +23,7 @@ const ok = (summary: string, data: TOpenApiSchema): TOpenApiSchema => ({
 });
 
 const bearerSecurity = [{ bearerCustomerAuth: [] }];
+const employeeSecurity = [{ bearerAuth: [] }];
 
 function path(
   tag: string,
@@ -30,13 +31,17 @@ function path(
   operationId: string,
   data: TOpenApiSchema,
   options: {
+    method?: "get" | "post" | "put" | "patch" | "delete";
     authenticated?: boolean;
+    security?: TOpenApiSchema[];
     body?: TOpenApiSchema;
     query?: TOpenApiSchema;
     errors?: string[];
   } = {},
 ): Record<string, TOpenApiSchema> {
-  const method = options.body ? "post" : "get";
+  // Default: a body means POST, otherwise GET. Override with method when the
+  // live route does not follow that pattern (e.g. logout is POST without a body).
+  const method = options.method ?? (options.body ? "post" : "get");
   const responses: Record<string, TOpenApiSchema> = {
     "200": ok(`${summary} successful.`, data),
     ...Object.fromEntries(
@@ -49,7 +54,7 @@ function path(
     tags: [tag],
     summary,
     operationId,
-    security: options.authenticated ? bearerSecurity : [],
+    security: options.security ?? (options.authenticated ? bearerSecurity : []),
     responses,
   };
   if (options.body) {
@@ -95,6 +100,7 @@ export function buildStorePaths(): Record<string, TOpenApiSchema> {
       errors: ["ValidationError", "Unauthorized"],
     }),
     "/store/auth/logout": path("Store Auth", "Revoke the current session", "storeLogout", { type: "object", nullable: true }, {
+      method: "post",
       authenticated: true,
       errors: ["Unauthorized"],
     }),
@@ -196,20 +202,6 @@ export function buildStorePaths(): Record<string, TOpenApiSchema> {
       body: { $ref: "#/components/schemas/ProofInput" },
       errors: ["ValidationError", "Forbidden"],
     }),
-    "/store/payments/status/{trackingToken}": {
-      get: {
-        tags: ["Store Payments"],
-        summary: "Get the payment status of an order",
-        operationId: "paymentStatus",
-        security: [],
-        parameters: [{ name: "trackingToken", in: "path", required: true, schema: { type: "string" } }],
-        responses: {
-          "200": ok("Payment status returned.", ref("PaymentStatus")),
-          "404": responseRef("NotFound"),
-          "500": responseRef("InternalError"),
-        },
-      },
-    },
     "/store/products": path("Store Catalog", "List storefront product cards", "listStoreProducts", {
       type: "object",
       properties: { items: { type: "array", items: ref("StoreProductCard") }, meta: ref("PaginationMeta") },
@@ -296,6 +288,58 @@ export function buildStorePaths(): Record<string, TOpenApiSchema> {
     "/uploads/sign-proof": path("Uploads", "Sign a payment-proof upload (public, token-checked)", "signProofUpload", ref("UploadSignature"), {
       body: { $ref: "#/components/schemas/ProofSignInput" },
       errors: ["ValidationError", "Forbidden"],
+    }),
+  };
+}
+
+// OWNER/ADMIN read-only reports over the reporting SQL views. The rows come
+// straight from the views, so the item shape is documented as open objects.
+const reportRows = (view: string): TOpenApiSchema => ({
+  type: "array",
+  items: { type: "object", additionalProperties: true, description: `Row of the ${view} SQL view.` },
+});
+
+export function buildReportsPaths(): Record<string, TOpenApiSchema> {
+  return {
+    "/reports/sales-daily": path("Reports", "Daily sales aggregates", "reportSalesDaily", reportRows("report_sales_daily"), {
+      security: employeeSecurity,
+      errors: ["Unauthorized", "Forbidden"],
+    }),
+    "/reports/top-products": path("Reports", "Best-selling products", "reportTopProducts", reportRows("report_top_products"), {
+      security: employeeSecurity,
+      errors: ["Unauthorized", "Forbidden"],
+    }),
+    "/reports/top-products-monthly": path("Reports", "Best-selling products per month", "reportTopProductsMonthly", reportRows("report_top_products_monthly"), {
+      security: employeeSecurity,
+      errors: ["Unauthorized", "Forbidden"],
+    }),
+    "/reports/customers-summary": path("Reports", "Customer KPI summary", "reportCustomersSummary", reportRows("report_customers_summary"), {
+      security: employeeSecurity,
+      errors: ["Unauthorized", "Forbidden"],
+    }),
+    "/reports/customer-segments": path("Reports", "Customer segmentation", "reportCustomerSegments", reportRows("report_customer_segments"), {
+      security: employeeSecurity,
+      errors: ["Unauthorized", "Forbidden"],
+    }),
+    "/reports/payments-pending": path("Reports", "Payments awaiting review", "reportPaymentsPending", reportRows("report_payments_pending"), {
+      security: employeeSecurity,
+      errors: ["Unauthorized", "Forbidden"],
+    }),
+    "/reports/promotions-performance": path("Reports", "Promotion and coupon performance", "reportPromotionsPerformance", reportRows("report_promotions_performance"), {
+      security: employeeSecurity,
+      errors: ["Unauthorized", "Forbidden"],
+    }),
+    "/reports/zero-result-searches": path("Reports", "Searches that matched nothing", "reportZeroResultSearches", reportRows("report_zero_result_searches"), {
+      security: employeeSecurity,
+      errors: ["Unauthorized", "Forbidden"],
+    }),
+    "/reports/top-searches": path("Reports", "Most frequent search terms", "reportTopSearches", reportRows("report_top_searches"), {
+      security: employeeSecurity,
+      errors: ["Unauthorized", "Forbidden"],
+    }),
+    "/reports/cod-awaiting-settlement": path("Reports", "COD orders awaiting settlement", "reportCodAwaitingSettlement", reportRows("cod_awaiting_settlement"), {
+      security: employeeSecurity,
+      errors: ["Unauthorized", "Forbidden"],
     }),
   };
 }
@@ -505,14 +549,6 @@ export const storeSchemas: Record<string, TOpenApiSchema> = {
       status: { type: "string" },
       method: { type: "string" },
       amount: { type: "string" },
-      proofImageUrl: { type: "string", nullable: true },
-    },
-  },
-  PaymentStatus: {
-    type: "object",
-    properties: {
-      paymentStatus: { type: "string" },
-      method: { type: "string", nullable: true },
       proofImageUrl: { type: "string", nullable: true },
     },
   },

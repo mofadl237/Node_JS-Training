@@ -7,6 +7,9 @@
     "title": "متجر أم إيمان",
     "body": "الصفحة الأساسية بتتبني في أيام المتجر — الشكل النهائي هيتحدد مع بعض."
   },
+  "price": {
+    "savedPercent": "وفّرت {percent}٪"
+  },
   "design": {
     "title": "نظام التصميم",
     "subtitle": "صفحة داخلية لاختيار الثيم والخط والألوان قبل ما نبنّي الشاشات الحقيقية.",
@@ -27,7 +30,26 @@
     "inputPlaceholder": "اكتب حاجة هنا...",
     "badgeNew": "جديد",
     "badgeSale": "خصم",
-    "discountNumber": "خصم {percent}٪"
+    "badgeBundle": "باكج",
+    "badgeSoldOut": "نفد",
+    "discountNumber": "خصم {percent}٪",
+    "componentsTitle": "مكوّنات مشتركة",
+    "componentsSubtitle": "أسعار وشارات وعناوين أقسام وحالات فراغ/خطأ وزرار واتساب.",
+    "priceDemoNote": "أرقام تجريبية للعرض بس — الأسعار الحقيقية بتيجي من الـ API.",
+    "emptyTitle": "مفيش حاجة هنا لسه",
+    "emptyBody": "المحتوى هيظهر أول ما يتضاف.",
+    "errorTitle": "حصلت مشكلة في التحميل",
+    "errorBody": "القسم ده فشل في التحميل.",
+    "motionTitle": "الحركة الحية",
+    "motionSubtitle": "طيران للسلة، كوبون تجريبي، confetti، شريط ثقة، نبضات، وbeam بيتنقل بين الكروت.",
+    "trustCod": "الدفع عند الاستلام",
+    "trustWhatsapp": "اطلب على واتساب",
+    "demoAddToCart": "أضف للسلة",
+    "couponPlaceholder": "كود الكوبون",
+    "couponCheck": "جرّب الكود",
+    "couponSuccess": "الكوبون شغال — مبروك!",
+    "couponWrong": "الكوبون ده مش شغال",
+    "glowCard": "كارت {number}"
   },
   "errors": {
     "title": "حصلت مشكلة غير متوقعة",

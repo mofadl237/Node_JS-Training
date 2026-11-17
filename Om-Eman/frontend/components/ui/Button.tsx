@@ -11,6 +11,7 @@ export const buttonVariants = cva(
         primary: "bg-primary text-on-primary hover:shadow-hover",
         soft: "bg-surface-2 text-ink hover:bg-primary/10",
         ghost: "bg-transparent text-ink hover:bg-surface-2",
+        whatsapp: "btn-shine bg-whatsapp text-on-whatsapp hover:shadow-hover",
       },
       size: {
         sm: "h-9 px-4 text-sm",

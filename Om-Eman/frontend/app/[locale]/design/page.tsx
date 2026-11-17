@@ -1,43 +1,28 @@
-import type { Metadata } from "next";
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { setRequestLocale } from "next-intl/server";
 import { DesignHeader } from "@/components/design/DesignHeader";
 import { ThemeRow } from "@/components/design/ThemeRow";
 import { FontRow } from "@/components/design/FontRow";
 import { TokenRow } from "@/components/design/TokenRow";
 import { UiRow } from "@/components/design/UiRow";
-import { buildMetadata } from "@/lib/seo";
-import { isLocale } from "@/lib/locale";
-import { routing } from "@/i18n/routing";
+import { ComponentsRow } from "@/components/design/ComponentsRow";
+import { MotionRow } from "@/components/design/MotionRow";
+import { DesignEffects } from "@/components/design/DesignEffects";
 
-interface IProps {
-  params: Promise<{ locale: string }>;
-}
-
-export async function generateMetadata({ params }: IProps): Promise<Metadata> {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "design" });
-  const safeLocale = isLocale(locale) ? locale : routing.defaultLocale;
-
-  return buildMetadata({
-    title: t("title"),
-    description: t("subtitle"),
-    path: "/design",
-    locale: safeLocale,
-    isNoIndex: true,
-  });
-}
-
-const DesignPage = async ({ params }: IProps) => {
+export { generateMetadata } from "./metadata";
+const DesignPage = async ({ params }: { params: Promise<{ locale: string }> }) => {
   const { locale } = await params;
   setRequestLocale(locale);
 
   return (
     <main className="mx-auto max-w-3xl space-y-16 px-4 py-16">
       <DesignHeader locale={locale} />
+      <DesignEffects />
       <ThemeRow />
       <FontRow />
       <TokenRow />
       <UiRow />
+      <ComponentsRow />
+      <MotionRow />
     </main>
   );
 };

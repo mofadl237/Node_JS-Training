@@ -7,6 +7,9 @@
     "title": "Om Eman Store",
     "body": "The main page is built during the storefront days — the final design is decided together."
   },
+  "price": {
+    "savedPercent": "You saved {percent}%"
+  },
   "design": {
     "title": "Design System",
     "subtitle": "Internal page to pick the theme, fonts, and colors before building the real screens.",
@@ -27,7 +30,26 @@
     "inputPlaceholder": "Type something...",
     "badgeNew": "New",
     "badgeSale": "Sale",
-    "discountNumber": "{percent}% off"
+    "badgeBundle": "Bundle",
+    "badgeSoldOut": "Sold out",
+    "discountNumber": "{percent}% off",
+    "componentsTitle": "Shared components",
+    "componentsSubtitle": "Prices, badges, section headings, empty/error states, and the WhatsApp button.",
+    "priceDemoNote": "Demo numbers for display only — real prices come from the API.",
+    "emptyTitle": "Nothing here yet",
+    "emptyBody": "Content shows up as soon as it is added.",
+    "errorTitle": "Something failed to load",
+    "errorBody": "This section failed to load.",
+    "motionTitle": "Living motion",
+    "motionSubtitle": "Fly-to-cart, demo coupon, confetti, trust strip, pulse rings, and a rotating beam.",
+    "trustCod": "Cash on delivery",
+    "trustWhatsapp": "Order on WhatsApp",
+    "demoAddToCart": "Add to cart",
+    "couponPlaceholder": "Coupon code",
+    "couponCheck": "Try code",
+    "couponSuccess": "Coupon works — congrats!",
+    "couponWrong": "This coupon is not valid",
+    "glowCard": "Card {number}"
   },
   "errors": {
     "title": "Something unexpected happened",

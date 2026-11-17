@@ -11,6 +11,8 @@ export const badgeVariants = cva(
         primary: "bg-primary text-on-primary",
         accent: "bg-accent text-ink",
         outline: "border border-primary text-primary",
+        bundle: "bg-card-3 text-ink",
+        soldOut: "bg-surface-2 text-ink-soft",
       },
     },
     defaultVariants: {
