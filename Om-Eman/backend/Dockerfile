@@ -21,7 +21,7 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Generate Prisma Client
+# Generate Prisma Client using Prisma 7 config
 RUN npx prisma generate --config prisma7.config.ts
 
 # Compile TypeScript
@@ -59,6 +59,10 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
+# Create writable logs directory for non-root user
+RUN mkdir -p /app/logs \
+    && chown -R node:node /app/logs
+
 # Copy production dependencies
 COPY --from=prod-deps --chown=node:node /app/node_modules ./node_modules
 
@@ -74,8 +78,7 @@ COPY --from=builder --chown=node:node /app/dist ./dist
 # Copy Prisma schema and migrations
 COPY --from=builder --chown=node:node /app/prisma ./prisma
 
-# If your Prisma config is needed for migrations,
-# keep it available in the production image
+# Copy Prisma 7 configuration
 COPY --from=builder --chown=node:node /app/prisma7.config.ts ./prisma7.config.ts
 
 # Run as non-root user
