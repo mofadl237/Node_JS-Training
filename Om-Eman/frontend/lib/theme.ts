@@ -28,13 +28,6 @@ export const THEME_SCRIPT = `(function(){try{var m=document.cookie.match(/(?:^|;
 export const isThemeName = (value: string | null | undefined): value is TThemeName =>
   THEME_NAMES.includes(value as TThemeName);
 
-export const readThemeCookie = (): TThemeName | null => {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(new RegExp(`(?:^|; )${THEME_COOKIE}=([^;]*)`));
-  const value = match?.[1];
-  return isThemeName(value) ? value : null;
-};
-
 export const writeThemeCookie = (theme: TThemeName): void => {
   document.cookie = `${THEME_COOKIE}=${theme}; path=/; max-age=${THEME_COOKIE_MAX_AGE_SECONDS}; samesite=lax`;
 };

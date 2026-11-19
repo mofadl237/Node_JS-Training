@@ -39,13 +39,23 @@ export const Button = ({
   isLoading,
   children,
   disabled,
+  type,
   ...props
 }: IButtonProps) => (
   <button
+    type={type ?? "button"}
     className={cn(buttonVariants({ variant, size }), "active:scale-[0.97]", className)}
-    disabled={disabled ?? isLoading}
+    disabled={disabled || isLoading}
+    aria-busy={isLoading || undefined}
     {...props}
   >
-    {isLoading ? <Loader2 className="size-4 animate-spin" /> : children}
+    {isLoading ? (
+      <>
+        <span className="opacity-0">{children}</span>
+        <Loader2 aria-hidden className="absolute size-4 animate-spin" />
+      </>
+    ) : (
+      children
+    )}
   </button>
 );

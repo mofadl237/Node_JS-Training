@@ -9,7 +9,7 @@ export const badgeVariants = cva(
       variant: {
         neutral: "bg-surface-2 text-ink",
         primary: "bg-primary text-on-primary",
-        accent: "bg-accent text-ink",
+        accent: "bg-accent text-on-accent",
         outline: "border border-primary text-primary",
         bundle: "bg-card-3 text-ink",
         soldOut: "bg-surface-2 text-ink-soft",

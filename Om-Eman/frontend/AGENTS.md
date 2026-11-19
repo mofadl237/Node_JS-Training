@@ -104,27 +104,29 @@ Legend: **[exists]** = already in the repo today, **[planned]** = created on the
 app/
 ├── [locale]/
 │   ├── layout.tsx            # [exists] ONLY root layout: <html lang dir data-theme>, fonts, providers
-│   ├── page.tsx              # [exists] placeholder home
+│   ├── (Store)/              # [exists] storefront shell + home (layout/page/loading); more routes days 4-7
 │   ├── template.tsx          # [exists] CSS-only page-in (remounts when the direct child segment changes)
 │   ├── design/page.tsx       # [exists] internal design-system page (noindex) + metadata.ts
 │   ├── error.tsx             # [exists] client error boundary (messages from `errors`)
 │   ├── not-found.tsx         # [exists] client 404 (messages from `notFound`)
 │   ├── [...rest]/page.tsx    # [exists] catch-all -> notFound(), so unknown URLs get a translated 404
-│   ├── (Store)/...           # [planned] storefront routes (days 3-7)
 │   └── (Dashboard)/dashboard/# [planned] employee dashboard routes
 ├── api/<endpoint>/route.ts   # [planned] route handlers (e.g. session cookie proxy)
 ├── globals.css               # [exists] only @imports tailwind + styles/*.css (<= 30 lines)
-├── sitemap.ts                # [exists] skeleton, filled with products later
+├── sitemap.ts                # [exists] static /ar,/en entries (expanded with products later)
 └── robots.ts                 # [exists] disallows /ar/design and /en/design
 components/
 ├── ui/                 # [exists] hand-written cva primitives: Button, Input, Skeleton, Badge, Toaster (named exports)
-├── shared/             # [exists] ThemeScript, ThemeSwitcher, JsonLd, PriceTag, SectionHeading, TrustStrip, Empty/ErrorState, GlowCard
+├── shared/             # [exists] ThemeScript, ThemeSwitcher, JsonLd, PriceTag, SectionHeading, TrustStrip, Empty/ErrorState, GlowCard, StoreImage, BrandLoader, SocialIcon
 ├── Animation/          # [exists] motion wrappers (see 3.2)
-├── design/             # [exists] sections of the internal /design page only
-├── Action/ Card/ ECommerce/ Model/ Render/ Skelton/ Table/ DataAnalysis/ Statiscs/   # [planned]
+├── design/             # [exists] internal /design sections + labeled demo fixtures only
+├── ECommerce/          # [exists] storefront shell/home (Header, Footer, Home, WhatsAppFab, StoreJsonLd)
+├── Card/               # [exists] presentational storefront cards (CategoryCard, ProductCard)
+├── Skelton/            # [exists] storefront loading placeholders
+├── Action/ Model/ Render/ Table/ DataAnalysis/ Statiscs/   # [planned]
 hooks/                  # [exists] useAppDispatch, useAppSelector, useFlyToCart, useConfetti, useRotatingIndex (one hook per file)
 interface/              # [exists] api.ts (envelope types), store.ts (storefront contracts), index.ts (barrel)
-lib/                    # [exists] utils (cn), config, locale, theme, seo, motion, price, confetti helpers
+lib/                    # [exists] utils/config/locale/theme/seo/motion/price/confetti, store helpers, brand/contact assets; [exists] lib/server/* (server-only data layer)
 Providers/              # [exists] ReduxProvider, ThemeProvider (PascalCase folder)
 store/                  # [exists] store.ts + baseApi.ts; [planned] <Domain>/<name>Slice.ts, services/<domain>Api.ts
 styles/                 # [exists] tokens.css (@theme), themes.css ([data-theme]), animations.css (ambient keyframes)
@@ -158,11 +160,23 @@ Casing rules:
 | API base + errors | `baseApi`, `unwrapEnvelope` from `@/store/baseApi`; types in `@/interface/api` |
 | Animation wrappers | `FadeIn`, `Stagger` + `StaggerItem`, `ScaleOnHover`, `Shake`, `CountUp` (has `decimals`), `ScrollProgressBar`, `BackToTop`, `MotionProvider`, `Spotlight`, `BorderBeam` (+ `useRotatingIndex`), `PulseRing`, `Marquee`, `useFlyToCart` + `CartBounce`, `useConfetti` in `components/Animation/` / `hooks/` |
 | SSR-visible entrances | Above the fold = CSS only: `animate-fade-up` / `animate-page-in` (keyframes in `styles/animations.css`, tokens in `styles/tokens.css`) — they run without JS. `FadeIn`/`Stagger` (whileInView) stay below the fold only. |
-| Shared recipes | `PriceTag`, `SectionHeading`, `TrustStrip`, `EmptyState`/`ErrorState` (+ their SVG illustrations), `GlowCard` in `components/shared/`; `Toaster` in `components/ui/` |
+| Shared recipes | `PriceTag`, `SectionHeading`, `TrustStrip`, `EmptyState`/`ErrorState` (+ their SVG illustrations), `GlowCard`, `StoreImage`, `BrandLoader`, `SocialIcon` in `components/shared/`; `Toaster` in `components/ui/` |
 | Store contracts | Types in `interface/store.ts` (literal copies of backend `card.ts` + `settings/service.ts`), barrel `interface/index.ts`; price display helpers in `lib/price.ts` |
+| Store server data (Day 3) | `lib/server/storeFetch.ts` (`TStoreResult`, never throws) + `lib/server/storeQueries.ts` (`"use cache"` + `cacheTag` + conditional `cacheLife`: success `"minutes"`, failure `"seconds"`) + `lib/server/currentYear.ts` (`cacheLife("days")`) |
+| Brand/contact assets | `lib/brandAssets.ts` (real existing paths only), `lib/siteContact.ts` (owner-editable links/phones/explicit WhatsApp), `public/assets/*` (prepared folders: hero,banners,categories,brand,themes,video) |
 
 Provider order in `app/[locale]/layout.tsx` (keep it): `NextIntlClientProvider` > `ReduxProvider`
 > `ThemeProvider` > `MotionProvider` > children. `ThemeScript` sits in `<head>`.
+
+### 3.4 Storefront data, assets, shell, and motion rules (Day 3)
+
+- **Server data (A-1..A-4):** storefront reads go through `lib/server/*` (server-only, RSC) — no direct `fetch` in components and no RTK Query for this path. Every async data component is wrapped in `<Suspense>` with a same-dimension skeleton fallback (`cacheComponents`). `storeFetch` never throws and returns `TStoreResult`; queries use `"use cache"` + `cacheTag(...)` and call `cacheLife` once per invocation (success `"minutes"`, failure `"seconds"` so failures are not baked into the shell). Time-dependent values (e.g. footer year) come from a cached helper (`getCurrentYear`, `cacheLife("days")`), not inline `new Date()`.
+- **Images (A-6):** `next.config.ts` uses a custom `loaderFile` (`lib/imageLoader.ts`) adding `c_limit,w_<w>,f_auto,q_auto` only to Cloudinary upload URLs; other URLs pass through. Use `components/shared/StoreImage` (`next/image` fill, required `alt`/`sizes`, null/error fallback). Prefer preload only for true above-the-fold/LCP media when real assets exist.
+- **Shell/layout:** storefront routes live in `app/[locale]/(Store)/` (home). `data-cart-target` must exist once in the real DOM (CartLink/`CartBounce`) and fly-to-cart targets the first visible element. Z-index scale (A-9): Header `z-40`, in-header popovers `z-50`, progress/back-to-top/WhatsApp FAB `z-50`, fly clone/confetti `z-60`, toaster above all.
+- **Assets/visuals:** prepared folders `public/assets/{hero,banners,categories,brand,themes,video}` with descriptive names and `public/assets/README.md`. Only real supplied paths may be listed/wired (see `lib/brandAssets.ts`); no invented/fake final product photography. Keep text and official logo as frontend elements (not baked into images). Optional short muted looping brand video must have poster fallback, avoid unnecessary autoplay/mobile harm, and respect reduced motion. Compact brand mark uses a crop derived from official logo (`public/assets/brand/jar-mark.png`) until a dedicated jar-only asset is supplied.
+- **Mocks/fixtures exception:** no API mocks/fabricated data in real pages. The only exception is explicitly labeled demo fixtures on `/design` (isolated under `components/design`) — never connected to real store pages.
+- **Social/contact/icons:** no brand icons in `lucide-react` v1.73 — social uses centralized config/inline SVGs or text+`ExternalLink` as appropriate; valid external links only, rendered only when configured. WhatsApp/contact shown only when explicitly configured and normalized (M-8).
+- **Known dead links (temporary, Day 3):** KS-1 `/{locale}/products?category=<slug>`, KS-2 `/{locale}/products/<slug>`, KS-3 `/{locale}/cart` resolve in Days 4-5 (translated 404 is acceptable until then). Any other 404 is a bug.
 
 ### 3.3 React + Vite variant (not used by this repo)
 

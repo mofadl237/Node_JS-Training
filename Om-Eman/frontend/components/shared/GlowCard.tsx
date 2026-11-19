@@ -14,9 +14,6 @@ interface IProps {
   isBeamActive?: boolean;
 }
 
-// Static class map (C7) — no dynamic Tailwind class building, the compiler
-// must see every class. The accent tint gives each card type a stable color
-// identity (DESIGN_SYSTEM §2.3).
 const ACCENT_CLASSES: Record<TGlowCardAccent, string> = {
   none: "bg-surface",
   "card-1": "bg-card-1",
@@ -25,9 +22,7 @@ const ACCENT_CLASSES: Record<TGlowCardAccent, string> = {
   "card-4": "bg-card-4",
 };
 
-// Card wrapper (C7): surface + radius + rest shadow, lifts on hover via
-// transform only, composes the Spotlight and the BorderBeam.
-export const GlowCard = ({
+const GlowCardBase = ({
   children,
   className,
   accent = "none",
@@ -37,8 +32,8 @@ export const GlowCard = ({
   const card = (
     <div
       className={cn(
-        "relative rounded-lg shadow-rest transition-[transform,box-shadow] duration-200 ease-out",
-        "hover:-translate-y-1 hover:shadow-hover",
+        "relative rounded-lg shadow-rest transition-[transform,box-shadow] duration-300 ease-out",
+        "hover:-translate-y-0.5 hover:shadow-hover",
         ACCENT_CLASSES[accent],
         className,
       )}
@@ -51,4 +46,4 @@ export const GlowCard = ({
   return hasSpotlight ? <Spotlight className="rounded-lg">{card}</Spotlight> : card;
 };
 
-export default memo(GlowCard);
+export const GlowCard = memo(GlowCardBase);

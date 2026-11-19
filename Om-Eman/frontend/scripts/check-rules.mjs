@@ -4,7 +4,7 @@ import { join, relative, sep } from "node:path";
 const ROOT = process.cwd();
 const SCAN_DIRS = ["app", "components", "lib", "hooks", "store", "Providers", "i18n", "interface", "validation"];
 const EXTRA_FILES = ["proxy.ts"];
-const COLOR_EXEMPT = new Set(["lib/theme.ts"]);
+const COLOR_EXEMPT = new Set(["lib/theme.ts", "app/manifest.ts"]);
 const ARABIC = /[\u0600-\u06FF]/;
 const RAW_COLOR = /#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b|\brgba?\(|\bhsla?\(/;
 const PHYSICAL_CLASS = /\b(ml|mr|pl|pr)-\d|\b(left|right)-\d|\btext-(left|right)\b/;

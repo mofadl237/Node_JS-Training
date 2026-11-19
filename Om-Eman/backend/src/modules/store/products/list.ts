@@ -28,9 +28,13 @@ interface IListFilter {
   sort: TProductListSort;
 }
 
-// Shared sellable-package condition for every correlated subquery.
-const sellablePackages = Prisma.sql`
-  pk0."productId" = p."id" AND pk0."isActive" = TRUE AND pk0."isPublished" = TRUE`;
+// Shared sellable-package condition for correlated subqueries. The alias must
+// match the FROM clause of each subquery (Postgres 42P01 if a different alias
+// like pk0 is referenced), so it is parameterized per use.
+function sellablePackages(alias: string): Prisma.Sql {
+  const a = Prisma.raw(alias);
+  return Prisma.sql`${a}."productId" = p."id" AND ${a}."isActive" = TRUE AND ${a}."isPublished" = TRUE`;
+}
 
 function buildConditions(filter: IListFilter): Prisma.Sql[] {
   const conditions = [
@@ -54,7 +58,12 @@ function buildConditions(filter: IListFilter): Prisma.Sql[] {
     conditions.push(Prisma.sql`pk."fromPrice" <= ${filter.maxPrice}`);
   }
   if (filter.inStock) {
-    conditions.push(Prisma.sql`pk."inStockCount" > 0`);
+    conditions.push(
+      Prisma.sql`EXISTS (
+        SELECT 1 FROM "ProductPackage" spf
+        WHERE ${sellablePackages("spf")} AND spf."stockStatus" = 'IN_STOCK'
+      )`,
+    );
   }
   return conditions;
 }
@@ -91,10 +100,10 @@ export const SELECT_FRAGMENT = Prisma.sql`
   pk."fromPrice" AS "fromPrice",
   pk."compareAtFrom" AS "compareAtFrom",
   pk."saleEndsAt" AS "saleEndsAt",
-  (SELECT COUNT(*) FROM "ProductPackage" pk1 WHERE ${sellablePackages}) AS "packageCount",
+  (SELECT COUNT(*) FROM "ProductPackage" spc WHERE ${sellablePackages("spc")}) AS "packageCount",
   EXISTS (
-    SELECT 1 FROM "ProductPackage" pk2
-    WHERE ${sellablePackages} AND pk2."stockStatus" = 'IN_STOCK'
+    SELECT 1 FROM "ProductPackage" spi
+    WHERE ${sellablePackages("spi")} AND spi."stockStatus" = 'IN_STOCK'
   ) AS "inStock",
   s."slug" AS "subcategorySlug",
   s."nameAr" AS "subcategoryNameAr",

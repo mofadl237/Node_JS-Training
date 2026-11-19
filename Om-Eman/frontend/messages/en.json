@@ -3,9 +3,103 @@
     "title": "Om Eman | Natural Spices & Herbs",
     "description": "Om Eman store for natural spices and herbs — clear prices and delivery to your door."
   },
+  "brand": {
+    "name": "Om Eman"
+  },
+  "a11y": {
+    "skipToContent": "Skip to content",
+    "opensInNewTab": "Opens in a new tab"
+  },
+  "header": {
+    "cart": "Cart",
+    "language": "Language",
+    "languageMenu": "Language menu"
+  },
+  "locale": {
+    "ar": "العربية",
+    "en": "English",
+    "switchTo": "Switch language to {language}"
+  },
+  "theme": {
+    "label": "Theme",
+    "themeZafran": "Zafran",
+    "themeAttar": "Attar",
+    "themeCinnamon": "Cinnamon",
+    "themeHibiscus": "Hibiscus"
+  },
+  "whatsapp": {
+    "label": "Chat on WhatsApp",
+    "prefill": "Hello, I would like to ask about Om Eman products."
+  },
+  "footer": {
+    "tagline": "Natural spices and herbs with a homely Egyptian taste.",
+    "contactTitle": "Contact us",
+    "socialTitle": "Follow us",
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address",
+    "workingHours": "Working hours",
+    "whatsapp": "WhatsApp",
+    "copyright": "© {year} {brand}",
+    "social": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "youtube": "YouTube",
+      "x": "X",
+      "snapchat": "Snapchat",
+      "pinterest": "Pinterest",
+      "threads": "Threads",
+      "linkedin": "LinkedIn",
+      "telegram": "Telegram"
+    },
+    "phonePrimary": "Primary phone",
+    "phoneSecondary": "Secondary phone"
+  },
   "home": {
-    "title": "Om Eman Store",
-    "body": "The main page is built during the storefront days — the final design is decided together."
+    "title": "Natural spices and herbs for your home",
+    "body": "The main page is built during the storefront days — the final design is decided together.",
+    "hero": {
+      "title": "Natural spices and herbs for your home",
+      "subtitle": "Balanced picks, authentic flavor, and clear prices — all in one place.",
+      "cta": "Browse categories"
+    },
+    "trust": {
+      "cod": "Cash on delivery",
+      "freeShipping": "Free shipping on orders from {amount} {currency}",
+      "whatsapp": "Order on WhatsApp"
+    },
+    "banners": {
+      "label": "Store offers",
+      "prev": "Previous banner",
+      "next": "Next banner"
+    },
+    "categories": {
+      "title": "Categories",
+      "subtitle": "Pick a category to start browsing.",
+      "count": "{count, plural, =0 {No products} one {# product} other {# products}}",
+      "errorTitle": "Categories are not available now",
+      "errorBody": "Please try again in a moment.",
+      "emptyTitle": "No categories yet",
+      "emptyBody": "Categories will appear here once they are added."
+    },
+    "featured": {
+      "title": "Featured products",
+      "subtitle": "Highlighted picks from Om Eman store.",
+      "errorTitle": "Featured products are not available now",
+      "errorBody": "Please try again in a moment."
+    }
+  },
+  "product": {
+    "priceFrom": "From",
+    "bundle": "Bundle",
+    "soldOut": "Sold out",
+    "addToCart": "Add to cart",
+    "choosePackage": "Choose package",
+    "addedToCart": "Added to cart",
+    "addToCartError": "Could not add to cart",
+    "unavailable": "Unavailable",
+    "choosePackageHint": "Choose a package on the product page"
   },
   "price": {
     "savedPercent": "You saved {percent}%"
@@ -13,6 +107,8 @@
   "design": {
     "title": "Design System",
     "subtitle": "Internal page to pick the theme, fonts, and colors before building the real screens.",
+    "productCardTitle": "Product cards",
+    "productCardDemoNote": "Demo numbers and data for display only — not from the real store.",
     "themes": "Themes",
     "themeDefault": "Default",
     "themeDark": "Dark",
@@ -64,6 +160,7 @@
   },
   "common": {
     "backToTop": "Back to top",
-    "currencyEgp": "EGP"
+    "currencyEgp": "EGP",
+    "loading": "Loading"
   }
 }

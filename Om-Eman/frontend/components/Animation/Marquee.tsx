@@ -21,7 +21,7 @@ export const Marquee = ({ children, className, durationSeconds = 30 }: IProps) =
       style={{ ["--marquee-duration" as string]: `${durationSeconds}s` }}
     >
       <div className="flex shrink-0 items-center gap-4 motion-reduce:flex-wrap">{children}</div>
-      <div className="flex shrink-0 items-center gap-4 motion-reduce:flex-wrap" aria-hidden="true">
+      <div className="flex shrink-0 items-center gap-4 motion-reduce:flex-wrap" aria-hidden="true" inert>
         {children}
       </div>
     </div>

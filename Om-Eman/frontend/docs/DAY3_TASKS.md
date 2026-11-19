@@ -30,6 +30,8 @@
 
 **هدف الجملة الواحدة:** نبني **غلاف المتجر** (Header + Footer + عناصر التواصل والتمرير) و**الصفحة الرئيسية** SSR بالكامل (Hero + شريط ثقة + بانرات + أقسام + منتجات مميزة) فوق **طبقة جلب بيانات سيرفر** و**loader صور Cloudinary**، مع **SEO أساسي ثقيل** (JSON-LD + hreflang + sitemap)، وبعد ما نصلّح عيوب يوم 2 المسجلة (D2-01…D2-09).
 
+> **تحديث Day 2.5 (2026-11-17):** عيوب D2-01…D2-09 (+ M-2/M-3) اتنفذت في Day 2.5 (راجع `PROGRESS.md` قسم "يوم 2.5"). مهام Gate 1 (H1–H6) اتعلّمَت ✅ — المنفّذ يراجعها بسرعة ويتأكد إنها سليمة قبل الانتقال لـ F1، من غير إعادة تنفيذ لو مفيش تعارض.
+
 **الصورة النهائية آخر اليوم:**
 - `/ar` و`/en` بيعرضوا هوم حقيقي جوه `(Store)` layout فيه Header (براند + لغة + ثيم + سلة) وFooter (من إعدادات الباك) وزرار واتساب ثابت بنبض (لو رقم الواتساب موجود) وخط تقدم السكرول + زرار لفوق بحلقة تقدم.
 - الأقسام والبانرات من الباك الحقيقي (`/api/store/categories` + `/api/store/banners`) و`Featured` من `/api/store/products?featured=true` — **وده محجوب حاليًا** (BLOCKER في الباك)، فالـ Featured هيظهر **ErrorState حقيقي** النهارده (حالة الـ data بتتأكد في Gate 5 بعد إصلاح الباك).
@@ -298,7 +300,7 @@ export type TStoreResult<T> =
 
 > كل مهمة تحت بنفس القالب. **DoD عام لكل مهمة** (بالإضافة لـ DoD الخاص): `npm run check` أخضر · ملف ≤150 سطر · مفيش لون خام/نص hard-coded/`any` · `ar.json`=`en.json` · سطر في PROGRESS بالملفات والانحرافات.
 
-### H1 — `CountUp` يعرض الرقم النهائي في HTML السيرفر + reduced-motion + صفر التوفير (D2-01, D2-07)
+### H1 — `CountUp` يعرض الرقم النهائي في HTML السيرفر + reduced-motion + صفر التوفير (D2-01, D2-07) — ✅ مُنجز في Day 2.5 (تحقق/مراجعة المتغيرات عند Gate 1؛ راجع PROGRESS يوم 2.5 S1,S7)
 - **الهدف:** سعر المنتج يظهر صح في الـ HTML (SEO/no-JS) والعدّ يفضل أنيميشن تحسيني بس.
 - **الملفات:** `components/Animation/CountUp.tsx`، `lib/price.ts`، (`components/shared/PriceTag.tsx` لو لزم).
 - **Reuse:** `motion/react` (`animate`, `useInView`, `useMotionValue`) الموجودين.
@@ -319,7 +321,7 @@ export type TStoreResult<T> =
   - بعد build + `npm run start`: `curl -s localhost:3001/ar/design` ⇒ نص `CountUp` في الـ HTML **مش** `["0","0","0"]` (شوف سكريبت Appendix B-3؛ المتوقع قيم زي `45 ج.م`).
 - **DoD:** القيمتين فوق + `/design` شغال في المتصفح (العدّ تحت الـ fold لسه بيحصل) 🟡 (تغيير سلوك بصري صغير).
 
-### H2 — `JsonLd` escape + `.env.example` + تحقق `SITE_URL` (D2-02, D2-03, D2-09 جزئي)
+### H2 — `JsonLd` escape + `.env.example` + تحقق `SITE_URL` (D2-02, D2-03, D2-09 جزئي) — ✅ مُنجز في Day 2.5 (راجع PROGRESS يوم 2.5 S2,S3,S9)
 - **الهدف:** إغلاق ثغرة XSS في JSON-LD وتصليح ملف البيئة.
 - **الملفات:** `components/shared/JsonLd.tsx`، `.env.example`، `lib/config.ts`.
 - **المطلوب:**
@@ -329,21 +331,21 @@ export type TStoreResult<T> =
 - **اختبار:** `grep -n "u003c" components/shared/JsonLd.tsx` لازم يطلّع سطر الـ `.replace(/</g, ...)` (والـ escape مكتوب `\u003c` في الكود). السلوك الفعلي بيتأكد في Gate 2 (S6): سكربت B-3 بيطبع `raw </ inside ld+json: false`. `.env.example` بيتقرا بعينك. بعد build `/ar/design`: `<link rel="canonical" href="http://localhost:3001/...">` لسه صح.
 - **DoD:** lint/build/check + `grep -n "u003c" components/shared/JsonLd.tsx`.
 
-### H3 — token `--color-on-accent` + `Badge accent` (D2-04) — **يحتاج M-2**
+### H3 — token `--color-on-accent` + `Badge accent` (D2-04) — **يحتاج M-2** — ✅ مُنجز في Day 2.5 بعد اعتماد M-2 (راجع PROGRESS يوم 2.5 S4؛ تأكيد بصري قرفة للمالك)
 - **الهدف:** شارة "وفّرت X٪" مقروءة في ثيم قرفة (تباين 1.40 ⇒ 10.81) من غير ما يتغير أي ثيم فاتح.
 - **الملفات:** `styles/tokens.css` (@theme: `--color-on-accent: #2b1a12`)، `styles/themes.css` (أربع ثيمات: zafran `#2b1a12` · attar `#1f2a1c` · cinnamon `#241105` · hibiscus `#2a1216` — = قيمة `ink` لكل ثيم فاتح، فمفيش تغيير بصري هناك)، `components/ui/Badge.tsx` (`accent: "bg-accent text-on-accent"`).
 - **المطلوب:** `grep` على أي استخدام تاني لـ `bg-accent` مع `text-ink` (غير Badge) وصلّحه بنفس الطريقة. **ماتغيّرش أي قيمة موجودة.**
 - **اختبار:** حساب التباين (النتيجة المتوقعة: قرفة 10.81، زعفران 7.36، عطّار 4.77، كركديه 6.67 — دي قيم `ink` على `accent` الحالية، يعني مفيش تراجع).
 - **DoD:** build + check. 🟡 للمالك: يشوف شارة التوفير في قرفة بس.
 
-### H4 — `Button` + `useFlyToCart` (D2-05, D2-06)
+### H4 — `Button` + `useFlyToCart` (D2-05, D2-06) — ✅ مُنجز في Day 2.5 (راجع PROGRESS يوم 2.5 S5,S6)
 - **الملفات:** `components/ui/Button.tsx`، `hooks/useFlyToCart.ts`.
 - **المطلوب `Button`:** `type="button"` افتراضي (قبل `{...props}` عشان يتغطى) · `disabled={disabled || isLoading}` · `aria-busy={isLoading || undefined}` · وقت التحميل: `<span className="opacity-0">{children}</span>` + `Loader2` مطلق في النص `aria-hidden` (الشكل البصري زي ما هو: spinner بس، بس العرض ثابت والنص موجود لقارئ الشاشة). **ماتغيّرش الـ variants.**
 - **المطلوب `useFlyToCart`:** (1) الهدف = أول `[data-cart-target]` له `getClientRects().length > 0` (مش مجرد أول واحد). (2) الـ clone: `aria-hidden="true"` + `inert` + امسح أي `id` منه ومن أولاده. (3) `.finished.then(done, done)` بحيث الـ clone يتشال في الحالتين، و`onArrive` يتنده في النجاح بس. باقي المنطق (700ms، المسار المنحني، reduced-motion) **زي ما هو**.
 - **اختبار:** `/design`: زرار "أضف للسلة" لسه يطير ويعمل bounce 🟡؛ زرار submit جوه form لسه يـ submit (له `type="submit"` صريح)؛ `grep -n 'type="button"' components/ui/Button.tsx`.
 - **DoD:** lint/build/check. تغييرات سلوكية صغيرة — 🟡 تأكيد بصري من المالك.
 
-### H5 — `BackToTop` بحلقة تقدم + reduced-motion (D2-08) — **يحتاج M-3**
+### H5 — `BackToTop` بحلقة تقدم + reduced-motion (D2-08) — **يحتاج M-3** — ✅ مُنجز في Day 2.5 بعد اعتماد M-3 (راجع PROGRESS يوم 2.5 S8؛ تأكيد بصري تفاعلي للمالك)
 - **الهدف:** تنفيذ طلب المالك الأصلي: حلقة حوالين الزرار بتتملّي حسب نزول الصفحة.
 - **الملفات:** `components/Animation/ScrollProgressRing.tsx` (جديد، ≤40 سطر)، `components/Animation/BackToTop.tsx`.
 - **المطلوب:** SVG `size-14` حوالين الزرار (`absolute -inset-1`، `aria-hidden`)، دايرة track `stroke-ink/15` ودايرة تقدم `stroke-accent` بـ `strokeDasharray = محيط الدايرة` و`strokeDashoffset` = `useTransform(scrollYProgress, [0,1], [C,0])` على `m.circle` (`style`، من غير re-render)، البداية من الأعلى (`-rotate-90`). الزرار نفسه (`bg-primary`) زي ما هو. `scrollTo({behavior})` = `"auto"` لو reduced-motion، `"smooth"` غير كده. أيقونة السهم `aria-hidden`. **مفيش لون خام.**
@@ -351,7 +353,7 @@ export type TStoreResult<T> =
 - **اختبار:** `/design` (فيه `ScrollEffects`/`DesignEffects`): السكرول لتحت ⇒ الحلقة بتتملّي بالتدريج 🟡.
 - **DoD:** lint/build/check + 🟡.
 
-### H6 — `buildMetadata` (D2-09)
+### H6 — `buildMetadata` (D2-09) — ✅ مُنجز في Day 2.5 (راجع PROGRESS يوم 2.5 S9)
 - **الملف:** `lib/seo.ts`.
 - **المطلوب:** `alternates.languages` = `{ ar, en, "ar-EG": <ar url>, "x-default": <ar url> }` (URLs كاملة بـ `SITE_URL` + `/${locale}${path}`)؛ `openGraph.locale` = `ar_EG` / `en_US` (map ثابت `Record<TLocale,string>`) + `alternateLocale: [اللغة التانية بنفس الخريطة]`. الـ canonical زي ما هو. شغّل نفس الـ signature (ماتكسرش مستهلكين الـ layout و`design/metadata.ts`).
 - **اختبار:** بعد build: `curl -s localhost:3001/ar/design` ⇒ 4 `link rel=alternate` بـ hreflang `ar,en,ar-EG,x-default`؛ `og:locale` = `ar_EG` و`og:locale:alternate` = `en_US`.
@@ -784,3 +786,49 @@ fetch(url).then(async (response) => {
 ---
 
 **نهاية الملف.** أي تعارض بين الملف ده والواقع = وقف + سؤال المدير. ممنوع بدء يوم 4.
+
+### HM+ — Manager additions (authorized 2026-11-18, Gate 3 scope, visual 🟡)
+
+> **Status:** implemented in Gate 3 (frontend-only). Keep Gate 2 intact. No backend/DB/schema/migration/deploy changes. No fake API data. No new dependencies.
+
+| # | Addition | Implementation | Notes / decisions |
+| --- | --- | --- | --- |
+| HM-L | Om Eman logo integration (Header + Footer, brand-consistent) | `public/logo.png` (existing provided asset, 1254×1254 PNG) rendered via `next/image` with preserved proportions (`object-contain`, explicit square intrinsic box). Header: compact mark beside brand name (`size-8`) keeping “أم إيمان” primary/visible; Footer: fuller brand mark (`size-16`) integrated with tagline/contact/social/copyright. No recreation/redraw/distortion. | Full source image used as mark (suitable at chosen sizes in this implementation). If a dedicated extracted jar-only asset is later provided for very small sizes, it can replace the same path/component without layout refactor. Works with token surfaces across themes and RTL/LTR layouts; final visual 🟡 owner review. |
+| HM-BL | Branded loading experience (reusable jar fill) | `components/shared/BrandLoader.tsx` (reusable, `role="status"` + `aria-live="polite"` + `aria-busy`, accessible label from `common.loading`) with transparent jar + “أم إيمان” label and CSS herb/fill animation (`styles/animations.css`, reduced-motion disables via existing/added rules). Integrated via `app/[locale]/(Store)/loading.tsx` (Next.js route loading UI). | No generic spinner/static stock substitute; no extra deps. Can be reused in other appropriate loading states. Visual/motion 🟡 owner review. |
+| HM-LS | LocaleSwitcher UI improvement (Header) | `components/ECommerce/Header/LocaleSwitcher.tsx`: Globe + current code (`AR/EN`) + chevron trigger, compact dropdown (`menu`/`menuitemradio`, `aria-checked`, selected check), smooth states, preserves pathname and query params (`useSearchParams`), correct RTL/LTR, keyboard/Escape/outside-close handling, theme-token styling, wrapped in `Suspense` in `StoreHeader`. Translation architecture/routing unchanged. | Functional locale switching preserved via `@/i18n/navigation` `Link` + `locale`; visual 🟡 owner review. |
+
+
+---
+
+### HM++ — Gate 3 follow-up additions (authorized 2026-11-18, frontend-only, visual 🟡)
+
+#### HM-FB — Favicon & browser branding
+- **Goal:** replace default Next.js favicon/branding with Om Eman identity using provided `public/logo.png`.
+- **Implementation:** removed `app/favicon.ico`; generated `app/icon.png`, `app/apple-icon.png`, `public/favicon-16x16.png`, `public/favicon-32x32.png`, `public/icon-192.png`, `public/icon-512.png` from official logo (center-crop focused on jar/mark + high-quality resize, no redraw/distortion); added `app/manifest.ts` and locale metadata `icons`/`applicationName`/`appleWebApp` with brand name “أم إيمان”.
+- **Limitation (documented):** provided asset is a full logo without a separate clear jar-only symbol; 16×16/32×32 recognizability may be limited vs a dedicated jar icon asset. No symbol invented/redesigned; replace with dedicated jar-only asset later for best result. Browser tab/bookmark/mobile icon checks pending owner visual approval (build/env prevented live verification).
+
+#### HM-SC — Social media & contact system
+- **Central config:** `lib/siteContact.ts` (documented). Set `SOCIAL_LINKS[platform]` to a real URL or `null` to hide; Footer renders valid platforms automatically (no Footer component edits). Supported: instagram, facebook, tiktok, youtube, x, snapchat, pinterest, threads, linkedin, telegram (extensible).
+- **Initial state:** Instagram `https://www.instagram.com/om_eman.herbs/`; all others `null`. No invented URLs.
+- **Rendering:** `components/shared/SocialIcon.tsx` lightweight inline SVGs (no deps), `FooterSocial` shows only valid URLs with consistent sizing/alignment/spacing, hover/focus, accessible labels, safe external links (`rel="noopener noreferrer"`), RTL/LTR and 4-theme compatible.
+- **Contact:** centralized `CONTACT_PHONES` (`01033563649` primary, `01554491132` secondary) as `tel:` links with clear labels; not assumed WhatsApp. `WHATSAPP_CONTACT` explicit-only (default `null`); WhatsApp links/FAB/trust appear only when explicitly configured and normalized via approved M-8 Egyptian rules.
+- **Constraints:** preserved Store settings integration (email/address/hours where present) and Gate 2 work; frontend-only; no fake data/deps.
+
+#### HM-BT — BackToTop early visibility
+- **Change:** `components/Animation/BackToTop.tsx` visibility threshold changed from `> window.innerHeight` to `> 280` so it appears after a small scroll down while preserving existing ring/progress/motion behavior (owner-approved feel).
+
+---
+
+## Gate 4 — implementation notes (2026-11-18, frontend-only, visual 🟡)
+
+| Task | Status | Files | Notes |
+| --- | --- | --- | --- |
+| Logo refinement (Header/Footer) | ✅ code/check, 🟡 visual | `public/assets/brand/jar-mark.png` (derived crop of official `public/logo.png`, no redraw/distort), `lib/brandAssets.ts`, `components/ECommerce/Header/HeaderBrand.tsx`, `components/ECommerce/Footer/StoreFooter.tsx` | Header uses jar-mark only + “أم إيمان” text (compact, no large/full circular logo). Footer uses jar-mark only above tagline (cleaner than repeating brand name; name retained in copyright). Full logo not used in compact placements. Dedicated jar-only source asset can replace `jar-mark.png` later for best small-size clarity. |
+| Card refinement (subtle motion + stable heights) | ✅ code/check, 🟡 visual | `styles/animations.css`, `components/shared/GlowCard.tsx`, `components/Card/{ProductCard,CategoryCard}.tsx` | Spotlight/BorderBeam intensity reduced (glow 14%/0.7, beam opacity 0.55, slightly softer hover lift) — animated concept preserved. Heights stabilized with reserved space/truncation (`line-clamp`, fixed min-heights, category/price-from placeholders, `h-full`) to avoid grow/shrink/shift across states; grid alignment preserved (2/3/4 cols, 4 themes, RTL/LTR). |
+| D1 `/design` ProductCard demo | ✅ code/check, 🟡 visual (HTML live blocked by build) | `components/design/{demoProducts.ts,ProductCardRow.tsx,ComponentsRow.tsx}` (uses existing `messages/design.productCardTitle|productCardDemoNote|priceDemoNote`) | 5 labeled English-only fixtures isolated to `components/design`: discounted, multi-package, bundle, sold out, no-image; prices strings (`45.0000`,`60.0000`,`30`,`120.0000`,`150.0000`,`25.0000`,`18.0000`,`22.0000`); one Cloudinary demo image (`https://res.cloudinary.com/demo/image/upload/v1/sample.jpg`) others null; rotating beam via `useRotatingIndex`; demo notes visible. No imports outside design. `/design` page remains ≤30. |
+| D2 Sitemap | ✅ code/check (live blocked by build) | `app/sitemap.ts` | `/ar` and `/en` entries, `alternates.languages {ar,en}` on both, `changeFrequency:"daily"`, `priority:1`, no `lastModified`/`new Date()`. `robots.ts` unchanged (design disallowed). |
+| D3 Docs + checks | ✅ lint/check, ❌ build env blocker | `AGENTS.md`, `docs/PROGRESS.md`, `docs/DAY3_TASKS.md` | AGENTS updated (§3.1/3.2/3.4 tree, server data A-1..A-4, images A-6/StoreImage, z-index A-9, single `data-cart-target`, mock exception, lucide no brand icons, KS-1..3, asset rules). PROGRESS updated with Gate 4 task/carry-forward/asset/perf/verification. `npm run lint` EXIT 0, `npm run check` EXIT 0 (118 files, 116 keys/locale), `npm run build` EXIT 1 (recurring Turbopack `0xc0000142`, no `BUILD_ID`). |
+| MANAGER ADDITION — asset architecture | ✅ prepared, no supplied assets invented | `public/assets/{hero,banners,categories,brand,themes,video}/`, `public/assets/README.md`, `lib/brandAssets.ts`, `components/ECommerce/Home/Hero.tsx` | Folder structure + descriptive naming + integration config created. `BRAND_ASSETS` lists only existing paths (`jarMark`,`fullLogo`) and `null` placeholders for hero desktop/mobile/poster and optional brand video (not marked available). Hero accepts optional separate desktop/mobile images and optional muted looping video with poster fallback, `preload="none"`, reduced-motion-safe fallback (`motion-reduce:hidden`/`motion-safe:hidden`), overlay for text contrast; lazy/below-fold unchanged elsewhere. No fake/final product photography added. |
+| Carry-forwards (not marked complete) | 🟡/⛔ | — | **Hero asset integration:** integration-ready only (no supplied hero/banner/category/theme/video assets). **Favicon:** assets wired from official logo crop but dedicated jar-only symbol not supplied; 16×16/32×32 recognizability may be limited (🟡 owner review). **Social/Contact:** Instagram configured; others/WhatsApp remain explicit `null` until owner provides real data in `lib/siteContact.ts` (not invented). **B-1:** featured/products/search may ErrorState in unfixed envs (backend local fix unpublished). **Build:** Turbopack `0xc0000142` unresolved. |
+
+- All new/changed visuals 🟡 pending owner browser review. Gates 1–3 preserved. No backend/DB/schema/migration/deploy changes, no commit/deploy, no Gate 5.

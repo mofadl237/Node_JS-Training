@@ -3,9 +3,103 @@
     "title": "أم إيمان | بهارات وأعشاب طبيعية",
     "description": "متجر أم إيمان للبهارات والأعشاب الطبيعية — أسعار واضحة وتوصيل لحد باب البيت."
   },
+  "brand": {
+    "name": "أم إيمان"
+  },
+  "a11y": {
+    "skipToContent": "تخطّي للمحتوى",
+    "opensInNewTab": "يفتح في تبويب جديد"
+  },
+  "header": {
+    "cart": "السلة",
+    "language": "اللغة",
+    "languageMenu": "قائمة اللغات"
+  },
+  "locale": {
+    "ar": "العربية",
+    "en": "English",
+    "switchTo": "بدّل اللغة لـ {language}"
+  },
+  "theme": {
+    "label": "الثيم",
+    "themeZafran": "زعفران",
+    "themeAttar": "عطّار",
+    "themeCinnamon": "قرفة",
+    "themeHibiscus": "كركديه"
+  },
+  "whatsapp": {
+    "label": "كلّمنا على واتساب",
+    "prefill": "السلام عليكم، حابب أستفسر عن منتجات أم إيمان."
+  },
+  "footer": {
+    "tagline": "بهارات وأعشاب طبيعية بطعم بيت مصري.",
+    "contactTitle": "تواصل معنا",
+    "socialTitle": "تابعنا",
+    "phone": "الهاتف",
+    "email": "البريد الإلكتروني",
+    "address": "العنوان",
+    "workingHours": "مواعيد العمل",
+    "whatsapp": "واتساب",
+    "copyright": "© {year} {brand}",
+    "social": {
+      "facebook": "فيسبوك",
+      "instagram": "إنستجرام",
+      "tiktok": "تيك توك",
+      "youtube": "يوتيوب",
+      "x": "X",
+      "snapchat": "سناب شات",
+      "pinterest": "بنترست",
+      "threads": "ثريدز",
+      "linkedin": "لينكدإن",
+      "telegram": "تيليجرام"
+    },
+    "phonePrimary": "رقم التواصل الأساسي",
+    "phoneSecondary": "رقم التواصل الإضافي"
+  },
   "home": {
-    "title": "متجر أم إيمان",
-    "body": "الصفحة الأساسية بتتبني في أيام المتجر — الشكل النهائي هيتحدد مع بعض."
+    "title": "بهارات وأعشاب طبيعية لبيت مصري",
+    "body": "الصفحة الأساسية بتتبني في أيام المتجر — الشكل النهائي هيتحدد مع بعض.",
+    "hero": {
+      "title": "بهارات وأعشاب طبيعية لبيت مصري",
+      "subtitle": "اختيارات متوازنة ونكهات أصيلة وأسعار واضحة — وكلها في مكان واحد.",
+      "cta": "تصفّح الأقسام"
+    },
+    "trust": {
+      "cod": "الدفع عند الاستلام",
+      "freeShipping": "شحن مجاني للطلبات من {amount} {currency}",
+      "whatsapp": "اطلب على واتساب"
+    },
+    "banners": {
+      "label": "عروض المتجر",
+      "prev": "البانر السابق",
+      "next": "البانر التالي"
+    },
+    "categories": {
+      "title": "الأقسام",
+      "subtitle": "اختَر القسم المناسب وابدأ التصفّح.",
+      "count": "{count, plural, =0 {مفيش منتجات} one {منتج واحد} two {منتجين} few {# منتجات} many {# منتج} other {# منتج}}",
+      "errorTitle": "الأقسام مش متاحة دلوقتي",
+      "errorBody": "حاول تاني بعد شوية.",
+      "emptyTitle": "مفيش أقسام لسه",
+      "emptyBody": "الأقسام هتظهر هنا أول ما تتضاف."
+    },
+    "featured": {
+      "title": "منتجات مختارة",
+      "subtitle": "اختيارات مميزة من متجر أم إيمان.",
+      "errorTitle": "المنتجات المختارة مش متاحة دلوقتي",
+      "errorBody": "حاول تاني بعد شوية."
+    }
+  },
+  "product": {
+    "priceFrom": "ابتداءً من",
+    "bundle": "باكج",
+    "soldOut": "نفد",
+    "addToCart": "أضف للسلة",
+    "choosePackage": "اختر العبوة",
+    "addedToCart": "تمت الإضافة للسلة",
+    "addToCartError": "تعذّر إضافة المنتج للسلة",
+    "unavailable": "غير متاح",
+    "choosePackageHint": "اختر العبوة من صفحة المنتج"
   },
   "price": {
     "savedPercent": "وفّرت {percent}٪"
@@ -13,6 +107,8 @@
   "design": {
     "title": "نظام التصميم",
     "subtitle": "صفحة داخلية لاختيار الثيم والخط والألوان قبل ما نبنّي الشاشات الحقيقية.",
+    "productCardTitle": "كروت المنتجات",
+    "productCardDemoNote": "أرقام وبيانات تجريبية للعرض بس — مش من المتجر الحقيقي.",
     "themes": "الثيمات",
     "themeDefault": "افتراضي",
     "themeDark": "ليلي",
@@ -64,6 +160,7 @@
   },
   "common": {
     "backToTop": "ارجع لفوق",
-    "currencyEgp": "ج.م"
+    "currencyEgp": "ج.م",
+    "loading": "جارٍ التحميل"
   }
 }

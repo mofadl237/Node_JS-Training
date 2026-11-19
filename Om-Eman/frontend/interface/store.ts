@@ -2,6 +2,8 @@
 // can never drift silently:
 // - TStoreProductType .. IStoreProductCard: backend/src/modules/store/products/card.ts
 // - IStoreContact .. IStoreSettings: backend/src/modules/store/settings/service.ts
+// - IStoreSubcategoryNode .. IStoreCategoryNode: backend/src/modules/store/categories/service.ts
+// - IStoreBanner: backend/src/modules/store/content/service.ts
 // Money fields are always decimal strings, e.g. "45.0000".
 
 export type TStoreProductType = "FINISHED" | "PREDEFINED_BUNDLE";
@@ -71,4 +73,39 @@ export interface IStoreSettings {
   freeShippingThreshold: string | null;
   contact: IStoreContact;
   social: IStoreSocial;
+}
+
+// backend/src/modules/store/categories/service.ts
+export interface IStoreSubcategoryNode {
+  id: string;
+  slug: string;
+  nameAr: string;
+  nameEn: string | null;
+  imageUrl: string | null;
+  sortOrder: number;
+  productsCount: number;
+}
+
+export interface IStoreCategoryNode {
+  id: string;
+  slug: string;
+  nameAr: string;
+  nameEn: string | null;
+  descriptionAr: string | null;
+  descriptionEn: string | null;
+  imageUrl: string | null;
+  sortOrder: number;
+  productsCount: number;
+  subcategories: IStoreSubcategoryNode[];
+}
+
+// backend/src/modules/store/content/service.ts
+export interface IStoreBanner {
+  id: string;
+  titleAr: string;
+  titleEn: string | null;
+  imageUrl: string;
+  mobileImageUrl: string | null;
+  linkUrl: string | null;
+  sortOrder: number;
 }

@@ -71,6 +71,12 @@
   }
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 /* 4- spotlight (B1) — pointer-following glow, hover-capable devices only.
    Colors come from the theme glow token via color-mix. */
 .spotlight-overlay {
@@ -80,14 +86,14 @@
   transition: opacity var(--dur-base) var(--ease-out);
   background: radial-gradient(
     circle at var(--mx, 50%) var(--my, 50%),
-    color-mix(in srgb, var(--color-glow) 25%, transparent),
+    color-mix(in srgb, var(--color-glow) 14%, transparent),
     transparent 60%
   );
 }
 
 @media (hover: hover) {
   .spotlight:hover > .spotlight-overlay {
-    opacity: 1;
+    opacity: 0.7;
   }
 }
 
@@ -125,7 +131,7 @@
 }
 
 .border-beam[data-active="true"] {
-  opacity: 1;
+  opacity: 0.55;
 }
 
 .border-beam[data-active="false"] {
@@ -219,7 +225,40 @@
   }
   .border-beam,
   .pulse-ring-layer,
-  .marquee-track {
+  .marquee-track,
+  .jar-fill-anim,
+  .herb-float {
     animation: none;
   }
+}
+
+/* 9- branded jar loading (Gate 3) */
+@keyframes jar-fill-rise {
+  0%,
+  100% {
+    transform: translateY(68%);
+  }
+  50% {
+    transform: translateY(18%);
+  }
+}
+
+@keyframes herb-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateY(-4px) rotate(6deg);
+    opacity: 0.85;
+  }
+}
+
+.jar-fill-anim {
+  animation: jar-fill-rise 3.2s var(--ease-out) infinite;
+}
+
+.herb-float {
+  animation: herb-float 2.4s var(--ease-out) infinite;
 }

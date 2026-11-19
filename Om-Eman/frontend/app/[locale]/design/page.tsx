@@ -6,7 +6,7 @@ import { TokenRow } from "@/components/design/TokenRow";
 import { UiRow } from "@/components/design/UiRow";
 import { ComponentsRow } from "@/components/design/ComponentsRow";
 import { MotionRow } from "@/components/design/MotionRow";
-import { DesignEffects } from "@/components/design/DesignEffects";
+import { ScrollEffects } from "@/components/Animation/ScrollEffects";
 
 export { generateMetadata } from "./metadata";
 const DesignPage = async ({ params }: { params: Promise<{ locale: string }> }) => {
@@ -16,7 +16,7 @@ const DesignPage = async ({ params }: { params: Promise<{ locale: string }> }) =
   return (
     <main className="mx-auto max-w-3xl space-y-16 px-4 py-16">
       <DesignHeader locale={locale} />
-      <DesignEffects />
+      <ScrollEffects />
       <ThemeRow />
       <FontRow />
       <TokenRow />

@@ -13,6 +13,8 @@ interface IBuildMetadataProps {
 }
 
 const OTHER_LOCALE: Record<TLocale, TLocale> = { ar: "en", en: "ar" };
+const OG_LOCALE: Record<TLocale, string> = { ar: "ar_EG", en: "en_US" };
+const DEFAULT_LOCALE: TLocale = "ar";
 
 export const buildMetadata = ({
   title,
@@ -23,6 +25,8 @@ export const buildMetadata = ({
 }: IBuildMetadataProps): Metadata => {
   const canonicalPath = `/${locale}${path}`;
   const otherLocale = OTHER_LOCALE[locale];
+  const arabicUrl = `${SITE_URL}/ar${path}`;
+  const defaultUrl = `${SITE_URL}/${DEFAULT_LOCALE}${path}`;
 
   return {
     title,
@@ -33,6 +37,8 @@ export const buildMetadata = ({
       languages: {
         [locale]: `${SITE_URL}${canonicalPath}`,
         [otherLocale]: `${SITE_URL}/${otherLocale}${path}`,
+        "ar-EG": arabicUrl,
+        "x-default": defaultUrl,
       },
     },
     openGraph: {
@@ -40,7 +46,8 @@ export const buildMetadata = ({
       description,
       url: `${SITE_URL}${canonicalPath}`,
       siteName: BRAND_NAME,
-      locale,
+      locale: OG_LOCALE[locale],
+      alternateLocale: [OG_LOCALE[otherLocale]],
       type: "website",
     },
     twitter: { card: "summary_large_image", title, description },

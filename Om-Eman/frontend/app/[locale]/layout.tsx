@@ -39,10 +39,27 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: Omit<IProps, "children">): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "metadata" });
+  const [t, tBrand] = await Promise.all([
+    getTranslations({ locale, namespace: "metadata" }),
+    getTranslations({ locale, namespace: "brand" }),
+  ]);
   const safeLocale = isLocale(locale) ? locale : routing.defaultLocale;
+  const base = buildMetadata({ title: t("title"), description: t("description"), path: "", locale: safeLocale });
 
-  return buildMetadata({ title: t("title"), description: t("description"), path: "", locale: safeLocale });
+  return {
+    ...base,
+    applicationName: tBrand("name"),
+    manifest: "/manifest.webmanifest",
+    icons: {
+      icon: [
+        { url: "/icon.png", sizes: "32x32", type: "image/png" },
+        { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+        { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      ],
+      apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    },
+    appleWebApp: { capable: true, title: tBrand("name"), statusBarStyle: "default" },
+  };
 }
 
 export default async function LocaleLayout({ children, params }: IProps) {

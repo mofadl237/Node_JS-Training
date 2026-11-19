@@ -1,17 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { BaseQueryFn, FetchArgs } from "@reduxjs/toolkit/query";
 import { API_BASE_URL } from "@/lib/config";
-import type { IApiError, IApiSuccess, IEnvelopeFailure, IUnwrapped } from "@/interface/api";
+import { isEnvelopeFailure } from "@/lib/envelope";
+import type { IApiError, IApiSuccess, IUnwrapped } from "@/interface/api";
 
 const rawBaseQuery = fetchBaseQuery({ baseUrl: API_BASE_URL });
-
-const isEnvelopeFailure = (value: unknown): value is IEnvelopeFailure =>
-  typeof value === "object" &&
-  value !== null &&
-  "success" in value &&
-  value.success === false &&
-  "message" in value &&
-  "code" in value;
 
 export type TBaseQuery = BaseQueryFn<string | FetchArgs, unknown, IApiError>;
 
@@ -39,6 +32,6 @@ export const unwrapEnvelope = <T>(envelope: IApiSuccess<T>): IUnwrapped<T> => ({
 export const baseApi = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithApiError,
-  tagTypes: [],
+  tagTypes: ["Cart"],
   endpoints: () => ({}),
 });
