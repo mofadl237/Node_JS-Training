@@ -1,0 +1,1 @@
+export { storefrontProductSchema } from "./storeProduct";

@@ -13,3 +13,10 @@ export type {
   IStoreSubcategoryNode,
   TStoreProductType,
 } from "./store";
+export type {
+  IStorefrontBundleComponent,
+  IStorefrontImage,
+  IStorefrontPackage,
+  IStorefrontProduct,
+  TStoreSizeUnit,
+} from "./storeProduct";

@@ -59,7 +59,7 @@ export const WhatsAppFab = () => {
               aria-label={t("label")}
               className={cn(buttonVariants({ variant: "whatsapp" }), "size-14 rounded-full p-0")}
             >
-              <WhatsAppBrand size={28} />
+              <WhatsAppBrand size={28}  />
             </a>
           </PulseRing>
         </m.div>

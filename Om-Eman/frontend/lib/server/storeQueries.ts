@@ -1,12 +1,24 @@
 import { cacheLife, cacheTag } from "next/cache";
-import type { IStoreBanner, IStoreCategoryNode, IStoreProductCard, IStoreSettings } from "@/interface";
+import type {
+  IStoreBanner,
+  IStoreCategoryNode,
+  IStoreProductCard,
+  IStorefrontProduct,
+  IStoreSettings,
+} from "@/interface";
+import { buildCatalogProductsPath, type INormalizedCatalogQuery } from "@/lib/catalogQuery";
+import { storefrontProductSchema } from "@/validation";
 import { storeFetch, type TStoreResult } from "./storeFetch";
 
 export const getStoreSettings = async (): Promise<TStoreResult<IStoreSettings>> => {
   "use cache";
   cacheTag("store-settings");
   const result = await storeFetch<IStoreSettings>("store/settings");
-  cacheLife(result.ok ? "minutes" : "seconds");
+  if (result.ok) {
+    cacheLife("minutes");
+  } else {
+    cacheLife("seconds");
+  }
   return result;
 };
 
@@ -14,7 +26,11 @@ export const getStoreCategories = async (): Promise<TStoreResult<IStoreCategoryN
   "use cache";
   cacheTag("store-categories");
   const result = await storeFetch<IStoreCategoryNode[]>("store/categories");
-  cacheLife(result.ok ? "minutes" : "seconds");
+  if (result.ok) {
+    cacheLife("minutes");
+  } else {
+    cacheLife("seconds");
+  }
   return result;
 };
 
@@ -22,7 +38,11 @@ export const getStoreBanners = async (): Promise<TStoreResult<IStoreBanner[]>> =
   "use cache";
   cacheTag("store-banners");
   const result = await storeFetch<IStoreBanner[]>("store/banners");
-  cacheLife(result.ok ? "minutes" : "seconds");
+  if (result.ok) {
+    cacheLife("minutes");
+  } else {
+    cacheLife("seconds");
+  }
   return result;
 };
 
@@ -30,6 +50,43 @@ export const getFeaturedProducts = async (): Promise<TStoreResult<IStoreProductC
   "use cache";
   cacheTag("store-products");
   const result = await storeFetch<IStoreProductCard[]>("store/products?featured=true&limit=8&sort=newest");
-  cacheLife(result.ok ? "minutes" : "seconds");
+  if (result.ok) {
+    cacheLife("minutes");
+  } else {
+    cacheLife("seconds");
+  }
   return result;
+};
+
+export const getStoreProducts = async (
+  query: INormalizedCatalogQuery,
+): Promise<TStoreResult<IStoreProductCard[]>> => {
+  "use cache";
+  cacheTag("store-products");
+  const result = await storeFetch<IStoreProductCard[]>(buildCatalogProductsPath(query));
+  if (result.ok) {
+    cacheLife("minutes");
+  } else {
+    cacheLife("seconds");
+  }
+  return result;
+};
+
+export const getStorefrontProduct = async (
+  slug: string,
+): Promise<TStoreResult<IStorefrontProduct>> => {
+  "use cache";
+  cacheTag("store-products", `store-product-${slug}`);
+  const result = await storeFetch<unknown>(`store/products/${slug}`);
+  if (!result.ok) {
+    cacheLife("seconds");
+    return result;
+  }
+  const parsed = storefrontProductSchema.safeParse(result.data);
+  if (!parsed.success) {
+    cacheLife("seconds");
+    return { ok: false, status: 200, code: "INVALID_RESPONSE" };
+  }
+  cacheLife("minutes");
+  return { ok: true, data: parsed.data };
 };

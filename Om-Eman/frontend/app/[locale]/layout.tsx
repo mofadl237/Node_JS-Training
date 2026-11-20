@@ -33,6 +33,8 @@ interface IProps {
   params: Promise<{ locale: string }>;
 }
 
+export const instant = false;
+
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
@@ -52,9 +54,9 @@ export async function generateMetadata({ params }: Omit<IProps, "children">): Pr
     manifest: "/manifest.webmanifest",
     icons: {
       icon: [
+        { url: "/icon.svg", type: "image/svg+xml" },
         { url: "/icon.png", sizes: "32x32", type: "image/png" },
         { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-        { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
       ],
       apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
     },

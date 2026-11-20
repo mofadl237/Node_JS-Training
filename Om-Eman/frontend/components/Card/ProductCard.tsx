@@ -1,8 +1,7 @@
 "use client";
 
-import { memo, useRef, useState } from "react";
+import { memo, useRef } from "react";
 import { ShoppingCart } from "lucide-react";
-import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/Badge";
@@ -10,11 +9,9 @@ import { Button } from "@/components/ui/Button";
 import { GlowCard } from "@/components/shared/GlowCard";
 import { PriceTag } from "@/components/shared/PriceTag";
 import { StoreImage } from "@/components/shared/StoreImage";
-import { useFlyToCart } from "@/hooks/useFlyToCart";
+import { useAddToCart } from "@/hooks/useAddToCart";
 import { pickLocalized } from "@/lib/localized";
-import { readCartToken, writeCartToken } from "@/lib/cartToken";
 import { productHref } from "@/lib/routes";
-import { useAddCartItemMutation, useLazyGetOrCreateCartQuery } from "@/store/cartApi";
 import type { IStoreProductCard } from "@/interface";
 
 interface IProps {
@@ -27,10 +24,6 @@ interface IProps {
 const ProductCardBase = ({ product, locale, isBeamActive = false, isDemo = false }: IProps) => {
   // 1- state
   const t = useTranslations("product");
-  const flyToCart = useFlyToCart();
-  const [getOrCreateCart] = useLazyGetOrCreateCartQuery();
-  const [addCartItem, { isLoading }] = useAddCartItemMutation();
-  const [added, setAdded] = useState(false);
   const thumbRef = useRef<HTMLDivElement | null>(null);
   const name = pickLocalized(locale, product.nameAr, product.nameEn) ?? product.nameAr;
   const alt = pickLocalized(locale, product.primaryImage?.altAr ?? null, product.primaryImage?.altEn ?? null) ?? name;
@@ -39,39 +32,19 @@ const ProductCardBase = ({ product, locale, isBeamActive = false, isDemo = false
   const canAddDirect = !isDemo && product.inStock && !product.price.hasMultiplePackages && Boolean(product.defaultPackageId);
   const needsChoice = !isDemo && product.inStock && product.price.hasMultiplePackages;
   const isUnavailable = !product.inStock || !product.defaultPackageId;
+  const { addToCart, isAdding, isAdded } = useAddToCart({
+    productPackageId: product.defaultPackageId,
+    sourceRef: thumbRef,
+    canAdd: canAddDirect,
+  });
 
   // 2- handlers
-  const bounceCart = () => {
-    const targets = document.querySelectorAll<HTMLElement>("[data-cart-target]");
-    for (const target of targets) {
-      if (target.getClientRects().length === 0) continue;
-      target.animate(
-        [{ transform: "scale(1)" }, { transform: "scale(1.25)" }, { transform: "scale(0.95)" }, { transform: "scale(1)" }],
-        { duration: 450, easing: "ease-out" },
-      );
-      break;
-    }
-  };
-
-  const onAdd = async () => {
-    if (!canAddDirect || isLoading || added) return;
-    try {
-      const token = readCartToken();
-      const cart = await getOrCreateCart(token).unwrap();
-      if (cart.guestToken) writeCartToken(cart.guestToken);
-      await addCartItem({ guestToken: cart.guestToken, productPackageId: product.defaultPackageId, quantity: 1 }).unwrap();
-      setAdded(true);
-      window.setTimeout(() => setAdded(false), 1800);
-      if (thumbRef.current) flyToCart({ source: thumbRef.current, onArrive: bounceCart });
-      else bounceCart();
-      toast.success(t("addedToCart"));
-    } catch {
-      toast.error(t("addToCartError"));
-    }
+  const onAdd = () => {
+    void addToCart();
   };
 
   // 3- render
-  const ctaLabel = isUnavailable ? t("soldOut") : needsChoice ? t("choosePackage") : added ? t("addedToCart") : t("addToCart");
+  const ctaLabel = isUnavailable ? t("soldOut") : needsChoice ? t("choosePackage") : isAdded ? t("addedToCart") : t("addToCart");
 
   return (
     <GlowCard accent={accent} isBeamActive={isBeamActive} className="group h-full overflow-hidden">
@@ -118,7 +91,7 @@ const ProductCardBase = ({ product, locale, isBeamActive = false, isDemo = false
               variant={canAddDirect ? "primary" : "soft"}
               size="sm"
               className="relative z-10 w-full"
-              disabled={!canAddDirect || isLoading || added}
+              disabled={!canAddDirect || isAdding || isAdded}
               onClick={onAdd}
               aria-label={ctaLabel}
             >

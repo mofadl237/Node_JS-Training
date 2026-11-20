@@ -1,5 +1,7 @@
-import type { IStoreSettings } from "@/interface";
+import type { IStoreSettings, IStorefrontProduct } from "@/interface";
+import { pickLocalized } from "./localized";
 import { toSafeExternalUrl } from "./links";
+import { productHref } from "./routes";
 
 interface IOrganizationProps {
   siteUrl: string;
@@ -50,3 +52,81 @@ export const buildWebSiteJsonLd = ({ siteUrl, locale, name }: IWebSiteProps): Re
   url: `${siteUrl}/${locale}`,
   inLanguage: locale,
 });
+
+interface IBuildBreadcrumbProps {
+  siteUrl: string;
+  locale: string;
+  items: { name: string; path: string }[];
+}
+
+export const buildBreadcrumbJsonLd = ({
+  siteUrl,
+  locale,
+  items,
+}: IBuildBreadcrumbProps): Record<string, unknown> => ({
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: items.map((item, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    name: item.name,
+    item: `${siteUrl}/${locale}${item.path}`,
+  })),
+});
+
+interface IBuildProductProps {
+  siteUrl: string;
+  locale: string;
+  product: IStorefrontProduct;
+  name: string;
+  currency: string | null;
+}
+
+export const buildProductJsonLd = ({
+  siteUrl,
+  locale,
+  product,
+  name,
+  currency,
+}: IBuildProductProps): Record<string, unknown> => {
+  const description = pickLocalized(locale, product.descriptionAr, product.descriptionEn);
+  const images = product.images.map((image) => image.url).filter((url) => url.trim() !== "");
+  const categoryName = pickLocalized(locale, product.category.nameAr, product.category.nameEn) ?? product.category.nameAr;
+  const priceCurrency = currency?.trim() ?? "";
+  const productUrl = `${siteUrl}/${locale}${productHref(product.slug)}`;
+  const data: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name,
+    url: productUrl,
+  };
+
+  if (images.length > 0) data.image = images;
+  if (description && description.trim() !== "") data.description = description;
+  if (product.brand && product.brand.trim() !== "") {
+    data.brand = { "@type": "Brand", name: product.brand };
+  }
+  if (categoryName.trim() !== "") data.category = categoryName;
+
+  if (priceCurrency !== "" && product.packages.length > 0) {
+    data.offers = product.packages.map((pkg) => {
+      const availability =
+        pkg.stockStatus === "IN_STOCK"
+          ? "https://schema.org/InStock"
+          : pkg.stockStatus === "OUT_OF_STOCK"
+            ? "https://schema.org/OutOfStock"
+            : null;
+
+      return {
+        "@type": "Offer",
+        sku: pkg.sku,
+        price: pkg.sellingPrice,
+        priceCurrency,
+        url: productUrl,
+        ...(availability ? { availability } : {}),
+      };
+    });
+  }
+
+  return data;
+};

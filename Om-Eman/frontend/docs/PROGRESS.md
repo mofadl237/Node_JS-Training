@@ -1,21 +1,21 @@
 # PROGRESS — سجل الشغل (محدَّث بعد كل جلسة)
 
 > ده ملف المتابعة الوحيد: أي AI يقراه يعرف اتعمل إيه بالظبط، وإيه اللي لسه.
-> ملف تاسكات اليوم الحالي: `DAY3_TASKS.md` (اليوم 2: `DAY2_TASKS.md` — مقفول، اليوم 1: `DAY1_TASKS.md`). الخطة الكاملة: `FRONTEND_TASKS_10_DAYS.md`.
+> آخر تسليم: [خطة Day 4](./DAY4_TASKS.md) — **النطاق معتمد، التنفيذ غير مأذون، حتى Gate 0**. مرجع اليوم السابق: `DAY3_TASKS.md`؛ الخطة الكاملة: `FRONTEND_TASKS_10_DAYS.md` §0.3.
 > **رموز الحالة:** ✅ متأكد بأوامر · 🟢 بصري اعتمده المالك · 🟡 بصري بانتظار المالك · ⛔ محجوب · ⚠️ جزئي.
 > أداة الفحص الموحدة للمراجعة: `npm run check` (`scripts/check-rules.mjs`) — حدود الأسطر، نصوص عربي hard-coded، ألوان خام، any/console.log/framer-motion، تطابق `ar.json`/`en.json`.
 > القاعدة: نحدّث الملف ده **قبل ما نقفل أي خطوة** (مش بعد).
 
 ---
 
-## الحالة العامة (2026-11-17 — بعد المراجعة النهائية لليوم 2)
+## الحالة العامة (2026-11-19 — بعد مراجعة Day 3 واعتماد خطة Day 4)
 
 | المسار | الحالة |
 | --- | --- |
-| الباك إند | ✅ كود مكتمل (B1–B16 + uploads/Cloudinary). التحقق كله أخضر: `tsc` + `build` + `test` + swagger (116 paths / 168 schemas). |
-| الفرونت | ✅ يوم 1 + يوم 2 مقفولين (كود + lint/build/check خضرا + البصري اعتمده المالك). ⛔ الباك فيه BLOCKER: `GET /api/store/products` (والـ detail والـ search) راجع `DB_CONSTRAINT_ERROR` — شوف "المراجعة النهائية لليوم 2". يوم 3 جاهز للتنفيذ — `DAY3_TASKS.md` (يبدأ بـ Gate 0). |
+| الباك إند | سجل سابق: B1–B16 + uploads/Cloudinary مع `tsc/build/test` وSwagger (116 paths / 168 schemas) وقتها. نجاح API منتجات محلي أُبلغ عنه بعد إصلاح B-1؛ مراجعة التخطيط لم تصل إلى `:3002` ولم تتحقق من النشر. عقد نشر التفاصيل ما زال مفتوحًا. |
+| الفرونت | يوم 1 و2 مقفولين باعتماد المالك. شغل Day 3 موجود؛ `lint/check` نجحا في المراجعة، لكن TypeScript ليس أخضر والـbuild والمتصفح لهما قيود منفصلة (انظر آخر سجل). خطة Day 4 فقط معتمدة، **G0–G5 لم تبدأ**. |
 
-### الباك — اللي فاضل (مسؤولية المالك، مش الـ AI)
+### متابعة الباك المسجلة في 2026-11-17 (تاريخية؛ ليست تعليمات Day 4)
 1. الداتابيز: `npm run db:migrate -- --name init` → `prisma db execute --file prisma/mvp/manual_constraints.sql` (في `Om-Eman/backend`).
 2. `cp seed.config.example.json seed.config.json` → تعبيه بقيم حقيقية → `npm run db:seed`.
 3. تشغيل integration tests من غير skip + تشغيل السيرفر.
@@ -30,11 +30,24 @@
 | --- | --- | --- |
 | 1 | Foundation: i18n/RTL + tokens/4 ثيمات + ThemeSwitcher + baseApi + Animation wrappers أساسية + UI primitives + /design + SEO base + error/not-found | ✅ كود + lint + build (2026-11-16) · 🟢 البصري اعتمده المالك (2026-11-17) · ⚠️ اتصال الباك جزئي (settings/categories/banners/faqs/pages/sitemap شغالين، المنتجات ⛔) |
 | 2 | إكمال Foundation: سباكة/عقود (interface/store, Toaster, split hooks) + باقي الحركة (Spotlight/BorderBeam/PulseRing/Marquee/Confetti/FlyToCart/PageTransition) + recipes (GlowCard/PriceTag/SectionHeading/TrustStrip/Empty-ErrorState) + صفوف /design | ✅ مقفول (2026-11-17) — 24/24 مهمة موجودة ومتركّبة، lint/build/check خضرا، البصري 🟢. ⚠️ بند واحد محجوب خارجيًا (A5: مقارنة كارت المنتج على رد حي) + عيوب مسجلة D2-01…D2-09 بتتصلح في Gate 1 من يوم 3 |
-| 3 | Storefront: غلاف المتجر (Header/Footer/WhatsApp/Effects) + الهوم SSR + SEO الثقيل (Org/WebSite JSON-LD، hreflang، sitemap) | 🔄 جاهز للتنفيذ — `DAY3_TASKS.md` (Gate 0→5) |
-| 4-7 | Storefront: كتالوج → منتج → بحث → سلة → checkout → تتبع → حساب العميل | ⏳ (الكتالوج/المنتج/البحث متوقفين على إصلاح الباك) |
+| 3 | Storefront: غلاف المتجر + الهوم SSR + SEO + متابعات البراند | منفّذ في المصدر؛ ✅ lint/check؛ ⚠️ 4 أخطاء TS؛ ⛔ آخر build؛ 🟡 لا قبول متصفح شامل. التحقق المحلي السابق لـGate 5 لا يُعاد كمهام Day 4. |
+| 4 | كتالوج أساسي؛ تفاصيل المنتج مشروطة بعقد النشر؛ اختيار عبوة وإضافة بالسلة القائمة بعد التفاصيل | **خطة فقط** — `docs/DAY4_TASKS.md`. لا تفويض بتنفيذ أي Gate؛ KS-1/KS-2 لم تُغلقا. |
+| 5 | Product Search + Guest Cart / Cart Page | **Planned for Day 5 — Not Started** لكلا المهمتين؛ راجع سجل التسليم أدناه. |
+| 6–7 | Checkout → تتبع → حساب العميل | ⏳ لاحقًا حسب خطة المتجر؛ خارج تكليف اليوم. |
 | 8-9 | Dashboard أساسي: دخول + هيكل + منتجات + أقسام + طلبات + مدفوعات | ⏳ |
 | 10-12 | Dashboard تكميلي: فواتير، شحن، عروض، كوبونات، محتوى، تقارير، عملاء، audit | ⏳ |
 | 13-14 | الإطلاق: Lighthouse ≥ 95 + SEO نهائي + مراجعة RTL | ⏳ |
+
+## Deferred Tasks / Upcoming Work
+
+**التأجيل سببه إعادة توزيع نطاق Storefront وفقًا للـUpdated Roadmap، وليس إلغاء المهام.** مرجعها الأصلي [FRONTEND_TASKS_10_DAYS.md](./FRONTEND_TASKS_10_DAYS.md) §0.3 و«اليوم 9 — Storefront». [تسليم متطلبات Day 5 بالتفصيل](./DAY4_TASKS.md#day5-handoff) يربط كل ID بمتطلبات الـUI والـAPI والحركة ومصدرها. لا توجد Gate تنفيذ مفتوحة لهما.
+
+| ID | Task | الموعد والحالة | ما ينتظر التنفيذ |
+| --- | --- | --- | --- |
+| D5-SEARCH | Product Search | **Planned for Day 5 — Not Started** | حقل الهيدر، نتائج `q` واقتراحات صفر النتائج، إعادة استخدام الكروت، SearchLog من نفس الطلب وSearchAction بعد وجود صفحة النتائج. |
+| D5-CART | Guest Cart / Cart Page | **Planned for Day 5 — Not Started** | صفحة `/{locale}/cart` وإغلاق KS-3، drawer، badge بالعدد الحقيقي، عرض سلة الضيف المستمرة وتعديل/حذف البنود، الإجمالي والتوفر وحالات الواجهة. |
+
+**قراءة الحالة:** المنفّذ في المصدر هو غلاف Day 3 والهوم وأساس الإضافة (`ProductCard` + `cartApi` + `cartToken`)، **مش** الشاشتين أعلاه. خطة Day 4 موثّقة لكن G0–G5 لم تبدأ. المؤجّل لـDay 5 هو البحث وواجهة السلة؛ أما المحجوب فهو التحقق الحي من الـAPI في آخر مراجعة، وفتح تفاصيل Day 4 لحين حسم عقد النشر، وproduction build عند آخر محاولة (`0xc0000142`). تفاصيل الأدلة ونتائج TypeScript والقبول البصري في §13–14. عند تسليم خطة Day 5 تُطابَق متطلبات الـIDين قبل تغيير الحالة أو رفع أي بند من سجل المتابعة.
 
 ---
 
@@ -825,3 +838,435 @@ grep framer-motion / any / @ts-ignore / console.log في الكود → فاضي
 #### ملفات متغيرة/جديدة ذات صلة بـ Gate 4 (هذه الدفعة)
 
 - **تعديل:** `app/sitemap.ts`, `components/Animation/Spotlight.tsx` (لا تغيير منطقي جوهري بعد CSS)/**فعليًا** `styles/animations.css`, `components/shared/GlowCard.tsx`, `components/Card/{ProductCard,CategoryCard}.tsx`, `components/ECommerce/Header/HeaderBrand.tsx`, `components/ECommerce/Footer/StoreFooter.tsx`, `components/ECommerce/Home/Hero.tsx`, `components/design/ComponentsRow.tsx`, `AGENTS.md`, `docs/DAY3_TASKS.md`, `docs/P
+
+---
+
+### 12) Code-drawn SVG jar brand icon + loading + favicon — 2026-11-19 (frontend only)
+
+> سجل وقت تنفيذ الأيقونة. للمقاس الحالي وتصحيح تقييم reduced-motion راجع §13 (D3-RM)؛ وصف التنفيذ هنا ليس نتيجة اختبار متصفح.
+
+- **نطاق التنفيذ:** استبدال علامة البرطمان المصوّرة في الـ Navbar بمكوّن SVG مرسوم بالكود + توحيد تجربة التحميل على نفس البرطمان مع تعبئة متحركة + أيقونة SVG للموقع/الميتاداتا. بدون تغيير Footer (الشعار الرسمي الكامل محفوظ كما هو)، بدون تعديل WhatsApp/BackToTop/cart/backend/DB/migrations، بدون تبعيات جديدة، بدون تأخير تحميل مصطنع، بدون بدء Day 4، بدون commit/deploy.
+
+| البند | الحالة | الملفات (إنشاء/تعديل) | تحقق/ملاحظات |
+| --- | --- | --- | --- |
+| مكوّن SVG قابل لإعادة الاستخدام | ✅ كود + lint/check | جديد: `components/Brand/OmEmanJarIcon.tsx` | SVG inline (viewBox 64×84) برسم برطمان بهارات/أعشاب (غطاء + جسم + تسمية + silhouette) مع نص عربي ظاهر “أم إيمان” على الملصق. يستخدم ألوان/tokens (`fill/stroke` من paper/surface/surface-2/ink/primary/accent). Props: `className`, `size`, `decorative`, `label`, `animated`؛ `aria-hidden/role/aria-label/<title>` حسب decorative. لا `next/image`/`<img>`/أصول صورة للأيقونة، لا قص/إعادة استخدام للشعار الرسمي الكامل. قابل للاستخدام في Navbar/Loading/Favicon (تصميم موحّد). |
+| Navbar integration | ✅ كود + lint/check، 🟡 بصري | تعديل: `components/ECommerce/Header/HeaderBrand.tsx` | استبدال علامة البرطمان الحالية بمكوّن `<OmEmanJarIcon size={32} decorative className="shrink-0 text-primary" />` بجانب نص البراند “أم إيمان” (الأيقونة نفسها تحمل “أم إيمان” على الملصق). مدمجة/متناسبة مع ارتفاع الـ Navbar. Footer لم يُعدّل. تحقق بصري (عربي/إنجليزي، RTL/LTR، desktop/mobile، 4 ثيمات، وأن الـ DOM يعرض SVG وليس صورة) غير منفّذ بسبب حاجب البيئة ⇒ 🟡. |
+| Loading experience | ✅ كود + lint/check، 🟡 بصري/حركة | تعديل: `components/shared/BrandLoader.tsx`, `app/[locale]/(Store)/loading.tsx` (تكامل قائم)، استخدام CSS قائم في `styles/animations.css` | `BrandLoader` يعرض نفس `OmEmanJarIcon animated` مع تسمية تحميل مقيدة (`common.loading`) داخل `role="status" aria-live="polite" aria-busy`. التعبئة (أعشاب/مادة بلون البراند) متحركة من أسفل لأعلى داخل جسم البرطمان عبر clipPath + `.jar-fill-anim` (`@keyframes jar-fill-rise`: `translateY(68%)→18%`, 3.2s infinite، `var(--ease-out)`)، مع عناصر `herb-float` خفيفة؛ الغطاء والملصق “أم إيمان” واضحان أثناء التعبئة. `prefers-reduced-motion` يعطّل `.jar-fill-anim/.herb-float` (قاعدة موجودة في `animations.css`). مدمج في تجربة تحميل المتجر الحالية `app/[locale]/(Store)/loading.tsx`؛ يعكس حالة تحميل حقيقية فقط (بدون تأخير مصطنع/بدون تبعيات). التنظيف عند انتهاء التحميل يتم بإزالة/unmount مكوّن التحميل (إيقاف الحركة تلقائيًا). تحقق بصري/حركة حي محجوب ⇒ 🟡. |
+| Favicon / metadata | ✅ كود + lint/check، 🟡 بصري/تعرف | جديد: `app/icon.svg`. تعديل: `app/[locale]/layout.tsx` (metadata icons), `app/manifest.ts` | `app/icon.svg`: نسخة SVG ثابتة مبسطة بنفس لغة تصميم البرطمان (أيقونة برطمان، ليست الشعار الكامل ولا أصل صورة). الميتاداتا/الـ manifest يشيران إلى `/icon.svg` (مع fallbacks PNG/Apple القائمة)؛ `app/icon.svg` يعمل كـ App Router file icon. الشعار الرسمي الكامل في Footer محفوظ دون تغيير. لم تُزال أصول fallback PNG القائمة لتجنب كسر سياقات قديمة؛ المرجع الأساسي/المفضّل أصبح SVG. تحقق ظهور الأيقونة في التبويب/الإشارات/الجوال محجوب ⇒ 🟡. |
+
+- **أدلة التنفيذ (ثابتة/كود):** `HeaderBrand.tsx` و`BrandLoader.tsx` يستوردان `components/Brand/OmEmanJarIcon` (لا صور للعلامة). `OmEmanJarIcon` يحوي مسارات/أشكال SVG ونص “أم إيمان” وتعبئة شرطية `animated` داخل `clipPath` بفئة `jar-fill-anim`. `styles/animations.css` يعرّف `jar-fill-rise`/`herb-float` ويعطلهما تحت `prefers-reduced-motion`. `app/[locale]/(Store)/loading.tsx` يركّب `BrandLoader`.
+
+- **التحقق (2026-11-19):**
+  - `npm run lint` → **EXIT 0**.
+  - `npm run check` → **EXIT 0** (`Scanned 122 code files, 122 message keys per locale. 0 failure(s), 0 warning(s).`).
+  - `npm run build` → **EXIT 1** (حاجب بيئي موثّق، غير ناجح): `TurbopackInternalError` `[project]/app/globals.css.css [app-client] (css)` / `creating new process` → `node process exited before we could connect to it with exit code: 0xc0000142` (لا `BUILD_ID`). لم يُدّعَ نجاح build.
+
+- **حالة التحقق البصري/المتصفح:** **غير منفّذ** (لا بيئة تشغيل/متصفح مستقرة بسبب فشل build `0xc0000142`) — عرض SVG في Navbar، وضوح/توازن الأيقونة، حركة التعبئة أسفل→أعلى، سلوك RTL/LTR و4 ثيمات، وظهور favicon في المتصفح كلها 🟡 بانتظار مراجعة المالك.
+
+- **حواجز متبقية:** حاجب Turbopack/Windows `0xc0000142` يمنع build/start والتحقق الحي؛ اعتماد بصري/حركة/أيقونة من المالك مطلوب. `lib/brandAssets.ts` ما زال يعرّف `jarMark` كأصل PNG قديم لكنه لم يعد مستخدمًا في Navbar (مرجع غير نشط).
+
+- **سلامة/نطاق:** Footer (الشعار الرسمي `fullLogo`) دون تغيير؛ لا WhatsApp/BackToTop/cart/backend/DB/migrations؛ لا تبعيات؛ لا تأخير مصطنع؛ Day 4 لم يبدأ؛ لا commit/deploy.
+
+---
+
+### 13) تسليم المراجعة — حالة Day 3 الفعلية (2026-11-19)
+
+الصفوف التالية تحدّث وصف الحالة في السجلات التاريخية، ولا تعيد فتح Gate 5 ليوم 3. المصدر يثبت التركيب؛ أوامر المراجعة السابقة تثبت نتائجها فقط، وليس قبولًا بصريًا.
+
+| الحالة | ما نعرفه والدليل |
+| --- | --- |
+| منفّذ | `(Store)/layout.tsx` و`components/ECommerce/Home/HomeSections.tsx`: shell، Hero/Trust/Banners/Categories/Featured بحدود Suspense وskeletons. `lib/server/{storeFetch,storeQueries}.ts`، `StoreImage`/Cloudinary، `ProductCard`، `StoreJsonLd`، `app/sitemap.ts` للغتين، وfixtures منفصلة في `/design`. الأصول الاختيارية للهيرو ما زالت جاهزة للتكامل فقط. |
+| الكود الحالي مقابل ملاحظات Gate 4 القديمة | `HeaderBrand.tsx` يستخدم `OmEmanJarIcon` بارتفاع 36/40px، مش صورة ولا مقاس 32 السابق؛ الفوتر `BRAND_ASSETS.fullLogo`؛ واتساب مُعيّن `01033563649`؛ `ScrollEffects` يركّب `ScrollTopFab`، وعتبة الزرين 10px. دي ملاحظات مصدر وليست نتيجة اختبار سكرول. `ProductCard.tsx` يستعمل `store/cartApi.ts` و`lib/cartToken.ts` للإضافة المباشرة أو رابط اختيار العبوة؛ لا توجد شاشة تفاصيل أو صفحة سلة في هذا الـbaseline. |
+| ✅ آلي (مراجعة التخطيط، **قبل** تسليم المستند) | `npm run lint` نجح. `npm run check` نجح: `Scanned 122 code files, 122 message keys per locale. 0 failure(s), 0 warning(s).` |
+| ⚠️ عيب TypeScript مستقل | `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` أعطى **4 × TS2769** في `lib/server/storeQueries.ts:9,17,25,33` لاختيار overload `cacheLife`. الإصلاح المحدود مصرح به داخل **G1 فقط بعد فتحها**. لم يُنفّذ. |
+| ⛔ build | آخر `npm run build` موثّق (سجل §12): EXIT 1، عامل CSS في Turbopack خرج بـ`0xc0000142`، لا `BUILD_ID` في ذلك التشغيل. حاجب بيئة مسجّل، وليس دليلًا على عيب في صفحة جديدة. لم يُعَد تشغيل build في مرحلة التوثيق. |
+| ⚠️ Gate 5 / الباك | تقرير المرحلة السابقة أفاد بـHTTP 200 محليًا للقائمة/featured والتفاصيل والبحث بعد إصلاح `products/list.ts`. مراجعة التخطيط: timeout ثم `ECONNREFUSED` على `:3002` بلا HTTP؛ لا نثبت عودة `DB_CONSTRAINT_ERROR` ولا نشر الإصلاح. **لا يوجد دليل شامل على V1–V5، خصوصًا ظهور Featured في HTML الهوم من production build ومصفوفة build/start.** لا إعادة تنفيذ Day 3. |
+| 🟡 المتصفح والمالك | لا نتيجة موثقة لاجتياز Day 3 كاملًا في المتصفح أو اعتماد نهائي لكل الشاشات. تفاعل المالك الإيجابي مع رسم الأيقونة وطلب تكبيرها يخص الأيقونة؛ لا يعادل توقيع RTL/LTR × المقاسات × الثيمات، أو ثبات الـFABs، أو حركة التحميل والفافيكون. |
+| **Day 3 follow-up مستقل: D3-RM** | تصحيح لعبارة «reduced-motion يعطّل الحركة» في §12: `animation:none` في `styles/animations.css:229–231` تسبق تعريفَي `.jar-fill-anim` و`.herb-float` عند `258–264` بنفس specificity. المصدر يُظهر تعارض ترتيب القواعد؛ السلوك المرئي لم يُختبر. **توثيق فقط: لا إصلاح CSS ضمن Day 4 إلا بموافقة منفصلة.** |
+
+### 14) Day 4 — خطة معتمدة، لا تنفيذ (2026-11-19)
+
+- **قرار المالك:** [DAY4_TASKS.md](./DAY4_TASKS.md) هو تسليم التخطيط لـGLM. الكتالوج هو المسار الأساسي؛ G3 مستقلة ومشروطة بعقد النشر في الباك. G4 تعيد استخدام cartApi والـhelpers الحالية. البحث وواجهة السلة لـDay 5. اعتماد النطاق **ليس** إذنًا ببدء G0 أو أي Gate تالية.
+- **حالة البوابات:** G0 pre-flight، G1 data/cacheLife، G2 Catalog، G3 تفاصيل مشروطة، G4 عبوة/إضافة، G5 تسليم — **الستة لم تبدأ**. لم تتغير حالة KS-1/2/3. لا أوامر أو نتائج تنفيذ تُنسب إلى هذه البوابات.
+- **الاعتماديات المفتوحة:** بيئة API حية للقائمة/شجرة الأقسام؛ توحيد شروط `ACTIVE` ونافذة النشر/الأهلية بين `products/list.ts` و`products/service.ts` وإثباتها من فريق الباك قبل G3؛ لا عرض مضلل لـ`pricePer100g` مع KG/L؛ إذن وبيئة اختبار guest cart قبل أي كتابة. لا حلول وهمية من الفرونت. يمكن للمالك طلب تسليم الكتالوج وحده لو حُجبت التفاصيل.
+- **تسليم هذه المرحلة:** إنشاء `docs/DAY4_TASKS.md` وتحديث `docs/PROGRESS.md` فقط. عند التكليف اللاحق، GLM يسلّم Gate واحدة، Astra يراجع الـdiff والأدلة، والمالك يقرر الانتقال. **⛔ STOP قبل Gate 0 — بانتظار إذن بدء مستقل.**
+
+### 15) Day 4 — Gate 0 Pre-flight Evidence (2026-11-19, G0 only — no app/build fixes)
+
+> **إذن:** مالك فوّض Gate 0 فقط (قراءة/فحص/تسجيل). **لا** تنفيذ G1–G5، لا تعديل باك/DB/schema/migration/deps/commit/push/deploy، لا إعادة مصفوفة Day 3.
+
+| البند | الدليل/الحالة |
+| --- | --- |
+| البيئة والتاريخ | Windows `win32`, repo `E:\NODE_JS\Udemy\Training` (git), تاريخ الجلسة 2026-11-19، frontend `Om-Eman/frontend` (Next 16.4.5). |
+| Git / baseline (pre-existing) | `frontend git status --short`: `M app/[locale]/layout.tsx`, `M app/manifest.ts`, `M components/ECommerce/Header/HeaderBrand.tsx`, `M components/shared/BrandLoader.tsx`, `M docs/PROGRESS.md`, `?? app/icon.svg`, `?? components/Brand/`, `?? docs/DAY4_TASKS.md`. Diff stat (tracked): 5 files, +88/−62 (layout/manifest/brand/loader/PROGRESS). `git diff -- package.json package-lock.json`: فارغ. `git diff --check`: لا تعارضات whitespace (تحذيرات LF→CRLF فقط على Windows). آخر commits: `962eb69 Finish Day3`, `bb9c628 Enhance Backend`. ملاحظة: أوامر git على جذر الـworkspace تُصدر تحذيرات symlinks مكسورة خارج `Om-Eman` (ضجيج بيئة، لا علاقة بـG0). |
+| Lint / check / build (آخر تشغيل G0) | `npm run lint` (frontend) **EXIT 0**. `npm run check` **EXIT 0** — `Scanned 122 code files, 122 message keys per locale. 0 failure(s), 0 warning(s).` `npm run build`: **لم يُعاد تشغيله**؛ baseline موثّق سابقًا EXIT 1 `TurbopackInternalError` `[project]/app/globals.css.css [app-client] (css)` مع `0xc0000142`, لا `BUILD_ID` (حاجب بيئة). |
+| TypeScript (G0 reconfirmed) | من `Om-Eman/frontend`: `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → **EXIT 2**, **4×TS2769**: `lib/server/storeQueries.ts:9,17,25,33` — overload `cacheLife` لا يقبل union/string `"seconds"|"minutes"` بالصياغة الحالية (`cacheLife(result.ok ? "minutes" : "seconds")`). تأكيد على السطور 9,17,25,33 (موقع 25 أيضًا متأثر حاليًا). إصلاح typing مسموح **داخل G1 فقط** بعد إذن المالك. |
+
+**API (runtime، `http://localhost:3002/api`, قراءة فقط — 2026-11-19):**
+
+| الطلب | النتيجة | ملاحظة |
+| --- | --- | --- |
+| `GET /store/categories` | HTTP 200, `success:true`, `message:"Categories fetched successfully"` | `data` array (3: spices/herbs/gift-bundles) مع `subcategories[]`, `productsCount`, أسماء/slug؛ مفاتيح متوافقة مع `IStoreCategoryNode`. |
+| `GET /store/products?page=1&limit=1&sort=newest` | HTTP 200, `success:true` | `data` كارت منتج + `meta` على envelope: `{page:1,limit:1,total:9,totalPages:9,hasNextPage:true,hasPreviousPage:false}`. |
+| `GET /store/products?category=spices&subcategory=ground-spices&page=1&limit=2&sort=price_asc` | HTTP 200, `success:true` | نتائج مفلترة (cumin, chili-powder) + `meta` `{page:1,limit:2,total:4,totalPages:2,hasNextPage:true,hasPreviousPage:false}`؛ `sort=price_asc` مقبول. |
+| `GET /store/products?page=99&limit=12` | HTTP 200, `success:true` | `data:[]`, `meta` `{page:99,limit:12,total:9,totalPages:1,hasNextPage:false,hasPreviousPage:true}` (خارج المدى ≠ خطأ/≠ متجر فارغ). |
+| `GET /store/products?category=not-a-real-slug` | HTTP 200, `success:true` | `data:[]`, `meta` `{page:1,limit:12,total:0,totalPages:0,hasNextPage:false,hasPreviousPage:false}` (فلتر صحيح الصياغة بلا نتائج). |
+| `GET /store/products?sort=invalid` | HTTP 400, `success:false` | `code:"VALIDATION_ERROR"`, رسالة تحقق من Zod. |
+| `GET /store/products/home-starter-bundle` | HTTP 200, `success:true` | تفاصيل bundle: `productType:"PREDEFINED_BUNDLE"`, `packages[1]`, `bundleComponents[3]`, `images[]`, `related:[]` (شكل متوافق مع توقعات التفاصيل). |
+| `GET /store/products/coriander-seeds` | HTTP 200, `success:true` | منتج FINISHED مع package واحد و`pricePer100g` string. |
+| `GET /store/products/does-not-exist-slug-xyz` | HTTP 404, `success:false` | `code:"PRODUCT_NOT_FOUND"`, `message:"Product not found"`. |
+| Cart `GET /api/store/cart` (بدون guestToken) | **HTTP 200 (runtime executed once)** | ⚠️ استُدعي أثناء G0 وأعاد 200؛ endpoint قد ينشئ سلة حسب العقد/السلوك الموثّق — **احتمال أثر جانبي إنشاء/قراءة حالة سلة** (لم يُقرأ الجسم/التوكن، لا تكرار). لا `POST/PATCH/DELETE /cart.../items` ولا `POST /cart/merge` نُفّذت. تحقق كتابة السلة مؤجل لـG4 ببيئة/إذن مناسب. |
+
+**عقود/مصادر (قراءة فقط):**
+
+- **Catalog API:** `backend/src/modules/store/products/{validation,list,routes,controller,service}.ts` — query يقبل `page/limit<=48/category/subcategory/featured/inStock/minPrice/maxPrice/sort`, افتراضيات واضحة؛ القائمة تبني شروط ACTIVE/publish window/sellable package/category-active (كما في `list.ts`). القائمة runtime الآن **صالحة** على البيئة المفحوصة (سابقًا موثّق كـblocker، غير مستنتج حاليًا).
+- **Detail publication (B-PUB، مانع G3):** `list.ts` يقيّد النشر/الأهلية على مستوى القائمة؛ `service.ts#getStorefrontDetail` يستخدم `findUnique({ where: { slug } })` ثم يفلتر packages `isActive && isPublished` و`bundleComponents`/`related`، **دون** نفس بوابة المنتج `status=ACTIVE`/نافذة النشر/شروط القسم الظاهرة في القائمة (التعليق يذكر draft/inactive 404). **لا دليل runtime** على سلوك slug غير منشور/مسودة. ⇒ سياسة النشر للتفاصيل **غير محسومة/غير مثبتة** على البيئة المقصودة؛ G3/G4 لا تُفتحان بدون حسم باك + دليل + إذن مالك.
+- **Cart reuse (موجود):** `frontend/store/cartApi.ts` (`getOrCreateCart`, `addCartItem`, tag `Cart`), `lib/cartToken.ts` (`om_cart_token`), `store/baseApi.ts` (`Cart` tag, envelope unwrap/error), `components/Card/ProductCard.tsx` يدمج الإضافة/حالاتها. Cart routes مصدر: `backend/src/modules/store/cart/{routes,controller,service,types}.ts`, swagger-store جزئيًا؛ عقد runtime للكتابة/الإنشاء الكامل **غير مختبر متعمدًا** باستثناء طلب GET واحد أعلاه.
+- **B-UNIT:** `backend/src/modules/store/products/card.ts` يحسب `pricePer100` بقسمة على `sizeValue` بغض النظر عن تحويل `KG/L` إلى 100g/ml — لا يُعرض مضللًا للوحدات الكبيرة دون تأكيد/تصحيح باك (قرار Day 4).
+
+**D3-RM (متابعة Day 3، مصدر فقط — غير منفّذة):** `styles/animations.css:215–233` (`prefers-reduced-motion: reduce`) يضع `.jar-fill-anim,.herb-float { animation: none; }`، لكن تعريفات `.jar-fill-anim`/`.herb-float` عند ~258–264 تأتي لاحقًا بنفس specificity فتغلب عليها. تعارض ترتيب مؤكد بالكود؛ السلوك المرئي غير مختبر. **لا إصلاح ضمن G0/Day 4 بدون إذن منفصل.**
+
+**قرارات G0 (منفصلة):**
+- **Catalog API path:** صالح وظيفيًا على البيئة المفحوصة للعينة (list/filter/sort/invalid/pagination/meta/404 detail) مع بقاء مخاطر typing/build/عدم اختبار المتصفح. **جاهز لمراجعة تخطيط G1 بعد إذن مالك**، مع تسجيل أن B-TS/B-BUILD ما زالا مفتوحين.
+- **Detail publication:** **محجوب لـG3** (B-PUB غير محسوم، لا دليل حالات غير مؤهلة/غير منشورة).
+- **Cart write contract:** **محجوب للاختبار الفعلي** في G0 (مسموح source-only + ملاحظة GET أعلاه)؛ G4 تتطلب بيئة/إذن كتابة.
+
+**تعديلات المستندات في G0:** `docs/PROGRESS.md` — إضافة قسم §15 (هذا السجل) فقط. `docs/DAY4_TASKS.md` لم يُعدّل (خطة معتمدة). لا ملفات مصدر تطبيق/باك/اعتمادات.
+
+**اعتماديات G1 (عند الإذن):** إصلاح `cacheLife` typing في `lib/server/storeQueries.ts` (4 مواضع baseline) بأصغر شكل آمن، تطبيع query وبناء استعلام قائمة server-side وفق `DAY4_TASKS.md` Gate 1، إعادة `tsc`/`lint`/`check` وتسجيل build/بيئة؛ بدون صفحة/تفاصيل/سلة.
+
+**Astra review (مستقل، مبني على الأدلة أعلاه):**
+- **قبول النطاق:** G0 التزم بالقراءة/الفحص/التسجيل؛ لا كود تطبيق ولا G1+. تحديث PROGRESS مناسب كمكان أدلة البوابة.
+- **نقاط قوة:** تأكيد runtime حي للكتالوج/التفاصيل الناجحة و404، إعادة تأكيد `tsc` (4×TS2769) و`lint/check` الأخضر، وتوثيق B-PUB من المصدر.
+- **ملاحظات/تحفظات:** (1) تنفيذ `GET /store/cart` مرة واحدة يخلق خطر أثر جانبي محتمل — يجب اعتباره انحرافًا غير مقصود عن نية "source-only" وتجنبه لاحقًا. (2) غياب دليل نشر سلبي للتفاصيل يمنع أي ادعاء أمان G3. (3) `npm run build` غير مُعاد؛ 0xc0000142 يبقى حاجب بيئة لا يُفسَّر كعيب وظيفة. (4) D3-RM مؤكد مصدرًا فقط، بصريًا 🟡.
+- **توصية:** **الانتقال مشروط بموافقة المالك الصريحة على بدء G1** (كتالوج فقط). **لا توصية بفتح G3/G4** حتى حسم B-PUB وإذن/بيئة اختبار الكتابة. يمكن للمالك لاحقًا طلب مسار catalog-only إذا استمرت عوائق التفاصيل.
+
+⛔ STOP — DAY 4 GATE 0 COMPLETE — WAITING FOR OWNER APPROVAL
+
+### 16) Day 4 — Gate 1 Catalog data layer (2026-11-19, G1 only — no UI)
+
+> **إذن:** مالك فوّض G1 فقط. لا G2+، لا صفحة كتالوج/تفاصيل، لا باك/كارت/اعتمادات/تغييرات معمارية أو ملفات غير مرتبطة، لا commit/push/deploy.
+
+| البند | الدليل/الحالة |
+| --- | --- |
+| 1) إصلاح TS2769 `cacheLife` | `frontend/lib/server/storeQueries.ts` (أصغر تغيير متوافق): استبدال `cacheLife(result.ok ? "minutes" : "seconds")` في الاستدعاءات الأربعة القائمة بصيغة شرط صريحة `if (result.ok) { cacheLife("minutes"); } else { cacheLife("seconds"); }` مرة واحدة لكل مسار (`getStoreSettings`, `getStoreCategories`, `getStoreBanners`, `getFeaturedProducts`). **محفوظ:** نفس `cacheTag`/مسارات fetch/أشكال النتائج/سياسة minutes-on-success, seconds-on-failure. لا `as`، لا config، لا استدعاء مزدوج. |
+| 2) طبقة بيانات الكتالوج (server-side) | **جديد:** `frontend/lib/catalogQuery.ts` (57 سطر) — إعادة استخدام `URLSearchParams` وأنماط المشروع: `TCatalogSort`/`INormalizedCatalogQuery`, تطبيع allowlist (`category`/`subcategory` slugs مفردة بصيغة `^[a-z0-9]+(?:-[a-z0-9]+)*$` وطول ≤200؛ `sort` ∈ `newest|price_asc|price_desc|name` افتراضي `newest`؛ `page` عدد صحيح موجب افتراضي 1؛ قيم غير صالحة/مكررة → افتراضي، لا إرسال slug غير صالح للباك)، وبناء مسار `store/products?sort=&page=&limit=12&...`. **محدّث:** `frontend/lib/server/storeQueries.ts` (66 سطر) — إضافة `getStoreProducts(query: INormalizedCatalogQuery)` يعيد استخدام `storeFetch<IStoreProductCard[]>` + `"use cache"` + `cacheTag("store-products")` + `cacheLife` شرطي مرة واحدة، ويعيد `TStoreResult<IStoreProductCard[]>` كما هو (يحافظ `data`/`meta?` عبر `storeFetch`). `getFeaturedProducts` لم يُحوّل لجلب كل المنتجات. |
+| 3) العقود/الاتفاقيات المحفوظة | لا تغيير في `storeFetch`/`lib/envelope`/`interface`/استجابات API/`IPaginationMeta`/معالجة الأخطاء. القراءة تعيد استخدام `IStoreProductCard` و`TStoreResult`. لا RTK Query للقراءة، لا fetch مباشر خارج الطبقة، لا UI/صفحات. |
+| 4) مكونات/أنماط معاد استخدامها | `storeFetch`, `TStoreResult`, نمط `cacheTag/cacheLife`/`"use cache"` القائم، `IStoreProductCard`, `URLSearchParams`، اتفاقيات الأنواع/الملفات الحالية. لا بنية fetch/caching موازية، لا إعادة بناء لموجود. |
+
+**فحوصات G1 (frontend `Om-Eman/frontend`, 2026-11-19):**
+- `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → **EXIT 0** (TS2769 الأربع منتهية).
+- `npm run lint` → **EXIT 0**.
+- `npm run check` → **EXIT 0** — `Scanned 123 code files, 122 message keys per locale. 0 failure(s), 0 warning(s).`
+- `npm run build` → **لم يُعاد تشغيله** (حاجب بيئي موثّق سابقًا: Turbopack `globals.css.css` / `0xc0000142`, لا `BUILD_ID`) — لا ادعاء نجاح إنتاج.
+
+**Git diff (مراجعة كاملة بعد G1):**
+- **G1 (مقصود):** `frontend/lib/server/storeQueries.ts` (M, +39/−4: إصلاح `cacheLife` + `getStoreProducts`)، `frontend/lib/catalogQuery.ts` (?? جديد)، `frontend/docs/PROGRESS.md` (M, سجل G0/G1).
+- **Pre-existing/non-G1 (لم يُمس في G1):** `app/[locale]/layout.tsx`, `app/manifest.ts`, `components/ECommerce/Header/HeaderBrand.tsx`, `components/shared/BrandLoader.tsx`, untracked `app/icon.svg`, `components/Brand/`, `docs/DAY4_TASKS.md`.
+- **ملاحظة diff غير مقصودة/غير مرتبطة:** `components/ECommerce/WhatsAppFab.tsx` يظهر modified (مسافة زائدة في JSX attribute) — **خارج نطاق G1، لم أتعمد تعديله؛ يتطلب مراجعة/إرجاع منفصل بقرار المالك** (لم أعدله إضافيًا).
+- **Dependencies/out-of-scope:** `git diff -- package.json package-lock.json` فارغ؛ لا backend/cart/UI/pages/config؛ `git diff --check` نظيف (تحذيرات LF/CRLF فقط).
+
+**إخفاقات/محجوبات (صادقة):**
+- `npm run build` غير مُعاد (`0xc0000142`) — blocker بيئي.
+- لا تحقق سلوكي حي لطبقة الكتالوج في صفحة (G2 غير منفذة)؛ التطبيع/المسار متوافقان مع عقد الباك المثبت في G0.
+- **B-PUB** غير محسوم → G3/G4 محجوبة. Cart write runtime غير مختبر. قبول بصري/متصفح 🟡.
+
+**Astra review (independent, G1):**
+- **النطاق:** ملتزم جوهريًا بتسليم G1 (إصلاح TS + data layer) وإعادة استخدام الأنماط القائمة؛ لا G2/UI/تفاصيل/باك/كارت/اعتمادات. لوحظ diff تافه غير مقصود في `WhatsAppFab.tsx` خارج النطاق — يجب عدم اعتباره جزءًا من G1 ومعالجته/تأكيده لاحقًا.
+- **صحة التغيير:** إصلاح TS2769 بأصغر شكل متوافق (تفريع صريح) يحافظ tags/paths/result/cache policy. `getStoreProducts` يعيد استخدام `storeFetch`/`"use cache"`/`cacheTag("store-products")`/`cacheLife` الشرطي و`TStoreResult<IStoreProductCard[]>` مع حفظ `meta`. تطبيع allowlist (slug/sort/page/limit 12، تجاهل غير الصالح) يطابق خطة G1.
+- **تحفظات:** يعتمد الاعتماد السلوكي على G2+ والتحقق الحي؛ build محجوب بيئيًا؛ مشاركة tag `store-products` مع featured سلوك قائم مقبول.
+- **توصية:** **قبول تقنيًا لمخرجات G1 المحددة** بانتظار موافقة المالك للانتقال إلى G2، مع ملاحظة معالجة diff `WhatsAppFab.tsx` غير المقصود. G3/G4 تبقى محجوبة (B-PUB/إذن كتابة).
+
+⛔ STOP — GATE 1 COMPLETE — WAITING FOR OWNER APPROVAL
+
+### 17) Day 4 — Gate 2 Catalog UI (2026-11-19, G2 only — SSR/RSC)
+
+> **إذن:** مالك اعتمد Step 1 plan وصرّح بتنفيذ G2 فقط. لا G3/G4 (B-PUB/تفاصيل/اختيار عبوة/إضافة PDP)، لا بحث/سلة/`/cart`/drawer/badge، لا باك/DB/migrations/اعتمادات/config/build-tooling، لا commit/push/deploy.
+
+| Task | الحالة | الملف الفعلي | المسؤولية | الدليل |
+| --- | --- | --- | --- | --- |
+| G2-i18n | منفّذ (مصدر) | `messages/ar.json`, `messages/en.json` (M) | مفاتيح `catalog` متطابقة (عنوان/وصف/مسار/فلاتر/ترتيب/حالات/ترقيم/مسح/عودة)؛ ICU أقواس مفردة `{page},{total}` | `npm run check` EXIT 0 (149 مفتاح/locale)، لا نصوص UI صلبة جديدة في ملفات G2 |
+| G2-route | منفّذ (مصدر) | `app/[locale]/(Store)/products/page.tsx` (جديد، 25 سطر) | صفحة تركيب رفيعة: `params`/`searchParams` Promises، `setRequestLocale`، تطبيع query خارج cache، `<Suspense key=...>` + `CatalogSkeleton` | يعيد استخدام `normalizeCatalogSearchParams`/G1؛ لا fetch في JSX |
+| G2-meta | منفّذ (مصدر) | `app/[locale]/(Store)/products/metadata.ts` (جديد، 22 سطر) | `generateMetadata` مترجم لمسار `/products` عبر `buildMetadata` (canonical/hreflang) بنمط `/design` | مسار كتالوج أساسي (لا `isNoIndex`) |
+| G2-skeleton | منفّذ (مصدر) | `components/Skelton/CatalogSkeleton.tsx` (جديد، 25 سطر) | fallback أبعاد منطقة heading/فلاتر/شبكة داخل Suspense | نمط `Skeleton` القائم |
+| G2-filters | منفّذ (مصدر) | `components/ECommerce/Catalog/CatalogFilters.tsx` (جديد، 101 سطر) | فلاتر URL-driven (روابط `@/i18n/navigation`) من شجرة الأقسام + sort allowlist؛ تغيير category يمسح subcategory، reset `page=1`، الحفاظ على params المسموحة؛ رسالة خطأ فلاتر منفصلة | يعيد استخدام `pickLocalized`, `cn`, tokens |
+| G2-pagination | منفّذ (مصدر) | `components/ECommerce/Catalog/CatalogPagination.tsx` (جديد، 46 سطر) | ترقيم من `IPaginationMeta` (`page/totalPages/hasNextPage/hasPreviousPage`) مع حفظ الفلاتر؛ إخفاء عند صفحة واحدة | `buttonVariants`, أيقونات lucide، RTL rotation |
+| G2-section | منفّذ (مصدر) | `components/ECommerce/Catalog/CatalogSection.tsx` (جديد، 133 سطر) | RSC: `Promise.all([getStoreProducts(query), getStoreCategories()])`, H1 + breadcrumb مرئي + `BreadcrumbList` JSON-LD، فصل فشل الشجرة عن نتائج المنتجات، حالات error/empty/out-of-range/success، عرض `FeaturedGrid` + `CatalogPagination` | يعيد استخدام G1 server layer، `FeaturedGrid`/`ProductCard`, `EmptyState`/`ErrorState`, `JsonLd`, `SITE_URL`, `pickLocalized` |
+
+**إعادة استخدام (بدون إنشاء موازٍ):** `lib/server/storeQueries.ts#getStoreProducts/#getStoreCategories`, `lib/catalogQuery.ts#normalizeCatalogSearchParams`, `lib/server/storeFetch.ts` `TStoreResult`+`meta`, `interface/store.ts`/`api.ts`, `components/ECommerce/Home/FeaturedGrid.tsx` + `components/Card/ProductCard.tsx`, `components/shared/{EmptyState,ErrorState,JsonLd}`, `components/ui/Skeleton.tsx`/`buttonVariants`, `@/i18n/navigation`, `lib/{localized,seo,config,utils}`. لا RTK Query للقراءة، لا fetch مباشر في JSX/mكونات، لا slice/provider/wrapper موازي.
+
+**سلوك/حالات منفذة (مصدر + HTML):** URL مصدر الحقيقة (فلاتر/ترتيب/صفحة تطبَّع عبر G1 allowlist؛ `sort=invalid`/`page=-2` → `newest/page=1` في HTML). فشل المنتجات → `ErrorState`؛ فشل الشجرة فقط → رسالة `filtersError` مع استمرار عرض نتائج المنتجات إن نجحت. فلتر صحيح بلا نتائج (`category=not-a-real-slug`) → 200/`meta.total=0` من API سابقًا و**EmptyState** «مفيش منتجات مطابقة/No matching products» مع مسح الفلاتر (HTML curl). خارج المدى (`page=99`, `meta.total>0 && page>totalPages`) → **out-of-range** مع «ارجع للنتائج/Back to results» (HTML curl). نجاح → شبكة منتجات حقيقية + breadcrumb/JSON-LD. `FeaturedGrid` يعيد استخدام كروت المنتج القائمة (روابط KS-2 `/products/[slug]` تبقى pending حتى G3).
+
+**فحوصات آلية (frontend، 2026-11-19):**
+- `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → **EXIT 0**.
+- `npm run lint` → **EXIT 0**.
+- `npm run check` → **EXIT 0** — `Scanned 129 code files, 149 message keys per locale. 0 failure(s), 0 warning(s).`
+- `npm run build` → **لم يُشغَّل** (حاجب بيئي موثّق: Turbopack `globals.css.css` / `0xc0000142`, لا `BUILD_ID`) — لا ادعاء إنتاج/`npm run start`.
+
+**تحقق خادم dev/HTML (curl على `:3001`, 2026-11-19، dev متاح):**
+- `GET /ar/products` و`GET /en/products` → HTML SSR يحتوي H1، breadcrumb مرئي + `BreadcrumbList` JSON-LD، فلاتر/ترتيب مترجمة، أسماء/أسعار/صور/روابط منتجات حقيقية (`/ar/products/home-starter-bundle` إلخ، نصوص EN في `/en/products`).
+- `GET /ar/products?category=spices&subcategory=ground-spices&sort=price_asc&page=1` → نتائج مفلترة/مرتبة (كمون، شطة، كركم، فلفل أسود) مع breadcrumb يتضمن القسم/الفرعي و`aria-current`.
+- `GET /ar/products?category=not-a-real-slug&sort=newest&page=1` → حالة Empty مطابقة + «مسح الفلاتر».
+- `GET /ar/products?page=99` → حالة out-of-range + «ارجع للنتائج».
+- `GET /ar/products?sort=invalid&page=-2` → تطبيع لواجهة `الأحدث`/page الافتراضي (لا كسر).
+
+**Git diff / نطاق (بعد G2):**
+- **G2 مقصود:** `app/[locale]/(Store)/products/{page.tsx,metadata.ts}` (??), `components/ECommerce/Catalog/{CatalogSection.tsx,CatalogFilters.tsx,CatalogPagination.tsx}` (??), `components/Skelton/CatalogSkeleton.tsx` (??), `messages/{ar.json,en.json}` (M), `docs/PROGRESS.md` (M).
+- **G1 قائم/غير معدل في G2:** `lib/catalogQuery.ts` (??), `lib/server/storeQueries.ts` (M سابقًا).
+- **Pre-existing/خارج G2 (لم يُمس):** `app/[locale]/layout.tsx`, `app/manifest.ts`, `components/ECommerce/Header/HeaderBrand.tsx`, `components/shared/BrandLoader.tsx`, `docs/FRONTEND_TASKS_10_DAYS.md` (M)، untracked `app/icon.svg`, `components/Brand/`, `docs/DAY4_TASKS.md`. **ملاحظة مستمرة:** `components/ECommerce/WhatsAppFab.tsx` diff تافه غير مقصود خارج النطاق (غير معالج).
+- `git diff -- package.json package-lock.json` فارغ؛ لا backend/cart/تفاصيل/config/build.
+
+**KS / حدود / غير منفّذ (صريح):**
+- **KS-1:** مسار `/[locale]/products` مع دعم `category`/`subcategory`/`sort`/`page` منفّذ ومُتحقق منه عبر HTML/API cases؛ روابط أقسام الهوم (`categoryHref`) تستهدفه — **تنفيذًا جاهز، اعتماد بصري/مالك 🟡**.
+- **KS-2/KS-3:** لا يزالان خارج G2 (تفاصيل/سلة مؤجلة؛ G3/G4/Day 5). لا cart page/drawer/badge، لا PDP، لا بحث.
+- **B-PUB (غير محسوم):** G3/G4 محجوبتان. **B-TS** محسوم في G1؛ **B-BUILD** مفتوح؛ **D3-RM** متابعة Day 3 مستقلة.
+- **غير مُختبر/🟡:** تفاعل متصفح حي كامل (نقر/تنقل من الهوم فعليًا داخل UI، back/forward تفاعلي، تبديل لغة مع query في جلسة، skeleton تحت بطء شبكة)، استجابة 360px/desktop، الثيمات الأربعة (خصوصًا Cinnamon داكن)، لوحة مفاتيح/focus-visible، و`prefers-reduced-motion` بصريًا. لا ادعاء production.
+
+**Astra review (independent, G2):**
+- **النطاق:** متوافق مع Gate 2 المصرّح بها (كتالوج فقط) وإعادة استخدام G1/مكوّنات قائمة (`FeaturedGrid`/`ProductCard`/states/SEO helpers). لا تفاصيل/سلة/بحث/باك/اعتمادات. التغييرات الإضافية المرصودة خارج النطاق تبقى كما كانت (WhatsAppFab تافه، ملفات pre-existing/untracked أخرى).
+- **تنفيذ/عقد:** RSC + `Suspense`+key + تطبيع query قبل cache، فصل حالات error/empty/out-of-range وفشل فلاتر، ترقيم/روابط من `meta` والـURL، breadcrumb مرئي + JSON-LD، AR/EN في HTML. تطابق المصدر مع فحوص `tsc/lint/check` الخضراء واستجابات HTML الحية المرصودة.
+- **تحفظات:** اعتماد بصري/تفاعلي/a11y/responsive/themes/reduced-motion وKS-1 من تدفق الهوم يتطلب مراجعة مالك/متصفح 🟡؛ build إنتاجي محجوب بيئيًا؛ out-of-range يعيد للنتائج بإزالة الفلاتر (سلوك آمن لكنه قرار UX قابل للمراجعة).
+- **توصية:** **قبول تقني لتنفيذ G2** بانتظار مراجعة/اعتماد المالك البصري والسلوكي. لا بدء G3/G4 (B-PUB/إذن كتابة/تفاصيل خارج النطاق).
+
+⛔ STOP — DAY 4 GATE 2 COMPLETE — WAITING FOR OWNER APPROVAL
+
+### 18) Day 4 — Gate 3 Product Details UI (2026-11-19, G3 only — SSR/RSC)
+
+> **إذن:** المالك اعتمد B-PUB backend fix وكتب `B-PUB BACKEND FIX ACCEPTED`، ثم فوّض **G3 فقط**. لا G4/Day 5، لا اختيار عبوة أو Add to Cart، لا تعديل ProductCard/السلة، لا باك/DB/مigrations/seed، لا commit/push/deploy. ملاحظة `backend/docs/BACKEND_PROGRESS.md:155` («awaiting Astra review and Owner approval») سبقت قرار المالك؛ لم يُعدل ملف الباك في G3.
+
+| Task | الحالة | الملف الفعلي | المسؤولية | الدليل |
+| --- | --- | --- | --- | --- |
+| G3-D1-contract | منفّذ (مصدر) | `interface/storeProduct.ts` (جديد)، `interface/index.ts` (M) | عقد تفاصيل المتجر (`IStorefrontProduct`، `IStorefrontPackage`، `IStorefrontBundleComponent`، `IStorefrontImage`، `TStoreSizeUnit`) مع إعادة استخدام `IStoreProductCard` وcategory/image types؛ تصدير عبر barrel | `npm run check` EXIT 0، `tsc` EXIT 0، لا استيراد Prisma |
+| G3-D1-validation | منفّذ (مصدر) | `validation/storeProduct.ts`, `validation/index.ts` (جديدان) | Zod schema للـdetail wire payload عند حد القراءة (envelope يتحقق منه `storeFetch`)؛ يرفض البنية غير الصالحة بـ`INVALID_RESPONSE` | `../backend/node_modules/.bin/tsx` تحقّق من 9 slugs حقيقية: `schema=true` لكلها |
+| G3-D1-query | منفّذ (مصدر) | `lib/server/storeQueries.ts` (M)، `lib/storeSlug.ts` (جديد) | `getStorefrontProduct(slug)` بنفس `storeFetch`/`TStoreResult`، `"use cache"` + `cacheTag("store-products", "store-product-<slug>")` + `cacheLife` مرة واحدة (minutes للنجاح/seconds للفشل)؛ تحقق slug قبل الاستعلام؛ `related` من نفس الرد | API 200 لكل slugs + schema pass؛ لا request منفصل للـrelated |
+| G3-D2-route | منفّذ (مصدر) | `app/[locale]/(Store)/products/[slug]/{page.tsx,metadata.ts}` (جديدان) | صفحة تركيب رفيعة (19 سطر): `params` Promise، `setRequestLocale`، slug check، `Suspense` + skeleton؛ metadata من نفس query وترجمات `productDetail` مع fallback عام عند الفشل | `tsc` EXIT 0؛ لا fetch في JSX؛ لا metadata من منتج عند الفشل |
+| G3-D2-ui | منفّذ (مصدر) | `components/ECommerce/Product/{ProductDetails,ProductBreadcrumb,ProductGallery,ProductPackages,PackageSize,BundleContents}.tsx` (جديدة) | عرض الأسماء/الوصف/البراند/الباقة، صور + alt/fallback، عبوات بأسعارها من نفس العبوة، محتويات باكج فعلية، breadcrumb مرئي، related من نفس الـpayload | `lint/check/tsc` EXIT 0؛ لا واجهة اختيار/زر شراء جديد؛ لا عرض `pricePer100g` |
+| G3-D2-states | منفّذ (مصدر) | `components/Skelton/ProductDetailsSkeleton.tsx` (جديد)، `ProductDetails.tsx` | loading عبر Suspense، `notFound()` فقط عند `PRODUCT_NOT_FOUND` من الباك، `ErrorState` لtimeout/500/رد غير صالح، إخفاء الأقسام الاختيارية عند غيابdescription/صور/bundle/related | API missing slug ← 404 `PRODUCT_NOT_FOUND`؛ لا بديل مُختلق |
+| G3-D3-seo | منفّذ (مصدر) | `lib/jsonld.ts` (M)، `components/shared/JsonLd.tsx` (مُعاد استخدامه) | `buildBreadcrumbJsonLd` + `buildProductJsonLd`؛ Product/Offer وbreadcrumb من نفس العبوة/الرد، العملة من `getStoreSettings()` الحقيقية، لا Offer إن غابت العملة، لا توسيع sitemap | JSON.parse للـJSON-LD المولّد من بيانات حقيقية (أدناه) |
+| G3-i18n | منفّذ (مصدر) | `messages/{ar,en}.json` (M) | namespace `productDetail` متطابق (عنوان/وصف/حالات/عناوين/وحدات/quantity/meta) بـICU أقواس مفردة | `npm run check` EXIT 0 — `Scanned 142 code files, 169 message keys per locale. 0 failure(s), 0 warning(s).` |
+
+**إعادة استخدام صريحة (بدون نسخ موازٍ):** `storeFetch`, `TStoreResult`، `getStoreSettings`، `FeaturedGrid`، `ProductCard` (بدون تعديل)، `StoreImage`، `PriceTag`، `Badge`، `ErrorState`، `JsonLd`، `Skeleton`، `@/i18n/navigation`، `buildMetadata`، `pickLocalized`، `categoryHref`، `productHref`، `SITE_URL`. لا RTK Query للقراءة، لا fetch مباشر في مكون، لا cart token/mutation، لا slice/provider جديد.
+
+**فحوصات آلية (frontend، 2026-11-19):**
+- `npm run lint` → **EXIT 0**.
+- `npm run check` → **EXIT 0** — `Scanned 142 code files, 169 message keys per locale. 0 failure(s), 0 warning(s).`
+- `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → **EXIT 0**.
+- `npm run build` → **EXIT 1** — نفس حاجز B-BUILD البيئي: `TurbopackInternalError: [project]/app/globals.css.css [app-client] (css)`، `node process exited ... 0xc0000142`، بلا `BUILD_ID`. لم يُعدّل tooling ولا config؛ لا ادعاء production/start.
+- `git diff --check` → **EXIT 0** (تحذيرات CRLF فقط من Git). `git diff -- frontend/package.json frontend/package-lock.json` → فارغ.
+- `npm run dev` لفحص HTML: الخادم بدأ ثم فشل عند compile `/[locale]/(Store)/products` بنفس Turbopack panic، و`GET /ar/products` رجع 500. لذلك **لم يُلاحظ HTML فعلي لصفحة PDP**؛ لا ادعاء بصري/متصفح أو HTTP 404 من Next.
+
+**دليل API/بيانات حقيقي (backend شغّل مؤقتًا على :3002 ثم أُوقف):**
+- `GET /api/store/products/<slug>` لكل من `home-starter-bundle, mint-dried, anise, hibiscus, coriander-seeds, chili-powder, cumin, black-pepper, turmeric` → HTTP 200 + `success:true` + Zod `schema=true`؛ `packages`: 1 لكلهم عدا `turmeric` (2)، `related`: 0/2/3 حسب المنتج. مثال `home-starter-bundle`: `bundleComponents=3`.
+- `GET /api/store/products/does-not-exist-slug-xyz` → `404 Not Found` مع `{"success":false,"message":"Product not found","code":"PRODUCT_NOT_FOUND"}`. هذا هو المسار الوحيد الذي يفعّل `notFound()` في الفرونت.
+- `GET /api/store/settings` → `success:true`, `currency:"EGP"`؛ استُخدم في builder لاختبار Offer بعملة حقيقية.
+- JSON-LD مُولّد من payload حقيقي (عبر tsx محلي، `SITE_URL` تجريبي للفحص فقط): `Product` فيه `name/url/image/description/brand/category` من الرد، `offers[0]` فيه `sku/price:"65"/priceCurrency:"EGP"/availability:"https://schema.org/InStock"/url` كلها من نفس العبوة؛ `BreadcrumbList` بثلاثة عناصر وروابط `/ar`، `/ar/products`، `/ar/products/home-starter-bundle`. لا تخمين عملة/سعر/توفر.
+- **لم يُختبر:** عرض المتصفح، HTTP الفعلي لصفحة PDP/404 من Next، RTL/LTR بصريًا، 360px/desktop، الثيمات الأربعة، لوحة المفاتيح/focus-visible، reduced-motion، skeleton تحت شبكة بطيئة، ولا حالة فشل خادم مُتحكّم بها (لا بيئة حقن خطأ). سُجّل كـ🟡/لم يُختبر بدل الادعاء.
+
+**نطاق Git بعد G3:**
+- **G3 مقصود جديدة:** `app/[locale]/(Store)/products/[slug]/{page.tsx,metadata.ts}`, `components/ECommerce/Product/{ProductDetails,ProductBreadcrumb,ProductGallery,ProductPackages,PackageSize,BundleContents}.tsx`, `components/Skelton/ProductDetailsSkeleton.tsx`, `interface/storeProduct.ts`, `lib/storeSlug.ts`, `validation/{storeProduct,index}.ts`.
+- **G3 مقصود معدّلة:** `interface/index.ts`, `lib/server/storeQueries.ts`, `lib/jsonld.ts`, `messages/{ar.json,en.json}`, `docs/PROGRESS.md`.
+- **لم يُمس في G3:** `backend/src/modules/store/products/service.ts` و`backend/docs/BACKEND_PROGRESS.md` (B-PUB معتمد من المالك)، `components/Card/ProductCard.tsx`, `store/cartApi.ts`, `lib/cartToken.ts`, `app/sitemap.ts`, كتالوج G2، G1/cacheLife، config/build tooling، dependencies. التعديلات القديمة/غير المتتبعة (layout/manifest/HeaderBrand/BrandLoader/WhatsAppFab/Brand/icon/DAY4_TASKS/FRONTEND_TASKS) بقيت كما كانت؛ diff `WhatsAppFab.tsx` التافه لا يزال خارج نطاق G3 ولم يُصلَح.
+
+**KS / حدود صريحة:**
+- **KS-2:** مسار `/[locale]/products/[slug]` منفّذ في المصدر ويستخدم endpoint منشور الباك؛ **تنفيذًا جاهز**، لكن الاعتماد البصري/المتصفح 🟡 ومحجوب بـB-BUILD. لا رابط وهمي ولا صفحة placeholder.
+- **G4/الدفع/السلة:** لم تبدأ؛ لا محدد عبوة، لا Add to Cart، لا cart page/drawer/badge، لا Day 5 search/cart. **KS-3** مؤجل.
+- **B-UNIT:** لا تُعرض قيمة `pricePer100g` في G3؛ السعر من `sellingPrice` لنفس العبوة فقط.
+- **B-PUB:** منفّذ ومُعتمد من المالك؛ الحالات السلبية runtime ما زالت غير متاحة في البيئة، ولم يُعد اختراعها.
+
+**مراجعة Astra:** مطلوبة الآن للـdiff الفعلي مقابل G3 (العقد/SEO/الحالات/الأنماط/الحدود). لا توصية اعتماد مسجّلة بعد.
+
+⛔ STOP — DAY 4 GATE 3 COMPLETE — WAITING FOR OWNER APPROVAL
+
+### 19) Day 4 — Gate 4 Package Selection & Add To Cart (2026-11-19, G4 only — client island)
+
+> **إذن:** المالك كتب `G3 ACCEPTED` وفوّض **G4 فقط**. لا G5/Day 5، لا checkout/cart page/drawer/badge/update/remove، لا باك/DB/migrations/seed، لا dependencies/config/build tooling، لا commit/push/deploy. قرأت `AGENTS.md` و`DAY4_TASKS.md` وآخر سجل في `PROGRESS.md` قبل الكود.
+
+**قرار التكامل المشترك:** A2 كان يمنع نسخ `ProductCard.onAdd` كسير عمل ثانٍ. بما إن مفيش hook مشتركة قبل G4، استُخرج التسلسل في `hooks/useAddToCart.ts` واستُخدم من الكارت ومن PDP. سلوك الكارت القديم محفوظ (`isDemo`, `needsChoice`, `defaultPackageId`, fly/bounce، toast، 1800ms)؛ الفرق المطلوب أن القفل بقى يغطي GET+POST معًا بدل POST فقط. هذا هو «required shared integration change» المذكور في تفويض المالك، ومراجعة Astra المطلوبة بعد الـdiff مسجّلة أدناه.
+
+| Task | الحالة | الملف الفعلي | المسؤولية | الدليل |
+| --- | --- | --- | --- | --- |
+| G4-A1-selector | منفّذ (مصدر) | `components/ECommerce/Product/{ProductPackageSelector,ProductPackages,ProductPackageOption}.tsx` (جديدة/معدّلة) | حالة اختيار محلية؛ الافتراضي أول عبوة `IN_STOCK` حسب ترتيب API؛ اسم/حجم/وحدة/PriceTag من نفس العبوة؛ sold-out معطّل؛ لا `pricePer100g` ولا حسبة تعويضية | API `cumin` أعاد عبوة `IN_STOCK` بسعر 18؛ `check` EXIT 0؛ `tsc` EXIT 0 |
+| G4-A1-wire | منفّذ (مصدر) | `components/ECommerce/Product/ProductDetails.tsx` (M) | يستبدل عرض G3 الثابت بـ`ProductPackageSelector` بمفتاح `product.slug`؛ التركيب لسه رفيع | 82 سطرًا؛ لا fetch جديد ولا CTA قديم مزدوج |
+| G4-A1-size | منفّذ (مصدر) | `components/ECommerce/Product/PackageSize.tsx` (M) | تحويل العرض من async server إلى client-safe `useTranslations` عشان يُستخدم داخل الـclient island؛ نفس نص `productDetail.size` | `Scanned 147 code files, 169 message keys per locale. 0 warning(s).` |
+| G4-A2-hook | منفّذ (مصدر) | `hooks/useAddToCart.ts` (جديد)، `lib/cartFeedback.ts` (جديد) | التسلسل الوحيد: `readCartToken` عند الضغط فقط → `getOrCreateCart` → `writeCartToken` → `addCartItem` بـ`productPackageId` المختار و`quantity:1`؛ `inFlight` يمنع تكرار الطلب من أول GET لنهاية POST؛ fly/bounce/toast بعد النجاح فقط | POST فعلي رجع 200 بـquantity 1؛ قفل الطلب موجود في المصدر، لم يُختبر بdouble-click متصفح |
+| G4-A2-add | منفّذ (مصدر) | `components/ECommerce/Product/ProductAddToCart.tsx` (جديد) | زر واحد بحالات `isLoading`/`disabled`/`added`/error؛ رسالة `role="alert"` مترجمة؛ sr-only `productDetail.quantity` يوضح الكمية 1 | استُخدمت مفاتيح `product.*` الموجودة؛ ما اتضافتش رسائل جديدة |
+| G4-A2-card | منفّذ (مصدر) | `components/Card/ProductCard.tsx` (M) | حذف جسم `onAdd` المكرر وربط الكارت بالـhook نفسه بدون تغيير `isDemo` أو `needsChoice` أو الـCTA القديم | `tsc` EXIT 0؛ `lint` EXIT 0؛ diff الكارت 49 سطر حذف/تبسيط |
+| G4-states | منفّذ (مصدر) | `ProductAddToCart.tsx`, `useAddToCart.ts`, `Button` الموجود | loadingSpinner من `Button.isLoading`، disable أثناء الشحن وبعد النجاح وللعبوة غير المتاحة، success toast+label+fly، error toast+inline | `invalidQuantity` فعلي رجع 400 `VALIDATION_ERROR`؛ لا نجاح وهمي قبل POST |
+| G4-quantity | منفّذ (مصدر) | `useAddToCart.ts:55–59`, `ProductAddToCart.tsx` | Day 4 يضيف 1 دائمًا: جسم POST `{productPackageId, quantity:1}`؛ لا quantity input ولا تعديل بنود | `lineQuantity:"1"` في رد السلة الحقيقي |
+
+**إعادة استخدام صريحة:** `baseApi`، `cartApi` (`useLazyGetOrCreateCartQuery`/`useAddCartItemMutation`)، `readCartToken`/`writeCartToken`، `useFlyToCart`، `CartBounce`/`data-cart-target`، `toast`، `Button`، `Badge`، `PriceTag`، `PackageSize`، `pickLocalized`، مفاتيح `product.*` و`productDetail.*`. ما اتعملش: cart slice/new provider، cart API جديد، cookie/localStorage key جديد، endpoint جديد، RTK Query للقراءة في RSC، تعديل Header/Footer/الفوتر/الأزرار العائمة.
+
+**فحوصات آلية نهائية (frontend، 2026-11-19):**
+- `npm run lint` → **EXIT 0**.
+- `npm run check` → **EXIT 0** — `Scanned 147 code files, 169 message keys per locale. 0 failure(s), 0 warning(s).` عدد الرسائل لم يتغير؛ لا مفاتيح G4 جديدة.
+- `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → **EXIT 0**. أول تشغيل كشف `TS2322` في `ProductPackageSelector` بسبب تعميم ref إلى `HTMLElement`؛ تضيّق إلى `useRef<HTMLDivElement | null>` ثم النهائي نظيف.
+- `npm run build` → **EXIT 1** — B-BUILD نفسه: `TurbopackInternalError: [project]/app/globals.css.css [app-client] (css)` و`node process exited ... 0xc0000142` بلا `BUILD_ID`. لم يُعدّل tooling ولا config، ولم يُعاد تشغيل dev في حلقة.
+- `git diff --check` → **EXIT 0** (تحذيرات CRLF من Git فقط). `git diff -- frontend/package.json frontend/package-lock.json` → فارغ.
+- **لم يُختبر بالمتصفح:** Network عند الحاجة، double-click، RTL/LTR بصريًا، 360px/desktop، الثيمات الأربعة، keyboard/focus-visible، reduced-motion، ولا HTML بعد hydration؛ السبب B-BUILD. لا ادعاء بـHTTP 200 من Next أو بـfly/toast مرئيين.
+
+**دليل API حقيقي (backend محلي شغّل مؤقتًا على :3002 ثم أُوقف؛ من غير طباعة أي token):**
+- فحص 9 slugs (`home-starter-bundle … turmeric`): `soldOutPackages 0 []` ⇒ فرع العبوة النافدة منفّذ في المصدر لكن **بلا عينة runtime نافدة**؛ لم تُخترع بيانات.
+- `GET /api/store/products/cumin` → 200؛ عبوة واحدة `IN_STOCK` سعرها `18`؛ استُخدم معرّفها الفعلي في الإضافة.
+- `GET /api/store/cart` → 200 `success:true`, `itemsCount:0`, `tokenReturned:true` (التوكن لم يُطبع ولا يُخزّن في التقرير).
+- `GET /api/store/cart/:token` → 200، `sameCart:true`، `itemsCount:0` قبل الإضافة.
+- `POST /api/store/cart/:token/items` بجسم `{productPackageId:<العبوة المختارة من cumin>, quantity:1}` → 200 `success:true`, `itemsCount:1`, `selectedPackageAdded:true`, `lineQuantity:"1"`, `subtotal:"18.0000"`.
+- `GET /api/store/cart/:token` بعد الإضافة → 200 `itemsCount:1`, `sameCart:true`, `selectedStillPresent:true` ⇒ نفس السلة بعد refresh.
+- `POST ...items` بـ`quantity:0` → 400 `success:false` `code:"VALIDATION_ERROR"`، بلا إضافة. لم يُرسل POST مكرر عن قصد لأنه مش اختبار لقفل الواجهة.
+- لم يُختبر `CART_NOT_ACTIVE`/`PACKAGE_NOT_SALEABLE` runtime؛ لا بيئة مُتحكّم بها، وسُجّل `لم يُختبر` بدل الادعاء.
+
+**نطاق Git بعد G4:**
+- **G4 جديدة:** `hooks/useAddToCart.ts`, `lib/cartFeedback.ts`, `components/ECommerce/Product/{ProductPackageSelector,ProductAddToCart,ProductPackageOption}.tsx`.
+- **G4 معدّلة:** `components/ECommerce/Product/{ProductDetails,ProductPackages,PackageSize}.tsx`, `components/Card/ProductCard.tsx`, `docs/PROGRESS.md`.
+- **لم يتغير في G4:** `store/baseApi.ts`, `store/cartApi.ts`, `lib/cartToken.ts`, `messages/{ar,en}.json`، الباك، الـschema، `app/sitemap.ts`، الهيدر/الفوتر/الـbadge، dependencies. التعديلات القديمة/غير المتتبعة (layout/manifest/HeaderBrand/BrandLoader/WhatsAppFab/Brand/icon/كتالوج G2/G3) بقيت كما كانت؛ لم يبدأ G5.
+
+**KS / حدود صريحة:**
+- **KS-2:** G3 معتمد من المالك؛ G4 أضاف الاختيار والإضافة على نفس المسار في المصدر ومع API حقيقي، لكن الاعتماد البصري 🟡 بسبب B-BUILD.
+- **KS-3:** ما زال مؤجلًا لـDay 5. ما فيش `/cart` أو drawer أو badge أو تحديث/حذف بنود أو checkout.
+- **B-UNIT:** لا تُعرض `pricePer100g`؛ السعر من `sellingPrice` للعبوة المختارة فقط.
+- **B-BUILD:** مفتوح؛ لا ختم production-ready لهذا Gate.
+
+**مراجعة Astra:** مطلوبة الآن للـdiff الفعلي: تسلسل الـhook وقفل التكرار، ربط الكارت بدون تغيير سلوك `isDemo`، ربط العبوة المختارة بـPOST، الحالات والرسائل، وحدود G5. لا توصية اعتماد مسجّلة بعد.
+
+⛔ STOP — DAY 4 GATE 4 COMPLETE — WAITING FOR OWNER APPROVAL
+
+### 20) Day 4 — Gate 5 Final Review & Handoff (2026-11-19, review/documentation only)
+
+> **إذن:** المالك فوّض **G5 فقط** بعد `B-PUB BACKEND FIX ACCEPTED` و`G3 ACCEPTED` و`G4 ACCEPTED`. نطاق المراجعة: G2/G3/G4/B-PUB والتسليم النهائي لليوم 4. لا implementation، لا G6/Day 5، لا search/cart page/drawer/badge/checkout، لا dependencies/config/build tooling، لا commit/push/deploy. العيوب تُوثَّق ولا تُصلَح داخل G5.
+> **مصادر المراجعة:** `frontend/AGENTS.md`، `frontend/docs/DAY4_TASKS.md`، `frontend/docs/PROGRESS.md` §15–19، `backend/docs/BACKEND_PROGRESS.md` §B-PUB، والملفات الفعلية/diff/working tree. **تعديل G5:** `docs/PROGRESS.md` و`docs/DAY4_TASKS.md` فقط؛ لا كود تطبيق.
+> **تصنيف الدليل:** SRC = مقروء في المصدر خلال G5؛ AUTO-DOC = نتيجة آلية موثّقة سابقًا ولم يُعَد تشغيلها في G5؛ RUNTIME-DOC = HTTP/API موثّق سابقًا؛ NOT-TESTED = بلا دليل.
+
+**Day 4 overall status:**
+
+| Gate / fix | قرار المالك | نتيجة مراجعة G5 | حالة التسليم |
+| --- | --- | --- | --- |
+| B-PUB | مقبول صراحةً | SRC مطابق لسياسة القائمة، عقد الرد محفوظ، لا عيوب Critical/Major | مقبول تقنيًا؛ الحالات السلبية NOT-TESTED |
+| G2 Catalog | مقبول سابقًا | SRC متوافق مع Gate 2؛ 0 Critical / 0 Major؛ 7 Minor | جاهز للمراجعة النهائية؛ الاعتماد البصري 🟡 |
+| G3 PDP | `G3 ACCEPTED` | SRC متوافق مع Gate 3؛ 0 Critical source finding؛ فجوات أدلة | جاهز للمراجعة النهائية؛ HTML/متصفح 🟡 بسبب B-BUILD |
+| G4 Selection/Add | `G4 ACCEPTED` | SRC يغطي A1/A2؛ 0 Critical، 1 Major UX، 4 Minor | جاهز للمراجعة النهائية؛ Major يعود لقرار المالك |
+| G5 | مفوَّض الآن | التقرير ده + تحديث `DAY4_TASKS.md` | **FINAL HANDOFF READY — WAITING FOR OWNER REVIEW** |
+| Day 5 | غير مأذون | لم يُفتح؛ Search/Cart/Drawer/Badge/Update/Remove/Checkout لم تبدأ | مؤجل بالكامل |
+
+**مراجعة الأبواب (SRC + أدلة سابقة):**
+
+| الباب | ما تحقق في المصدر | الأدلة المتاحة | ما لم يتحقق |
+| --- | --- | --- | --- |
+| G2 | `products/page.tsx` و`metadata.ts`؛ `CatalogSection/Filters/Pagination`؛ `CatalogSkeleton`؛ `catalogQuery`؛ فصل error/empty/out-of-range/success؛ الـURL مصدر الحقيقة؛ breadcrumb مرئي + JSON-LD؛ مفاتيح ar/en متطابقة. | AUTO-DOC: lint/check/tsc EXIT 0؛ RUNTIME-DOC: حالات HTML/API للكتالوج مسجّلة §15–17. | تفاعل متصفح نهائي، back/forward، تبديل لغة مع query، responsive/themes/a11y/reduced-motion، production HTML. |
+| G3 | slug validation قبل الاستعلام؛ `PRODUCT_NOT_FOUND` فقط لـ`notFound()`؛ schema عند حد القراءة؛ metadata/canonical/hreflang؛ gallery/bundle/related؛ Product+Offer+Breadcrumb JSON-LD بالعملة الحقيقية. | AUTO-DOC: lint/check 142 files/169 keys، tsc EXIT 0؛ RUNTIME-DOC: 9 slugs 200 + schema، missing slug 404، `currency:"EGP"`، JSON-LD من بيانات حقيقية. | Next-rendered PDP/404 HTML، canonical/hreflang في HTML، `JSON.parse` للـJSON-LD المُخدَّم، controlled 500،الاعتماد البصري/a11y/responsive. |
+| G4 | `productPackageId` المختار يصل إلى POST؛ quantity ثابت 1؛ token get-or-create ثم write ثم POST عند الضغط فقط؛ `inFlight` يغطي GET+POST؛ loading/disabled/success/error؛ ProductCard يستخدم نفس الـhook مع حفظ `isDemo` و`needsChoice` و`defaultPackageId`. | AUTO-DOC: lint/check 147 files/169 keys، tsc EXIT 0؛ RUNTIME-DOC: cart GET/POST/refresh و`lineQuantity:"1"` و`selectedPackageAdded:true` و400 `VALIDATION_ERROR`. | Network/double-click فعليان، sold-out runtime، `CART_NOT_ACTIVE`/`PACKAGE_NOT_SALEABLE`، fly/toast مرئيان،الاعتماد البصري/a11y/responsive/reduced-motion. |
+| B-PUB | `findFirst` بـ`ACTIVE` ونافذة النشر وأقسام نشطة؛ مسار `PRODUCT_NOT_FOUND` كما هو؛ select/mapping/envelope لم يتغيرا. | AUTO-DOC: backend tsc/build/test EXIT 0 (3 files/24 tests)؛ RUNTIME-DOC: 9 slugs 200، nonexistent 404. | الحالات السلبية الخمس: status != ACTIVE، publishedAt مستقبلي، inactive subcategory/category، لا عبوة active+published. |
+
+**النتائج (Findings):**
+
+- **Critical:** لا يوجد في G2/G3/G4/B-PUB.
+- **Major 1 — B-BUILD blocker:** `npm run build` ما زال EXIT 1 بسبب `TurbopackInternalError: [project]/app/globals.css.css [app-client] (css)` و`node process exited ... 0xc0000142` بلا `BUILD_ID`. لذلك لا ختم production-ready ولا ادعاء HTML/متصفح للـPDP/G4. الدليل: `PROGRESS.md` §18–19.
+- **Major 2 — G4 fly target UX (SRC):** `components/ECommerce/Product/ProductPackageSelector.tsx:19,28,38` يضع `sourceRef` على حاوية الاختيار كلها، و`hooks/useFlyToCart.ts:36-38,44-69` يستنسخ العنصر كاملًا؛ بينما `components/Card/ProductCard.tsx:27,52` يطيّر الصورة. لم يُرَ في متصفح، لكنه انحراف مرئي محتمل عن سلوك fly-to-cart المطلوب. لم يُصلَح في G5؛ يحتاج قرار مالك/إعادة فتح G4 إن لزم.
+- **Minor — G2:** `CatalogSection.tsx:20-23,113-118` out-of-range back يُسقط الفلاتر؛ `CatalogSection.tsx:35-55` breadcrumb مبني يدويًا رغم `lib/jsonld.ts:62-75`؛ `CatalogPagination.tsx:26` aria-label عام؛ `CatalogSection.tsx:57-61` non-null assertions؛ `CatalogSkeleton.tsx:13` 8 كروت مقابل limit 12؛ `catalogQuery.ts:32-37` أرقام ضخمة؛ `products/metadata.ts:11-21` canonical لا يعكس query؛ `catalog.all` غير مستخدم.
+- **Minor — G3:** `metadata.ts:19-29` يُصدر canonical/hreflang لمسار المنتج عند فشل/ slug غير صالح؛ `ProductGallery.tsx:18-23` لا يعرض fallback label؛ `ProductDetails.tsx:35` و`ProductBreadcrumb.tsx:18-21` يستخدم raw locale مقابل `isLocale()` في metadata؛ `ProductBreadcrumb.tsx:22-38` breadcrumb يدوي بدل helpers.
+- **Minor — G4:** `hooks/useAddToCart.ts:33-34,61-71` لا يُصفّر `isAdded`/`hasError` عند تغيير العبوة خلال 1800ms؛ `lib/cartFeedback.ts:1-16` يكرر حركة `components/Animation/CartBounce.tsx:20-27`؛ `hooks/useAddToCart.ts:54-59` لا يحرس `guestToken` قبل POST (خطر منخفض لأن get-or-create يرجعه دائمًا).
+- **Minor — B-PUB/docs:** كل الحالات السلبية مستنتجة من المصدر لا من runtime؛ `list.ts:42` يستخدم `now()` في DB مقابل `new Date()` في `service.ts:25` (انحراف ساعة نظري)؛ `backend/docs/BACKEND_PROGRESS.md:155` ما زال يقول «awaiting Astra review and Owner approval» رغم acceptance المالك. سُجّل ولم يُعدَّل في G5 لأنه خارج نطاق المراجعة/التوثيق المسموح به هنا.
+
+**Git scope/diff hygiene (G5 read-only):**
+- `git rev-parse --show-toplevel` → `E:/NODE_JS/Udemy/Training`؛ لا subrepos منفصلة (`frontend` و`backend` داخل نفس الـroot).
+- `git status --short --untracked-files=all` بعد كتم ضجيج التحذيرات: **15 modified tracked** و**28 untracked**. Modified: `backend/docs/BACKEND_PROGRESS.md`, `backend/src/modules/store/products/service.ts`, `frontend/app/[locale]/layout.tsx`, `frontend/app/manifest.ts`, `frontend/components/Card/ProductCard.tsx`, `frontend/components/ECommerce/Header/HeaderBrand.tsx`, `frontend/components/ECommerce/WhatsAppFab.tsx`, `frontend/components/shared/BrandLoader.tsx`, `frontend/docs/FRONTEND_TASKS_10_DAYS.md`, `frontend/docs/PROGRESS.md`, `frontend/interface/index.ts`, `frontend/lib/jsonld.ts`, `frontend/lib/server/storeQueries.ts`, `frontend/messages/ar.json`, `frontend/messages/en.json`.
+- Untracked: ملفات G2/G3/G4 المقصودة (`components/ECommerce/Catalog/*`, `components/ECommerce/Product/*`, `components/Skelton/{CatalogSkeleton,ProductDetailsSkeleton}.tsx`, `app/[locale]/(Store)/products/**`, `hooks/useAddToCart.ts`, `lib/cartFeedback.ts`, `lib/catalogQuery.ts`, `lib/storeSlug.ts`, `interface/storeProduct.ts`, `validation/{index,storeProduct}.ts`) إضافة إلى `docs/DAY4_TASKS.md` وملفات قديمة/خارج النطاق (`app/icon.svg`, `components/Brand/OmEmanJarIcon.tsx`).
+- `git diff --stat` → `15 files changed, 625 insertions(+), 112 deletions(-)` (لا يشمل untracked)؛ `git diff --check` → **EXIT 0** مع تحذيرات CRLF فقط؛ لا `package.json`/lock في الحالة أو diff، ونتيجة G4 الموثّقة أن package diff فارغ.
+- ضجيج `git status` السابق كان من مجلدات skill مفقودة تحت `Day7-caching/...`؛ لا تظهر هذه المسارات في الحالة النهائية. لا تعديلات G5 على الكود، لا commit/push/deploy، لا dependencies/backend config/migrations/seed.
+
+**فحوص G5 الختامية بعد توثيق §20 (frontend):**
+- `npm run lint` → **EXIT 0**.
+- `npm run check` → **EXIT 0** — `Scanned 147 code files, 169 message keys per locale. 0 failure(s), 0 warning(s).`
+- `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → **EXIT 0**.
+- `git diff --check` → **EXIT 0** (مع تحذيرات CRLF معروفة من Git). `npm run build` لم يُعَد تشغيله في G5 التزامًا بنطاق المراجعة وB-BUILD المفتوح.
+
+**KS / blockers / risks at handoff:**
+- **KS-1:** منفّذ وموثّق في المصدر/HTML سابقًا؛ الاعتماد البصري النهائي 🟡.
+- **KS-2:** منفّذ وموثّق في المصدر/API؛ HTML/متصفح PDP لم يُرَ بسبب B-BUILD؛ الاعتماد 🟡.
+- **KS-3:** لم يبدأ؛ Day 5 فقط.
+- **B-BUILD:** مفتوح؛ لا production-ready. **B-PUB:** مقبول مع negative cases NOT-TESTED. **B-UNIT:** لا تُعرض `pricePer100g`. **D3-RM:** Day 3 follow-up مستقل. **R-VIS:** مراجعة بصرية/مالك ما زالت مطلوبة.
+- **Outstanding risks:** لا دليل متصفح/Network/double-click/RTL/LTR/ثيمات/360px/keyboard/reduced-motion؛ Major fly-target؛ فجوات negative runtime؛ الملفات القديمة خارج النطاق ما زالت في working tree (خصوصًا `WhatsAppFab.tsx` diff التافه).
+
+**Astra final recommendation:**
+- لا يوجد Critical source defect يمنع التسليم. B-PUB وG2 وG3 سليمة في المصدر ضمن الأدلة المتاحة؛ G4 تنفّذ عقد A1/A2 في المصدر ومع API حقيقي.
+- تُوصي Astra بـ**CONDITIONAL TECHNICAL ACCEPTANCE / FINAL HANDOFF READY FOR OWNER REVIEW** مع الإبقاء على B-BUILD كحاجب إنتاجي، وتسجيل Major fly-target وكل فجوات المتصفح/negative runtime بوضوح. لا تُترجم التوصية إلى اعتماد نهائي؛ القرار للمالك وحده. لا فتح Day 5 قبل إذن منفصل.
+
+⛔ STOP — DAY 4 GATE 5 COMPLETE — FINAL HANDOFF READY — WAITING FOR OWNER REVIEW
+
+---
+
+### 21) Day 5 — Planning & Task Breakdown (2026-11-19, documentation only)
+
+**الحالة:** مكتمل؛ في انتظار مراجعة `Astra` وموافقة `Owner`. لم تُفتح أي Gate من Gates اليوم الخامس، ولم يُنفذ أي عنصر من عناصر Search أو Cart.
+
+**النطاق المسموح:** تخطيط وقراءة/تدقيق فقط. لم يتم تعديل كود تطبيق، ولا كود backend، ولا schema، ولا قاعدة بيانات، ولا تبعيات، ولا إعدادات، ولا إعادة هيكلة، ولا commit/push/deploy.
+
+**ملفات التوثيق في هذه الجلسة:**
+
+- أُنشئ `frontend/docs/DAY5_TASKS.md` ويحتوي: تدقيق Days 1–4، مخزون Search/Cart الحالي والمفقود، العقود الدقيقة، مخزون الملفات المتوقع، backlog مصنف `P0/P1/P2`, خطة `G0–G5` بـ12 حقل إلزامي لكل Gate، جدول مخاطر، قالب تقرير Gate، وقسم مراجعة `Astra`.
+- أُلحق هذا القسم `§21` بملف `frontend/docs/PROGRESS.md` دون حذف أو تعديل السجل التاريخي أو STOP الخاص بـDay 4.
+- السطور القديمة في أعلى `PROGRESS.md` التي تقول إن Day 4 لم يبدأ أو إن توجد أخطاء TypeScript هي سجل تاريخي تم تجاوزه بالقسمين 15–20 وبـ`DAY4_TASKS.md`؛ لم يتم تغييرها احترامًا للسجل.
+
+**المصادر المعتمدة:**
+
+- `frontend/docs/DAY4_TASKS.md:3,31-33,43-53,237` — الحالة النهائية، عناصر اليوم الخامس المؤجلة، القيود، وSTOP.
+- `frontend/docs/PROGRESS.md:1132-1192` — القسم 20، التسليم النهائي لـGate 5 والتوصية المشروطة.
+- `frontend/docs/DAY1_TASKS.md`, `DAY2_TASKS.md`, `DAY3_TASKS.md`, `FRONTEND_TASKS_10_DAYS.md:238-243`, `DESIGN_SYSTEM.md`, `AGENTS.md` (frontend/backend/root).
+- عقود backend الفعلية: `backend/src/modules/store/search/*` و`backend/src/modules/store/cart/*`.
+- التنفيذ الحالي: `store/baseApi.ts`, `store/cartApi.ts`, `store/store.ts`, `lib/cartToken.ts`, `hooks/useAddToCart.ts`, `components/ECommerce/Header/StoreHeader.tsx`, `CartLink.tsx`, `components/Animation/CartBounce.tsx`, `components/Card/ProductCard.tsx`, `lib/routes.ts`, `lib/jsonld.ts`, `interface/store.ts`, `messages/ar.json`, `messages/en.json`.
+
+**نتيجة تدقيق Days 1–4:**
+
+- Day 1 وDay 2 وDay 3 مكتملة تاريخيًا حسب وثائقها، مع ملاحظات `B-PUB`, `B-BUILD`, `R-VIS`, و`HM+`؛ لم يُعد فتحها.
+- Day 4 مكتملة من ناحية implementation وGates، مع بقاء ثلاثة عناصر مؤجلة صريحًا هي Search وCart وبعض تحسينات الواجهة المرتبطة، إضافة إلى Majorين لم يُصرح بإصلاحهما: `B-BUILD` وfly-target المكرر في `ProductPackageSelector.tsx:19,28,38`.
+- لا يوجد قرار تلقائي بإصلاح أي عنصر مؤجل؛ كل شيء أُدرج في `DAY5_TASKS.md` كـP0/P1/P2 أو Gate ويحتاج موافقة Owner.
+
+**العقود المستعادة دون اختراع:**
+
+- Search: `GET /api/store/search` مع `q`, `limit`, `sessionId`؛ الاستجابة `data.results`, `data.suggestions`, `data.searchLogId`؛Suggestions من `suggest_similar` عند صفر نتائج؛ كل نداء ناجح يكتب `SearchLog`؛ لا endpoint إضافي ولا cache عام جديد. قرار التخزين المؤقت للبحث فقط أُدرج كسؤال/قرار داخل `G1`.
+- Cart: `GET /api/store/cart?guestToken=...`, `GET /api/store/cart/:guestToken`, `POST /api/store/cart/:guestToken/items`, `PATCH /api/store/cart/:guestToken/items/:itemId`, `DELETE /api/store/cart/:guestToken/items/:itemId`، و`POST /api/store/cart/merge` خارج النطاق. الرمز `om_cart_token` في `localStorage` فقط؛ `quantity` عدد صحيح في body فقط؛ الأسعار والكميات المعروضة decimal strings؛ `itemsCount` و`subtotal` من backend.
+- القيود: لا parallel cart storage، لا إنشاء سلة لمجرد الـbadge، لا حساب إجمالي محلي، لا inversion للعقد، لا كشف guestToken، ولا استخدام منتجات/صور/أسعار وهمية أو ثابتة.
+
+**خطة Gates المقترحة في `DAY5_TASKS.md`:**
+
+| Gate | العنوان | المدخلات/الشرط الأساسي |
+|---|---|---|
+| `G0` | Pre-flight & Scope Lock | موافقة Owner، سجل نظيف مفهوم، جاهزية API، نطاق مغلق |
+| `G1` | Search data & input | فتح عقد Search، إدخال محلي، q/limit/sessionId، قرار cache/SearchLog |
+| `G2` | Search UI, page & SEO | صفحة نتائج `/{locale}/search`، suggestions/empty/error، `SearchAction` |
+| `G3` | Cart API & badge | ربط cartApi، token، `itemsCount` الحقيقي، حماية fly/bounce/count-up |
+| `G4` | Cart page & drawer | `/{locale}/cart`، عرض الأسطر، إضافة/تعديل/حذف، تحسين accessibility |
+| `G5` | Final review & handoff | مراجعة Astra، validation، تحديث السجل، STOP |
+
+**قرارات معلقة تتطلب Owner:**
+
+1. هل تُفتح Day 5 بـ`G0` أم يُطلب أولًا حل `B-BUILD` وتأكيد `R-VIS`?
+2. هل يُعتمد مسار Search بدون cache في هذه المرحلة لتفادي تضليل `SearchLog`، مع بقاء استراتيجية cache العامة بدون تغيير؟
+3. هل تُعتمد إضافة `hooks/useCartToken.ts` و`lib/server/cart.ts` كطبقة قراءة آمنة للـtoken، أم يُعاد استخدام الواجهة الحالية داخل `cartApi.ts` فقط؟
+4. هل يُبقى fly-target الحالي في `ProductCard.tsx` كما هو ويُعامل مصدر الطيران في `ProductPackageSelector.tsx` كإصلاح منفصل خارج Day 5، أم يُصرح بإصلاحه في `G3/G4`?
+5. هل تُنفذ الإضافات التحسينية `P2` (مثل `Skeleton` و`aria-live`) ضمن Gates الخاصة بكل ميزة أم تُؤجل؟
+
+**Blockers موروثة:**
+
+- `B-BUILD`: فشل Turbopack/build مع `FATAL: An unexpected Turbopack error occurred.`, `app/globals.css.css`, exit code `0xc0000142`, وعدم وجود `BUILD_ID`.
+- `R-VIS`: لا يوجد قبول بصري/متصفح كامل لـDay 3/4؛ لا يحق إعطاء 🟢 نهائي.
+- dev server على `:3001` ما زال مقفولًا بـPID `20596`؛ لا يُوقف بدون إذن.
+- backend `:3002` كان يعمل سابقًا بـPID `7228`؛ يجب التحقق قبل أي smoke test حقيقي في `G0/G1/G3`.
+
+**الفحوص المنفذة في هذه الجلسة:**
+
+- `npm run lint` → EXIT 0.
+- `npm run check` → EXIT 0؛ `Scanned 147 code files, 169 message keys per locale. 0 failure(s), 0 warning(s).`
+- `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → EXIT 0.
+- `git diff --check` → EXIT 0 مع تحذيرات CRLF فقط.
+- `git diff --stat` → نفس التعديلات التاريخية الـ15 ملفًا (`687 insertions(+), 112 deletions(-)`)؛ لا تعديلات كود جديدة من هذه الجلسة.
+- `git status --short` → `DAY5_TASKS.md` يظهر كملف جديد غير متعقّب، و`PROGRESS.md` معدّل بهذا القسم فقط؛ بقية التعديلات/الملفات غير المتعقّبة تعود لـDays 1–4.
+- لم يُعاد تشغيل build بسبب `B-BUILD` المعروف وخروجه عن نطاق التخطيط.
+
+**مراجعة Astra المطلوبة:**
+
+- هل `DAY5_TASKS.md` يغطي كل عناصر `D5-SEARCH`/`D5-CART` وقيود `DAY4_TASKS.md:31-33,50-51` دون زيادة نطاق؟
+- هل العقود المكتوبة تطابق backend فعليًا ولا تحتوي أسماء endpoints أو حقول مخترعة؟
+- هل ترتيب Gates وتبعيتها آمن، خصوصًا `G1` قبل `G2` و`G3` قبل `G4`؟
+- هل المسائل المعلقة موضوعة بشكل واضح أمام Owner دون اتخاذ قرار نيابة عنه؟
+- هل أي عنصر `P1/P2` يجب رفعه إلى `P0` قبل الموافقة؟
+
+⛔ STOP — DAY 5 PLANNING COMPLETE — WAITING FOR OWNER APPROVAL
