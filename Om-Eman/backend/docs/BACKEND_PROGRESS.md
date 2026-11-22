@@ -132,3 +132,24 @@ idempotent). النتيجة المتحقق منها بالاستعلام الم�
 - لا قيم أعمال مُختلقة: إعداد مفقود = null.
 - `normalizePhone` انتقل إلى `src/utils/phone.ts`.
 - ملفات الرفع المولدة تُحفظ: `PRESERVED_MODULE_FOLDERS = auth, productImport, store, reports, uploads`.
+
+## B-PUB — Storefront product detail publication eligibility (2026-11-19)
+
+- **Scope (backend only):** `backend/src/modules/store/products/service.ts` (`StoreProductService.getStorefrontDetail`). No schema/migrations/listing/controller/routes/card/validation/swagger/frontend/test changes.
+- **Change:** replaced `prisma.product.findUnique({ where: { slug } })` with `prisma.product.findFirst` enforcing the same baseline public eligibility as listing (`list.ts`): `status = "ACTIVE"`, publish window open (`publishedAt IS NULL OR publishedAt <= now()` via `OR: [{ publishedAt: null }, { publishedAt: { lte: new Date() } }]`), `primarySubcategory.isActive = true`, `primarySubcategory.category.isActive = true`. Existing guard preserved: `if (!product || product.packages.length === 0) throw new NotFoundError("Product not found", "PRODUCT_NOT_FOUND")` (ineligible/nonexistent/no sellable active+published package → 404). Select/mapping/images/packages/bundleComponents/aliases/related/category/subcategory/response shape unchanged; no try/catch added (unexpected DB/server errors still propagate, not converted to 404).
+- **Diff (actual):**
+  - `findUnique({ where: { slug } })` → `findFirst({ where: { slug, status: "ACTIVE", OR: [{ publishedAt: null }, { publishedAt: { lte: new Date() } }], primarySubcategory: { isActive: true, category: { isActive: true } } } })`
+  - Comment updated to reflect storefront ineligibility parity.
+
+**Checks (backend, 2026-11-19):**
+- `npx tsc --noEmit` → EXIT 0
+- `npm run build` → EXIT 0
+- `npm test` (`vitest run`) → EXIT 0 (3 files, 24 tests passed). No backend `lint` script defined.
+
+**Runtime evidence (`http://localhost:3002/api`, read-only):**
+- Eligible/listed slugs → 200 with existing success/detail shape: `home-starter-bundle, mint-dried, anise, hibiscus, coriander-seeds, chili-powder, cumin, black-pepper, turmeric` all HTTP 200. Sample `GET /store/products/home-starter-bundle`: `success:true`, keys include `id,nameAr,nameEn,slug,descriptionAr,descriptionEn,productType,brand,aliases,publishedAt,updatedAt,images,packages,bundleComponents,category,subcategory,related` (`packages` len 1, `related` len 0).
+- Nonexistent slug → 404 `PRODUCT_NOT_FOUND`: `GET /store/products/does-not-exist-slug-xyz` → `{"success":false,"message":"Product not found","code":"PRODUCT_NOT_FOUND"}`.
+
+**Not runtime-verified (no fabrication):** ineligible cases by each condition — product status != ACTIVE, `publishedAt` in future (outside publish window), inactive primary subcategory, inactive parent category, or product with no active+published sellable package — could not be exercised on current environment due to unavailable/unknown test data and read-only/no DB mutation constraint. Implementation routes these to the existing 404 `PRODUCT_NOT_FOUND` path (filtered out/null or empty packages) consistent with listing policy; requires controlled data/env evidence for full B-PUB closure.
+
+**Review status:** awaiting Astra review and Owner approval. G3 remains unauthorized until B-PUB closure is verified.

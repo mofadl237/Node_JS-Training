@@ -11,14 +11,12 @@ interface IProps {
   decimals?: number;
 }
 
-// SSR renders the final value (D2-01): SEO/no-JS users and reduced-motion
-// users always see `${value}${suffix}`. The 0->value count-up runs only for
-// elements that were below the fold at mount and enter the viewport later.
 export const CountUp = ({ value, className, suffix = "", decimals = 0 }: IProps) => {
   // 1- state
   const ref = useRef<HTMLSpanElement>(null);
   const wasVisibleAtMount = useRef<boolean | null>(null);
   const hasAnimated = useRef(false);
+  const previousValue = useRef(value);
   const motionValue = useMotionValue(0);
   const isInView = useInView(ref, { once: true });
 
@@ -27,8 +25,9 @@ export const CountUp = ({ value, className, suffix = "", decimals = 0 }: IProps)
     const element = ref.current;
     if (element === null) return undefined;
 
+    const format = (input: number) => `${input.toFixed(decimals)}${suffix}`;
     const writeFinal = () => {
-      element.textContent = `${value.toFixed(decimals)}${suffix}`;
+      element.textContent = format(value);
     };
 
     if (wasVisibleAtMount.current === null) {
@@ -36,33 +35,45 @@ export const CountUp = ({ value, className, suffix = "", decimals = 0 }: IProps)
     }
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const shouldAnimate = isInView && wasVisibleAtMount.current === false && !hasAnimated.current && !reducedMotion;
+    const valueChanged = previousValue.current !== value;
+    previousValue.current = value;
 
-    if (!shouldAnimate) {
+    const shouldAnimate =
+      valueChanged || (isInView && wasVisibleAtMount.current === false && !hasAnimated.current);
+
+    if (!shouldAnimate || reducedMotion) {
       writeFinal();
       return undefined;
     }
 
     hasAnimated.current = true;
     motionValue.jump(0);
-    element.textContent = `${(0).toFixed(decimals)}${suffix}`;
+    element.textContent = format(0);
     const controls = animate(motionValue, value, {
       type: "spring",
       stiffness: 300,
       damping: 24,
       onUpdate: (latest) => {
         if (ref.current) {
-          ref.current.textContent = `${latest.toFixed(decimals)}${suffix}`;
+          ref.current.textContent = format(latest);
         }
       },
     });
+    const spin = animate(
+      element,
+      { rotateX: [-100, 18, 0], rotateZ: [-10, 5, 0], scale: [0.7, 1.15, 1], opacity: [0.3, 1] },
+      { duration: 0.55, ease: "easeOut" },
+    );
 
-    return () => controls.stop();
-  }, [isInView, value, motionValue, suffix, decimals]);
+    return () => {
+      controls.stop();
+      spin.stop();
+    };
+  }, [value, isInView, motionValue, suffix, decimals]);
 
   // 3- render
   return (
-    <span ref={ref} className={cn("tabular-nums", className)}>
+    <span ref={ref} className={cn("inline-block tabular-nums [transform-style:preserve-3d]", className)}>
       {value.toFixed(decimals)}
       {suffix}
     </span>

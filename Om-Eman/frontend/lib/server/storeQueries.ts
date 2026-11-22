@@ -3,11 +3,13 @@ import type {
   IStoreBanner,
   IStoreCategoryNode,
   IStoreProductCard,
+  IStoreSearchResult,
   IStorefrontProduct,
   IStoreSettings,
 } from "@/interface";
 import { buildCatalogProductsPath, type INormalizedCatalogQuery } from "@/lib/catalogQuery";
-import { storefrontProductSchema } from "@/validation";
+import { buildStoreSearchPath } from "@/lib/searchQuery";
+import { searchQuerySchema, storeSearchResponseSchema, storefrontProductSchema } from "@/validation";
 import { storeFetch, type TStoreResult } from "./storeFetch";
 
 export const getStoreSettings = async (): Promise<TStoreResult<IStoreSettings>> => {
@@ -70,6 +72,35 @@ export const getStoreProducts = async (
     cacheLife("seconds");
   }
   return result;
+};
+
+export const getStoreSearch = async (
+  q: string,
+  limit: number,
+): Promise<TStoreResult<IStoreSearchResult>> => {
+  const parsedQuery = searchQuerySchema.safeParse({ q, limit });
+  if (!parsedQuery.success) {
+    return { ok: false, status: 400, code: "VALIDATION_ERROR" };
+  }
+
+  const path = buildStoreSearchPath({
+    q: parsedQuery.data.q,
+    limit: parsedQuery.data.limit,
+    isValid: true,
+  });
+  if (!path) {
+    return { ok: false, status: 400, code: "VALIDATION_ERROR" };
+  }
+
+  const result = await storeFetch<unknown>(path);
+  if (!result.ok) return result;
+
+  const parsed = storeSearchResponseSchema.safeParse(result.data);
+  if (!parsed.success) {
+    return { ok: false, status: 200, code: "INVALID_RESPONSE" };
+  }
+
+  return { ok: true, data: parsed.data };
 };
 
 export const getStorefrontProduct = async (

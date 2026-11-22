@@ -13,13 +13,18 @@ import {
 // Storefront product detail, keyed by slug (SEO URLs are /products/[slug]).
 // Only what a product page renders: identity, images, published+active
 // packages, bundle contents, category refs for breadcrumbs, aliases, and a
-// handful of related cards. Draft/inactive products 404 here even though the
-// dashboard can still see them.
+// handful of related cards. Ineligible storefront products 404 here (same
+// baseline public eligibility as listing) even though dashboard may see them.
 
 export class StoreProductService {
   async getStorefrontDetail(slug: string): Promise<IStorefrontProduct> {
-    const product = await prisma.product.findUnique({
-      where: { slug },
+    const product = await prisma.product.findFirst({
+      where: {
+        slug,
+        status: "ACTIVE",
+        OR: [{ publishedAt: null }, { publishedAt: { lte: new Date() } }],
+        primarySubcategory: { isActive: true, category: { isActive: true } },
+      },
       select: {
         id: true,
         nameAr: true,

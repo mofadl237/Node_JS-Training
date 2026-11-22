@@ -53,7 +53,7 @@ export const BackToTop = ({ className }: IProps) => {
           )}
         >
           <ScrollProgressRing progress={scrollYProgress} />
-          <ArrowUp aria-hidden="true" className="relative size-5 text-white" />
+          <ArrowUp aria-hidden="true" className="relative size-5 text-ink-strong" />
         </m.button>
       ) : null}
     </AnimatePresence>,

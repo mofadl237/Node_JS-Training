@@ -11,7 +11,7 @@ const imageSnapshotSchema = z.object({
   altAr: z.string().nullable(),
   altEn: z.string().nullable(),
 });
-const productCardSchema = z.object({
+export const productCardSchema = z.object({
   id: z.string().min(1),
   slug: z.string().min(1),
   nameAr: z.string().min(1),

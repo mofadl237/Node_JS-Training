@@ -6,6 +6,7 @@ import { StoreHeader } from "@/components/ECommerce/Header/StoreHeader";
 import { StoreFooter } from "@/components/ECommerce/Footer/StoreFooter";
 import { WhatsAppFab } from "@/components/ECommerce/WhatsAppFab";
 import { StoreJsonLd } from "@/components/ECommerce/StoreJsonLd";
+import { FloatingCartCta } from "@/components/ECommerce/Cart/FloatingCartCta";
 import { FooterSkeleton } from "@/components/Skelton/FooterSkeleton";
 
 export default function StoreLayout({ children }: { children: ReactNode }) {
@@ -21,6 +22,9 @@ export default function StoreLayout({ children }: { children: ReactNode }) {
       </Suspense>
       <Suspense fallback={null}>
         <WhatsAppFab />
+      </Suspense>
+      <Suspense fallback={null}>
+        <FloatingCartCta />
       </Suspense>
       <Suspense fallback={null}>
         <StoreJsonLd />

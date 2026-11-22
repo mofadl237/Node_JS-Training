@@ -8,6 +8,8 @@ export type {
   IStoreProductCategoryRef,
   IStoreProductImageSnapshot,
   IStoreProductPrice,
+  IStoreSearchResult,
+  IStoreSearchResultRow,
   IStoreSettings,
   IStoreSocial,
   IStoreSubcategoryNode,

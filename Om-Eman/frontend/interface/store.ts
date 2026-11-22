@@ -50,6 +50,18 @@ export interface IStoreProductCard {
   category: IStoreProductCategoryRef;
 }
 
+export interface IStoreSearchResultRow extends IStoreProductCard {
+  matchTier: number;
+  score: number;
+  matchedTerm: string | null;
+}
+
+export interface IStoreSearchResult {
+  results: IStoreSearchResultRow[];
+  suggestions: IStoreProductCard[];
+  searchLogId: string | null;
+}
+
 export interface IStoreContact {
   whatsapp: string | null;
   phone: string | null;

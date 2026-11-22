@@ -1270,3 +1270,469 @@ grep framer-motion / any / @ts-ignore / console.log في الكود → فاضي
 - هل أي عنصر `P1/P2` يجب رفعه إلى `P0` قبل الموافقة؟
 
 ⛔ STOP — DAY 5 PLANNING COMPLETE — WAITING FOR OWNER APPROVAL
+
+---
+
+### 22) Day 5 — Gate 0 Pre-flight & Scope Lock (G0 only)
+
+**الإذن:** المالك طلب البدء في اليوم الخامس. فُهم كإذن لـ`G0` فقط حسب بروتوكول الـGates؛ لم يُفتح `G1/G2/G3/G4/G5`.
+
+**النطاق:** قراءة/تحقق/توثيق فقط. لا تعديلات مصدر، لا UI، لا API edits، لا إصلاح build، لا DB/seed/migration، لا commit/deploy. الملف الوحيد المعدّل في G0 هو `frontend/docs/PROGRESS.md`.
+
+**انحراف قبل G0 (مسجّل ضمن الـbaseline):** أثناء حل مشكلة `npm run dev` قبل فتح G0 أُضيف `export const instant = false;` في `app/[locale]/layout.tsx:36` ومُسح كاش `.next/dev` وشُغّل backend/frontend. الملف ظاهر نظيف في git وقت G0، والسطر موجود في الـbaseline. ده مش تغيير داخل G0.
+
+**الملفات المقروءة:** `AGENTS.md` (root/frontend/backend)، `docs/PROGRESS.md` §21، `docs/DAY5_TASKS.md` §7 G0 + §10، `backend/src/modules/store/search/{validation.ts,service.ts}`، `backend/src/modules/store/cart/{routes.ts,validation.ts,types.ts}`، `backend/src/modules/store/settings/service.ts`، `app/[locale]/layout.tsx`، `lib/server/storeFetch.ts`، `lib/imageLoader.ts`.
+
+**Git baseline (وقت G0):**
+
+- `git status --short`: ثلاثة ملفات معدّلة موروثة ولم تُلمس في G0:
+  - `Om-Eman/backend/docs/BACKEND_PROGRESS.md`
+  - `Om-Eman/backend/src/modules/store/products/service.ts`
+  - `Om-Eman/frontend/components/Animation/BackToTop.tsx`
+- لا تعديلات `package.json`/`package-lock.json`، لا dependencies جديدة، لا untracked docs إضافية.
+- `git diff --check` → EXIT 0 مع تحذيرات CRLF فقط.
+- `git diff --stat` → `3 files changed, 31 insertions(+), 5 deletions(-)`.
+
+**الفحوص:**
+
+- `npm run lint` → EXIT 0.
+- `npm run check` → EXIT 0؛ `Scanned 147 code files, 169 message keys per locale. 0 failure(s), 0 warning(s).`
+- `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → EXIT 0.
+- `git diff --check` → EXIT 0.
+- لم يُعاد تشغيل `npm run build`؛ `B-BUILD` يبقى مسجّلًا ولم يُعالج.
+
+**المنافذ والحالة الحية:**
+
+- فحص G0 الحالي على `:3001` و`:3002`: لا يوجد LISTENING؛ السيرفرات المتعلقة بحل مشكلة dev توقفت.
+- دليل حي سابق في نفس الجلسة قبل G0: frontend `Ready in 3.3s`، `/ar` و`/en` رجعوا HTTP 200، backend سجّل `Database connection established` و`API listening on port 3002`، و`settings/categories/featured` رجعوا HTTP 200.
+- القرار: العقود **صالحة من المصدر**، لكن الـlive smoke **محجوب حاليًا** حتى تُعاد المنافذ بإذن Gate لاحق. HTTP 200 السابق ليس اعتمادًا نهائيًا.
+
+**تأكيد العقود من المصدر:**
+
+| العقد | الدليل | الحكم |
+| --- | --- | --- |
+| Search query | `search/validation.ts:4-6`: `q` 1–200، `limit` 1–50 default 20، `sessionId` 5–100 optional | ✅ صالح |
+| Search response | `search/service.ts:29-33`: `results/suggestions/searchLogId`؛ `:75-78` suggestions عند صفر نتائج؛ `:85-96` كتابة `SearchLog` | ✅ صالح |
+| Cart routes | `cart/routes.ts:19-24`: get-or-create، get-by-token، add، patch، delete؛ merge مستبعد | ✅ صالح |
+| Cart validation | `cart/validation.ts:3-14`: token `[A-Za-z0-9_-]{20,64}`، `quantity` 1–1000 number | ✅ صالح |
+| Cart response | `cart/types.ts:25-39`: `itemsCount: number`، `subtotal: string`، lines/package snapshot من الباك | ✅ صالح |
+| Free shipping | `settings/service.ts:107-110`: `freeShippingThreshold` من `FREE_SHIPPING_THRESHOLD` كـ`string | null` | ✅ صالح؛ لا رقم افتراضي |
+
+**القرارات المعلقة للمالك قبل G1:**
+
+1. هل يُعتمد مسار Search بدون cache لتفادي إخفاء `SearchLog`، مع عدم تغيير استراتيجية الكاش العامة؟
+2. هل يُعتمد حجب مؤشر الشحن المجاني عندما يكون `freeShippingThreshold = null`؟
+3. هل تتوفر بيئة اختبار كتابة مأذونة للسلة؛ وإلا تظل PATCH/DELETE `NOT-TESTED`؟
+4. هل يبقى fly-target الحالي خارج نطاق اليوم الخامس؟
+5. هل تؤجل تحسينات `P2` لما بعد Gates الأساسية؟
+6. هل نؤجل كل تغييرات `Styles/Animation` الجديدة (Fly للسلة، Hover، الثيمات) لمرحلة منفصلة بعد بناء ملفات الـarchitecture، وبإذن مستقل، حسب تفضيلك في `AGENTS.md`؟
+
+**حالة Blockers:** `B-BUILD` مفتوح؛ `R-VIS` مفتوح؛ `R-API` مفتوح حاليًا؛ `R-CART-WRITE` محجوب؛ `R-FREE-SHIP` محلول بالمصدر بشرط عدم اختراع رقم؛ `R-G4-MAJOR` خارج النطاق؛ `R-STYLE-ANIM` محجوب حتى مرحلة منفصلة، مع TailwindCSS فقط لا Sass.
+
+**DoD:** baseline مؤرّخ ✅؛ عقود صالحة من المصدر ✅؛ live smoke محجوب ⛔؛ blockers مسجّلة ✅. G0 مغلق إداريًا، لكن الانتقال إلى G1 يحتاج إذن منفصل.
+
+**مراجعة Astra المطلوبة:** مراجعة هذا السجل مقابل `DAY5_TASKS.md` G0؛ التأكد إن مفيش implementation افتتحت، وإن الانحراف قبل G0 موثّق، وإن قرار المقارنة بين cache/SearchLog لسه بانتظار المالك.
+
+⛔ STOP — Gate 0
+
+---
+
+### 23) Day 5 — Gate 1: Search Data & Inputs (G1 only)
+
+**الإذن:** إذن مالك صريح باسم `Gate 1 — Search: Data & Inputs`. لم يُفتح `G2/G3/G4/G5`.
+
+**النطاق المنفّذ:** تطبيع مدخلات البحث، Zod للمدخل والرد، أنواع البحث، استعلام سيرفر غير cached، ومسار البحث. لا UI، لا هيدر، لا صفحة، لا ترجمات، لا JSON-LD، لا أنيميشن، لا باك/DB، لا dependencies، لا commit.
+
+**الملفات الفعلية (9):**
+
+| الملف | الحالة | المسؤولية |
+| --- | --- | --- |
+| `frontend/lib/searchQuery.ts` | جديد | تطبيع `q/limit` من `unknown`، إرجاع `q: null` للمدخل غير الصالح، وبناء `store/search?...` |
+| `frontend/validation/storeSearch.ts` | جديد | `searchTextSchema`، `searchLimitSchema`، `searchQuerySchema`، و`storeSearchResponseSchema` المبني على `productCardSchema` |
+| `frontend/validation/index.ts` | تعديل | تصدير مخططات البحث و`productCardSchema` |
+| `frontend/validation/storeProduct.ts` | تعديل | تصدير `productCardSchema` الموجود بدل تكراره؛ انحراف ضروري عن قائمة الملفات المتوقعة |
+| `frontend/interface/store.ts` | تعديل | `IStoreSearchResultRow extends IStoreProductCard` و`IStoreSearchResult` |
+| `frontend/interface/index.ts` | تعديل | تصدير نوعي البحث |
+| `frontend/lib/server/storeQueries.ts` | تعديل | `getStoreSearch(q, limit)` عبر `storeFetch` + تحقق Zod للرد؛ بدون `"use cache"`/`cacheTag`/`cacheLife` |
+| `frontend/lib/routes.ts` | تعديل | `SEARCH_PATH` و`searchHref(q)` |
+| `frontend/docs/PROGRESS.md` | تعديل | هذا التقرير |
+
+**ملفات موروثة لم تُلمس:** `backend/docs/BACKEND_PROGRESS.md`، `backend/src/modules/store/products/service.ts`، `frontend/components/Animation/BackToTop.tsx`.
+
+** Implemented in source / منفّذ فعليًا:**
+- `q`: يُقطع، ويُقبل فقط بطول 1–200؛ الغائب/الفارغ/الأطول يعطي `q:null` و`isValid:false` فلا يتكوّن مسار API.
+- `limit`: int من 1 إلى 50، والافتراضي 20؛ القيم الخاطئة ترجع للافتراضي ولا تُرسل كما هي.
+- المدخلات على شكل مصفوفة (Next `searchParams`) تُقرأ كأول قيمة نصية فقط.
+- `getStoreSearch` يتحقق من المدخل مرة ثانية بـZod، يبني المسار عبر `buildStoreSearchPath`، ويمرّر فشل `storeFetch` كما هو دون تحويله إلى `[]`.
+- رد البحث يُتحقق منه بـ`storeSearchResponseSchema`؛ أي شكل غير متطابق يعطي `{ ok:false, code:"INVALID_RESPONSE" }`.
+- لا كاش تطبيقي للبحث: لا `"use cache"` ولا tags ولا cacheLife داخل `getStoreSearch`؛ استراتيجية الكاش العامة unchanged.
+
+** Automatically verified / فحوص آلية:**
+- `npm run lint` → EXIT 0.
+- `npm run check` → EXIT 0؛ `Scanned 149 code files, 169 message keys per locale. 0 failure(s), 0 warning(s).`
+- `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → EXIT 0.
+- `git diff --check` → EXIT 0؛ تحذيرات CRLF فقط.
+- Local normalization test (`tsx`) نتائجه:
+  - `valid-ar`: q=`كمون`, limit=20, path=`store/search?q=%D9%83%D9%85%D9%88%D9%86&limit=20`.
+  - `valid-en`: q=`cumin`, limit=50, path=`store/search?q=cumin&limit=50`.
+  - `missing-q` / `empty-q` / `long-q` (201): `q:null`, `isValid:false`, `apiPath:null`.
+  - `bad-limit` (`0`): limit=20 وpath صالح.
+  - `array-q`: أول قيمة تُستخدم والباقي يُتجاهل.
+
+** API smoke against backend `:3002`:**
+- الباك شُغّل مؤقتًا بـ`npm run dev`، وسجّل `Database connection established` و`API listening on port 3002`، ثم أُوقف بعد الاختبارات؛ لا secrets في التقرير.
+- `GET /api/store/search?q=كمون&limit=20` → HTTP 400، `code: DB_CONSTRAINT_ERROR`.
+- `GET /api/store/search?q=cumin&limit=20` → HTTP 400، `code: DB_CONSTRAINT_ERROR`.
+- `GET /api/store/search?q=zzzznotfound&limit=20` → HTTP 400، `code: DB_CONSTRAINT_ERROR`.
+- `GET /api/store/search?q=&limit=20` → HTTP 400، `code: VALIDATION_ERROR`.
+- `GET /api/store/search?q=<201 chars>&limit=20` → HTTP 400، `code: VALIDATION_ERROR`.
+- سجل الباك أظهر لثلاثة استعلامات صحيحة `Prisma error target=$queryRaw`؛ رسالة Postgres التفصيلية غير ظاهرة في السجل المُطهّر. لم يُصلح الباك أو DB لأن ذلك خارج G1 صراحةً.
+- النتيجة: مسار الـfailure يعمل ويمكن تمييزه عن empty result في الكود، لكن **شكل الرد الحقيقي، أنواع الأسعار، وسلوك suggestions عند صفر نتائج لم تُتحقق حيًا** بسبب هذا الـblocker.
+
+** Browser-tested / شوهد في متصفح:** لا شيء؛ G1 بلا شاشة حسب النطاق.
+
+** Owner-approved status:** إذن تنفيذ G1 فقط؛ لا اعتماد نهائي للبحث ولا انتقال لـG2.
+
+** Deviations / blockers / untested:**
+- انحراف واحد: تصدير `productCardSchema` لتفادي تكرار مخطط بطاقة المنتج.
+- `R-API-SEARCH`: مفتوح؛ الـbackend يرد `DB_CONSTRAINT_ERROR` على الأسئلة الصحيحة. يلزم فحص بيئة DB/dual SQL functions في تكليف منفصل؛ لا تعديل هنا.
+- الكتابة المباشرة في `SearchLog` والتأكد من عدم كبحها بالكاش: محقق ثابتًا بالكود (لا cache)، و**غير مؤكد حيًا** لأن الطلبات لم تنجح.
+- schema الرد مقابل بيانات 200 حقيقية: `NOT-TESTED`.
+- `npm run build` لم يُشغّل في G1 لأنه ليس ضمن أوامر التحقق المطلوبة؛ `B-BUILD` ما زال مسجّلًا.
+- لا مخرجات `console.log` أو secrets أو توكنز في هذا التقرير.
+
+**مراجعة الـdiff:** رُوجع `git status --short` و`git diff` كاملًا مع قراءة الملفين الجديدين غير المتتبعين؛ كل التغييرات داخل نطاق G1 عدا الانحراف الموثّق والملفات الموروثة غير الملموسة.
+
+**Astra review:** جاهز للمراجعة مع تسجيل `R-API-SEARCH` صراحةً كـblocker حي لا يمنع مراجعة الكود.
+
+⛔ STOP — Gate 1
+
+---
+
+### 24) Day 5 — Gate 2: Search Header, Results Page & SEO (G2 only)
+
+**الإذن:** إذن مالك صريح باسم `Gate 2 — Search: Header, Results Page & SEO`. G1 اعتُبر مقبولًا للانتقال فقط؛ لم يُفتح G3/G4/G5. لا cart، لا checkout، لا backend/DB، لا dependencies، لا commit/push/deploy.
+
+**Preflight:** قُرئت `frontend/AGENTS.md` (لا يوجد `AGENTS.md` في جذر Workspace)، `PROGRESS.md` §23، `DAY5_TASKS.md` §§3/4/5.1/7/9، `git status --short`، وحالة G1 المصدرية. فُحصت فعليًا: `StoreHeader`، مسارات `(Store)`، `ProductCard`، `FeaturedGrid`، `EmptyState`/`ErrorState`، `Skeleton`، `Header` primitives، `seo/jsonld/JsonLd/StoreJsonLd`، `messages/ar.json` و`messages/en.json`، `storeFetch/storeQueries/searchQuery/storeSearch`، و`package.json`. لم تبدأ أي تعديلات قبل تحليل الملفات ومسؤولياتها.
+
+**الملفات الفعلية (14):**
+
+| الملف | الحالة | المسؤولية |
+| --- | --- | --- |
+| `frontend/components/ECommerce/Header/SearchForm.tsx` | جديد | نموذج GET مصغّر: `q` محلي، تحقق Zod عبر `searchTextSchema`، تنقّل محلي عبر `searchHref`، aria/i18n |
+| `frontend/components/ECommerce/Header/StoreHeader.tsx` | تعديل | تركيب `SearchForm` مع الحفاظ على البراند/اللغة/الثيم/السلة؛ سطر ثانٍ كامل على الموبايل |
+| `frontend/app/[locale]/(Store)/search/page.tsx` | جديد | صفحة رفيعة: `setRequestLocale` + تطبيع `searchParams` + `Suspense` + `SearchSection` |
+| `frontend/app/[locale]/(Store)/search/metadata.ts` | جديد | `generateMetadata` مع `q` محفوظ في canonical/title/description و`noindex` |
+| `frontend/app/[locale]/(Store)/search/loading.tsx` | جديد | يعيد استخدام `SearchSkeleton` |
+| `frontend/components/ECommerce/Search/SearchSection.tsx` | جديد | يقرأ `getStoreSearch` ويوزّع الحالات؛ H1 واحد؛ لا fetch داخل JSX |
+| `frontend/components/ECommerce/Search/SearchResults.tsx` | جديد | شبكة نتائج/اقتراحات بنفس `ProductCard`؛ عنوان اختياري للاقتراحات |
+| `frontend/components/ECommerce/Search/SearchState.tsx` | جديد | يختار بين `EmptyState` و`ErrorState` المشتركين |
+| `frontend/components/Skelton/SearchSkeleton.tsx` | جديد | skeleton بنفس أبعاد شبكة النتائج/الاقتراحات |
+| `frontend/lib/jsonld.ts` | تعديل | `buildWebSiteJsonLd` يضيف `potentialAction` من نوع `SearchAction` بالمسار الممرّر |
+| `frontend/components/ECommerce/StoreJsonLd.tsx` | تعديل | يمرّر `SEARCH_PATH` إلى `buildWebSiteJsonLd`؛ لا حقن JSON-LD مكرر في صفحة البحث |
+| `frontend/messages/ar.json` | تعديل | namespace `search` (16 مفتاحًا) |
+| `frontend/messages/en.json` | تعديل | نفس مفاتيح `search` بالإنجليزية |
+| `frontend/docs/PROGRESS.md` | تعديل | هذا التقرير |
+
+**ملفات موروثة لم تُلمس:** `backend/docs/BACKEND_PROGRESS.md`، `backend/src/modules/store/products/service.ts`، `frontend/components/Animation/BackToTop.tsx`، `components/Card/ProductCard.tsx`، `components/ECommerce/Home/FeaturedGrid.tsx`، `package.json`، lockfiles، `next.config.ts`.
+
+** Implemented in source / منفّذ فعليًا:**
+- الهيدر فيه بحث ظاهر: حقل كامل العرض على الموبايل، ومساحة وسطى على الديسكتوب، بدون تغيير عناصر الهيدر الأصلية.
+- الإرسال يمنع الـnavigation الافتراضي، يتحقق من `q` بطول 1–200، ويعرض `role="alert"` عند الخطأ؛ الرابط الناتج `/{locale}/search?q=...` عبر `@/i18n/navigation`.
+- صفحة النتائج تقرأ `q/limit` غير الموثوقين عبر G1 `normalizeSearchQuery`؛ لا slug special-case ولا مصدر اقتراحات محلي.
+- النتائج والاقتراحات كلاهما من رد الـAPI؛ عند `results.length === 0` ووجود `suggestions` تُعرض رسالة empty ثم شبكة الاقتراحات بنفس `ProductCard`.
+- الفشل (network/500/INVALID_RESPONSE/مدخل غير صالح) يروح لـ`ErrorState` حقيقي؛ لا تحويل للفشل إلى `[]` ولا بيانات وهمية.
+- لا `"use cache"` ولا `cacheTag` ولا `cacheLife` أُضيفت للبحث؛ `SearchLog` ما زال محكومًا بسلوك الباك.
+- `q` محفوظ في canonical وtitle وdescription؛ كل صفحات البحث `noindex, nofollow` لتجنب فهرسة نتائج فارغة/فاشلة مؤقتًا.
+- `WebSite.SearchAction` يستخدم `${SITE_URL}/${locale}/search?q={search_term_string}` ويُحقن مرة واحدة عبر `StoreJsonLd` الموجود.
+- لم تُضف حركات أو تغييرات بصرية جديدة التزامًا بـ`R-STYLE-ANIM`؛ استُخدمت Tailwind tokens الحالية فقط.
+
+** Automatically verified / فحوص آلية:**
+- `npm run lint` → `LINT_EXIT=0`.
+- `npm run check` → `CHECK_EXIT=0`؛ `Scanned 157 code files, 185 message keys per locale.`؛ `0 failure(s), 0 warning(s).`
+- `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → `TSC_EXIT=0`.
+- `git diff --check` → `DIFF_CHECK_EXIT=0`؛ تحذيرات CRLF فقط.
+- `npm run build` → `BUILD_EXIT=0`؛ `Compiled successfully`، TypeScript انتهى، `26/26` static pages، والمسارات `ƒ /ar/search` و`ƒ /en/search` ظهرت في جدول Build. `B-BUILD` لم يتكرر في هذه الجولة، لكن الختم النهائي ما زال شأن G5.
+- أثناء الـbuild ظهرت `NETWORK_ERROR` لقراءات المتجر لأن الباك كان متوقفًا؛ لم يمنع الـbuild.
+
+** HTML/SSR checks / شوهد فعليًا (لا متصفح كامل):**
+- شُغّل باك مؤقتًا `:3002` PID `43804` (`g2-backend.out.log`) وfrontend production `:3001` PID `16636` (`g2-frontend.out.log`) ثم أُوقفا؛ لا secrets في التقرير.
+- `/ar/search?q=كمون` → HTTP 200، H1 واحد `نتائج البحث عن «كمون»`، ErrorState عربي ظاهر، canonical `.../ar/search?q=%D9%83%D9%85%D9%88%D9%86`.
+- `/en/search?q=cumin` → HTTP 200، H1 واحد `Results for "cumin"`، ErrorState إنجليزي ظاهر، canonical `.../en/search?q=cumin`.
+- `/ar/search` و`/en/search?q=` → HTTP 200، invalid state ظاهر، canonical بدون `q`.
+- كل الحالات: `noindex, nofollow` موجود، `WebSite` JSON-LD واحد فقط، كل سكربتات JSON-LD قابلة لـ`JSON.parse`، و`potentialAction.target` محلي باللغة الصحيحة.
+- إعادة فحص نهائية بعد إضافة `method="get"` على النموذج (`g2-final-frontend.out.log`) أكدت نفس النتائج ووجود `method="get"` في HTML.
+- مع الباك شغّال، الـerror state كان ناتجًا حقيقيًا عن `R-API-SEARCH`؛ ومع الباك متوقف كان `NETWORK_ERROR`. لا فرق في واجهة المستخدم بين الحالتين.
+
+** API status / R-API-SEARCH:**
+- `GET /api/store/search?q=كمون&limit=20` → HTTP 400 `DB_CONSTRAINT_ERROR`.
+- `GET /api/store/search?q=cumin&limit=20` → HTTP 400 `DB_CONSTRAINT_ERROR`.
+- `GET /api/store/search?q=zzzznotfound&limit=20` → HTTP 400 `DB_CONSTRAINT_ERROR`.
+- لذلك: **real results/suggestions/zero-result من بيانات حقيقية لم تُتحقق**؛ الذي تحقق هو مسار الخطأ الحقيقي وعدم تحويله إلى empty مزيف.
+
+** Implemented but not fully verified / غير مكتمل التحقق:**
+- back/forward، Tab/Enter/focus-visible، 360px مقابل desktop، الثيمات الأربعة، `prefers-reduced-motion`، وعدم overflow أفقي: لم تُختبر بمتصفح حقيقي في هذه الجولة.
+- SSR أظهر H1 والرسائل في HTML، لكن الاعتماد البصري النهائي ما زال 🟡 حتى موافقة المالك.
+- لا وقت جريان فعلي لـSearchLog لأن الطلبات لم تنجح (موروث من G1).
+
+** Deviations / انحرافات:**
+- `metadata.ts` بدل `metadata.tsx` المتوقع في جدول §5.1، اتباعًا لاتفاق `products/metadata.ts` الحقيقي.
+- لم يُنشأ `SearchSuggestions.tsx` منفصل؛ `SearchResults` يعرض النتائج والاقتراحات بنفس المسؤولية (شبكة بطاقات + عنوان اختياري) لتفادي تكرار `ProductCard`.
+- `isNoIndex: true` لكل صفحات البحث قرار SEO تحفّظي من G2 لتفادي canonical مضلل عند الفشل/الفراغ؛ يمكن مراجعته مع Astra.
+- لا تغييرات في dependencies أو lockfiles؛ لا backend/DB؛ لا تعديلات خارج نطاق G2 عدا الملفات الموروثة غير الملموسة.
+
+**مراجعة الـdiff:** رُوجع `git status --short` و`git diff --stat` و`git diff` للملفات المعدّلة مع قراءة كل الملفات الجديدة غير المتتبعة؛ لا package/lock changes، ولا تعديلات لـCard أو FeaturedGrid أو ProductCard أو build tooling.
+
+**مراجعة Astra المطلوبة:** راجع تقسيم الملفات، RTL/Logical classes، سلامة metadata/JSON-LD، وتمييز «Implemented» عن «HTML-visible» عن «Blocked by R-API-SEARCH». الاعتماد البصري النهائي للمالك منفصل.
+
+⛔ STOP — Gate 2
+
+---
+
+### 25) Day 5 — Gate 3: Cart API & Header Badge (G3 only)
+
+**الإذن:** إذن مالك صريح باسم `Gate 3 — Cart API & Header Badge`. G2 اعتُبر مكتملًا للترتيب فقط؛ لم تُعد كتابة G2، ولم يُفتح G4/G5. لا page/drawer/cart slice/cookie، لا backend/DB/migration، لا dependencies، لا commit/push/deploy.
+
+**Preflight:** قُرئت `frontend/AGENTS.md` و`backend/AGENTS.md`، `DAY5_TASKS.md` §§3.3/5.2/Gate 3، `PROGRESS.md` §24، ثم فُحصت فعليًا: `store/cartApi.ts`، `store/baseApi.ts`، `interface/api.ts`، `store/store.ts`، `lib/cartToken.ts`، `hooks/useAddToCart.ts`، `lib/cartFeedback.ts`، `components/Animation/CartBounce.tsx`، `components/Animation/CountUp.tsx`، `components/ui/Badge.tsx`، `Providers/ThemeProvider.tsx`، `components/ECommerce/Header/CartLink.tsx`، وbackend `cart/{routes,controller,validation,types,service}.ts`. سُجّل `git status --short` قبل التعديل؛ الملفات الموروثة غير الملموسة بقيت كما هي.
+
+**الملفات الفعلية (8):**
+
+| الملف | الحالة | المسؤولية |
+| --- | --- | --- |
+| `frontend/store/cartApi.ts` | تعديل | `getCartByToken` للقراءة فقط + `updateCartItem` + `removeCartItem` مع نفس tag `Cart/CURRENT` |
+| `frontend/lib/cartToken.ts` | تعديل | subscription آمن للـ`localStorage` دون تغيير `KEY` أو قيمة الكتابة |
+| `frontend/hooks/useCartToken.ts` | جديد | قراءة التوكن عبر `useSyncExternalStore` وتجاهل الشكل غير الصالح |
+| `frontend/hooks/useCartBadge.ts` | جديد | اشتقاق `itemsCount/isEmpty/isReady/hasError` من قراءة السلة بالتوكن فقط |
+| `frontend/components/ECommerce/Header/CartLink.tsx` | تعديل | badge من `itemsCount` مع `CountUp` و`CartBounce` و`data-cart-target` واحد |
+| `frontend/messages/ar.json` | تعديل | مفتاح `header.cartItems` واحد |
+| `frontend/messages/en.json` | تعديل | نفس المفتاح بالإنجليزية |
+| `frontend/docs/PROGRESS.md` | تعديل | هذا التقرير |
+
+**ملفات موروثة لم تُلمس:** `backend/docs/BACKEND_PROGRESS.md`، `backend/src/modules/store/products/service.ts`، `frontend/components/Animation/BackToTop.tsx`، كل ملفات G2، `package.json`، lockfiles، `next.config.ts`.
+
+** Implemented in source / منفّذ فعليًا:**
+- الـbadge يستخدم `GET /store/cart/:guestToken` فقط؛ لا يستدعي `getOrCreateCart`، لذلك في غياب التوكن ما فيش طلب API ولا إنشاء سلة.
+- شكل التوكن مقيد بـ`/^[A-Za-z0-9_-]{20,64}$/`؛ التوكن غير الصالح يُعتبر غائبًا ولا يُرسل.
+- `writeCartToken` يحتفظ بـ`KEY = om_cart_token` والقيمة المكتوبة، ويضيف إشعارًا محليًا + `storage event` للتحديث عبر التبويبات.
+- `getServerCartToken` يرجع `undefined` لمنع hydration mismatch؛ لا قراءة `localStorage` أثناء render مباشرةً.
+- `useAddToCart` لم يتغير؛ تسلسل GET→writeToken→POST و`inFlight` كما كان.
+- `itemsCount` يأتي من الباك كما هو؛ لا حساب بديل، لا رقم وهمي، والـbadge مخفي حتى وصول بيانات صالحة وغياب خطأ.
+- `CountUp` يستمر في عرض القيمة النهائية SSR/لـreduced-motion؛ `CartBounce` يبقى المالك الوحيد لـ`data-cart-target`.
+- `role="status"` و`aria-label` مترجمان؛ تم استخدام `-end-1` بدل `right` للتوافق مع RTL.
+- لا أنيميشن جديد outside scope؛ استُخدمت primitives/al wrappers الموجودة فقط.
+
+** Automatically verified / فحوص آلية:**
+- `npm run lint` → `LINT_EXIT=0`.
+- `npm run check` → `CHECK_EXIT=0`؛ `Scanned 159 code files, 186 message keys per locale.`؛ `0 failure(s), 0 warning(s).`
+- `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → `TSC_EXIT=0`.
+- `git diff --check` → `DIFF_CHECK_EXIT=0`؛ تحذيرات CRLF فقط.
+- `npm run build` → `BUILD_EXIT=0`؛ `Compiled successfully`، TypeScript انتهى، `26/26` static pages. ظهرت `NETWORK_ERROR` لقراءات المتجر لأن الباك كان متوقفًا أثناء الـbuild؛ لم تمنع البناء. `B-BUILD` لم يتكرر، والختم النهائي ما زال G5.
+
+** API smoke against backend `:3002`:**
+- شُغّل backend مؤقتًا بـ`npm run dev`، سجّل `Database connection established` و`API listening on port 3002`، ثم أُوقف؛ لا توكنز حقيقية ولا secrets في التقرير.
+- `GET /api/store/cart/short` → HTTP 400 `VALIDATION_ERROR` مع رسالة `guest token is invalid`؛ هذا يثبت رفض التوكن القصير قبل أي DB access.
+- توكن صناعي صحيح الشكل غير موجود → HTTP 400 `DB_CONSTRAINT_ERROR` من `cart.findUnique`؛ لذلك **`CART_NOT_FOUND` لم يتحقق حيًا** في هذه البيئة.
+- غياب التوكن: لا طلب API من الـhook (مُثبت بالكود via `skip`)؛ لم يُختبر بمتصفح.
+- وجود توكن حقيقي لسلة موجودة: `NOT-TESTED` لغياب بيئة قراءة مأذونة ولـ`DB_CONSTRAINT_ERROR` أعلاه.
+
+** Browser-tested / شوهد في متصفح:** لا شيء؛ لا توجد أداة browser automation في هذه الجولة. ظهور الـbadge بعد إضافة حقيقية، وبعد reload/hydration، والمراجعة البصرية لـRTL/Actions كلها `NOT-TESTED`.
+
+** Owner-approved status:** إذن تنفيذ G3 فقط؛ لا اعتماد بصري، لا انتقال لـG4.
+
+** Deviations / blockers / untested:**
+- انحراف وظيفي محدود: أُضيفت `subscribeCartToken/getServerCartToken` إلى `lib/cartToken.ts`؛ المفتاح والقيمة لم يتغيرا.
+- انحراف توثيقي: استُخدم `Badge` و`CountUp` الموجودان بدل مكوّن badge جديد لتفادي تكرار markup.
+- عقود `IStoreCart` ما زالت محلية في `cartApi.ts` كما في Day 4؛ لم تُنقل إلى `interface/cart.ts` لأن النقل يحتاج موافقة صريحة.
+- رد الـAPI يُفكّ عبر `unwrapEnvelope` كما في الكود الحالي؛ لا Zod schema جديد للسلة في G3. backlog محتمل لـAstra.
+- `updateCartItem/removeCartItem` منفّذان في طبقة API فقط؛ لا مستهلك UI ولا اختبار كتابة في G3 (G4/R-CART-WRITE).
+- `R-CART-WRITE` ما زال مفتوحًا؛ `R-API-SEARCH` و`R-VIS` لم يتغيرا؛ `B-BUILD` لم يتكرر لكن الختم النهائي G5.
+
+**مراجعة الـdiff:** رُوجع `git status --short` و`git diff` للملفات المعدّلة مع قراءة الملفين الجديدين غير المتتبعين؛ `git diff --no-index` أعطى exit 1 لأنها ملفات جديدة، وهذا متوقع. لا package/lock changes، ولا تعديلات لملفات G2 أو backend أو build tooling.
+
+**مراجعة Astra المطلوبة:** راجع سلامة subscription/SSR، منع أي GET عند غياب/بطلان التوكن، ثبات `data-cart-target` واحد، استخدام `itemsCount` فقط، وتمييز «Implemented» عن «API-smoked» عن «NOT-TESTED». الاعتماد البصري النهائي للمالك منفصل.
+
+⛔ STOP — Gate 3
+
+---
+
+### 26) Day 5 — Gate 4: Cart Page & Drawer (G4 only)
+
+**الإذن:** إذن مالك صريح باسم `DAY 5 — GATE 4: CART PAGE & DRAWER IMPLEMENTATION — APPROVED — Start G4 only.` فُتح `G4` فقط؛ لم يُفتح `G5`، ولم يُعاد فتح `G1/G2/G3`. لا checkout، لا هيدر/new CartLink، لا backend/DB، لا dependencies، لا commit/push/deploy.
+
+**Preflight:** قُرئت `frontend/AGENTS.md` و`backend/AGENTS.md` و`DAY5_TASKS.md` §G4 و`PROGRESS.md` §25. لا يوجد `AGENTS.md` في جذر Workspace. فُحصت فعليًا: `store/cartApi.ts`، `store/baseApi.ts`، `lib/cartToken.ts`، `hooks/useCartToken.ts`، `hooks/useCartBadge.ts`، backend `cart/{routes,validation,types,service}.ts`، `settings/service.ts`، `lib/server/storeQueries.ts`، `components/ECommerce/Search/SearchSection.tsx`، `components/shared/{PriceTag,StoreImage,EmptyState,ErrorState}.tsx`، `components/Animation/CountUp.tsx`، `components/ui/Button.tsx`، `messages/{ar,en}.json`، و`scripts/check-rules.mjs`. سُجّل `git status --short`/`git diff --stat` قبل التعديل؛ baseline كان dirty بالملفات الموروثة ولم يُلمس منها شيء داخل G4.
+
+**عقود مؤكدة من المصدر:**
+- `GET /store/cart/:guestToken` يقرأ سلة موجودة فقط؛ `guestToken` مقيد بـ`/^[A-Za-z0-9_-]{20,64}$/`.
+- `PATCH /store/cart/:guestToken/items/:itemId` و`DELETE .../:itemId` يستخدمان نفس الـtoken ونفس الـtag `Cart/CURRENT`; `quantity` عدد صحيح 1–1000.
+- `itemsCount` و`subtotal` يأتيان من الباك؛ السلة تُعرض من `data.lines` كما هي.
+- `freeShippingThreshold` يأتي من `getStoreSettings()`؛ `null` يعني إخفاء المؤشر، بلا رقم افتراضي.
+- أخطاء `CART_NOT_FOUND` و`CART_NOT_ACTIVE` و`CART_ITEM_NOT_FOUND` و`PACKAGE_NOT_SALEABLE` و`VALIDATION_ERROR` تُترجم إلى مفاتيح `cart.*`، ولا يُعرض raw code.
+
+**الملفات الفعلية (16):**
+
+| الملف | الحالة | المسؤولية |
+| --- | --- | --- |
+| `frontend/app/[locale]/(Store)/cart/page.tsx` | جديد | صفحة رفيعة: `setRequestLocale` + `Suspense` + `CartSection` + `generateMetadata` (24 سطرًا) |
+| `frontend/app/[locale]/(Store)/cart/metadata.ts` | جديد | `generateMetadata` باتفاق `products/metadata.ts` و`search/metadata.ts` |
+| `frontend/app/[locale]/(Store)/cart/loading.tsx` | جديد | fallback يعيد استخدام `CartSkeleton` |
+| `frontend/components/ECommerce/Cart/CartSection.tsx` | جديد | قسم سيرفر يجلب الترجمات وال(settings) بالتوازي ويمرّر العتبة (20 سطرًا) |
+| `frontend/components/ECommerce/Cart/CartDrawer.tsx` | جديد | shell للـdrawer: trigger/backdrop/panel/state chooser + a11y attributes (148 سطرًا) |
+| `frontend/components/ECommerce/Cart/CartLine.tsx` | جديد | سطر واحد من `IStoreCartLine`: صورة/اسم/رابط/حجم/سعر/حالة/كمية/حذف (84 سطرًا) |
+| `frontend/components/ECommerce/Cart/CartQuantityControl.tsx` | جديد | تحكم بالكمية 1–1000 مع disable و`aria-label` |
+| `frontend/components/ECommerce/Cart/CartSummary.tsx` | جديد | `itemsCount` و`subtotal` من الباك + مؤشر الشحن المشروط (44 سطرًا) |
+| `frontend/components/ECommerce/Cart/CartState.tsx` | جديد | مختار `EmptyState`/`ErrorState` المشتركين |
+| `frontend/components/Skelton/CartSkeleton.tsx` | جديد | skeleton بنفس شكل الأسطر والملخص |
+| `frontend/hooks/useCartActions.ts` | جديد | update/remove فقط: منع التكرار، toast، رسالة inline، ولا API مباشر في JSX |
+| `frontend/hooks/useDrawerFocus.ts` | جديد | open/close + focus trap + Escape + scroll lock + focus restore |
+| `frontend/lib/cartError.ts` | جديد | type guard وربط أكواد السلة بمفاتيح الترجمة |
+| `frontend/messages/ar.json` | تعديل | namespace `cart` بـ31 مفتاحًا وplural عربي كامل |
+| `frontend/messages/en.json` | تعديل | نفس المفاتيح بالإنجليزية |
+| `frontend/docs/PROGRESS.md` | تعديل | هذا التقرير |
+
+**ملفات موروثة لم تُلمس:** `backend/docs/BACKEND_PROGRESS.md`، `backend/src/modules/store/products/service.ts`، `frontend/components/Animation/BackToTop.tsx`، كل ملفات G1/G2/G3، `Header/*`، `package.json`، lockfiles، `next.config.ts`، build tooling.
+
+** Implemented in source / منفّذ فعليًا:**
+- `/{locale}/cart` يستخدم `CartSection` بدل fetch داخل الصفحة؛ انحراف موثّق عن جدول الملفات المتوقع للحفاظ على Page < 30 سطرًا.
+- لا طلب عند غياب التوكن: `useGetCartByTokenQuery(token ?? "", { skip: token === undefined })`؛ hydration عبر `useSyncExternalStore` لتفادي hydration mismatch.
+- `getCartByToken` فقط للقراءة؛ لا `getOrCreateCart`، لا cart slice/provider/store جديد، لا تخزين توكن جديد، ولا كشف للتوكن في UI/التقرير.
+- update/remove يستخدمان `useUpdateCartItemMutation`/`useRemoveCartItemMutation` الحاليين، مع `isMutating` لمنع الضغط المكرر، وإبطال الـtag موجود يحدّث الـbadge تلقائيًا.
+- الكمية تُقبل عددًا صحيحًا 1–1000 فقط؛ زر +/- ورسالة `role="alert"`، والتحكم يُعطّل عند unavailable أو وقت الشحن.
+- `item.isAvailable` يتحكم في زر `soldOut` وتعطيل التعديل؛ لا حذف تلقائي ولا بيانات ثابتة.
+- `CartSummary` لا يحسب إجماليًا محليًا؛ `PriceTag` يستخدم `priceAtAdd ?? sellingPrice` من الباك، و`CountUp` يعرض القيمة النهائية مع عملة `common.currencyEgp`.
+- `freeShippingThreshold !== null` فقط هو شرط عرض مؤشر الشحن؛ لا رقم مخترع.
+- الـdrawer فيه `role="dialog"` عند الفتح، `aria-modal`، `aria-labelledby`، `aria-controls`/`aria-expanded` على الزر، backdrop، زر إغلاق، Escape، focus trap، scroll lock، وإرجاع التركيز للـtrigger.
+- RTL-safe عبر logical utilities (`end-0`، `bg-ink/40`، `text-*`/`bg-*` tokens)؛ لا raw colors، لا Sass، ولا أنيميشن/ستايل جديد التزامًا بـ`R-STYLE-ANIM`. استُخدمت primitives/wrappers الموجودة فقط.
+- مفاتيح `cart.*` متطابقة بين `ar.json` و`en.json`، و`next-intl` يمنع النصوص hard-coded.
+
+** Automatically verified / فحوص آلية (بعد الإصلاحات النهائية):**
+- `npm run lint` → `LINT_EXIT=0`.
+- `npm run check` → `CHECK_EXIT=0`؛ `Scanned 172 code files, 217 message keys per locale.`؛ `0 failure(s), 0 warning(s).`
+- `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → `TSC_EXIT=0`.
+- `git diff --check` → `DIFF_CHECK_EXIT=0`؛ تحذيرات CRLF معروفة من Git فقط.
+- `npm run build` → `BUILD_EXIT=0`؛ `Compiled successfully`، TypeScript انتهى، `29/29` static pages، والمسارات `ƒ /ar/cart` و`ƒ /en/cart` ظهرت في جدول Build. `B-BUILD` لم يتكرر في هذه الجولة، والختم النهائي ما زال شأن G5.
+- أثناء الـbuild ظهرت `NETWORK_ERROR` لقراءات المتجر لأن الباك كان متوقفًا؛ لم تمنع البناء.
+- `git diff -- package.json package-lock.json` → فارغ، `DEPENDENCY_DIFF_EXIT=0`.
+
+** أخطاء تم إصلاحها خلال G4 (للشفافية):**
+- أول `npm run check` رجع `CHECK_EXIT=1` لأن `CartDrawer.tsx` كان 255 سطرًا فوق hard limit 200؛ فُصل إلى `useCartActions.ts` و`useDrawerFocus.ts` و`lib/cartError.ts`، وأصبح 148 سطرًا.
+- أول `tsc` رجع `TSC_EXIT=2` بسبب استيراد named بدل default لـ`CartSkeleton`/`CartSection`/`CartDrawer`؛ صُحّحت الاستيرادات، ثم النهائي نظيف.
+
+** API / browser status:**
+- لا browser automation في هذه الجولة؛ Network، double-click، RTL/LTR بصريًا، 360px/desktop، الثيمات الأربعة، focus-visible، reduced-motion، وHTML بعد hydration كلها `NOT-TESTED`.
+- PATCH/DELETE الحية `NOT-TESTED` بسبب `R-CART-WRITE` الموروث: توكن صحيح الشكل غير موجود رجع سابقًا `DB_CONSTRAINT_ERROR` من `cart.findUnique`، ولم يتحقق `CART_NOT_FOUND` حيًا.
+- `R-API-SEARCH` و`R-VIS` لم يتغيرا. لا توكنز حقيقية ولا secrets في هذا التقرير.
+
+** Deviations / انحرافات:**
+- `CartSection.tsx` أُضيف كقسم سيرفر لأن الصفحة يجب أن تبقى رفيعة؛ لا منطق بيانات داخل `page.tsx`.
+- `metadata.ts` بدل `metadata.tsx` اتباعًا لاتفاق المسارات الحقيقي.
+- فُصلت منطق المutations والـfocus/error mapping إلى ثلاثة ملفات جديدة لتفادي تجاوز حد 200 سطر؛ لا Global state ولا dependency جديدة.
+- الـdrawer trigger داخل صفحة Cart فقط؛ لم يُربط بـ`CartLink` في الهيدر لأن ذلك خارج G4.
+- الـmessages أُضيفت بـ31 مفتاحًا بدل العدد المخطط تقريبًا، لكل الحالات translation-natives؛ العدد متطابق بين اللغتين.
+
+**مراجعة الـdiff:** رُوجع `git status --short` و`git diff --stat` و`git diff --name-only` مع قراءة كل ملفات G4 الجديدة والملفات المعدّلة. لا package/lock changes، ولا تعديلات backend أو build tooling أو G1–G3. الملفات الموروثة ما زالت في working tree كما كانت.
+
+**مراجعة Astra المطلوبة:** راجع تقسيم الملفات والحدود، منع الطلب بدون توكن، منع التكرار أثناء الـmutations، صحة `itemsCount`/`subtotal`/`freeShippingThreshold`، أمان الـdialog/focus/RTL، تمييز «Implemented» عن «Automatically verified» عن «NOT-TESTED»، واستمرار `R-CART-WRITE`. الاعتماد البصري النهائي للمالك منفصل.
+
+⛔ STOP — Gate 4
+
+---
+
+### 27) Day 5 — Gate 5: Final Audit, Validation & Handoff (G5 only, documentation only)
+
+**الإذن:** إذن مالك صريح باسم `DAY 5 — GATE 5: FINAL AUDIT, VALIDATION & HANDOFF`، مع توضيح `Owner Authorization: APPROVED — Start G5 only.` فُتح `G5` فقط للتدقيق والتوثيق؛ لم يُعاد فتح `G1/G2/G3/G4`، ولم يُفتح Day 6، ولم تُجرَ أي إصلاحات أو تغييرات implementation.
+
+**النطاق المنفّذ في G5:** قراءة `AGENTS.md` الخاص بالفرونت، `docs/DAY5_TASKS.md`، `docs/DAY4_TASKS.md`، والسجل الكامل `docs/PROGRESS.md` حتى §26؛ فحص working tree؛ تدقيق مصدر G0–G4؛ إعادة تشغيل أوامر التحقق للقراءة فقط؛ تحديث `docs/PROGRESS.md` و`docs/DAY5_TASKS.md` فقط. لا كود تطبيق، لا backend/DB، لا dependencies، لا config/scripts، لا commit/push/deploy، لا تشغيل أو إيقاف سيرفرات، ولا mutations للسلة.
+
+**Preflight:**
+- `E:\NODE_JS\Udemy\Training\AGENTS.md` غير موجود؛ كذلك لا يوجد `AGENTS.md` في جذر `Om-Eman`. قُرئ `frontend/AGENTS.md` قبل أي عمل.
+- قُرئ `DAY5_TASKS.md` كاملًا، مع الحفاظ على الخطة الأصلية وتحديث الحالة الفعلية فقط.
+- قُرئ `DAY4_TASKS.md` كاملًا؛ الحالة التاريخية هي `DAY 4 GATE 5 COMPLETE — FINAL HANDOFF READY — WAITING FOR OWNER REVIEW`.
+- قُرئ `PROGRESS.md` حتى نهاية §26؛ الأسطر القديمة في الأعلى superseded ولم تُحذف.
+
+**Git baseline الحالي في G5:**
+- `git status --short` أظهر التعديلات الموروثة من Days 1–4 وملفات G0–G4 غير المتتبعة؛ لم تلمسها G5. من ضمن المعدّل: `backend/docs/BACKEND_PROGRESS.md`، `backend/src/modules/store/products/service.ts`، `components/Animation/BackToTop.tsx`، `components/ECommerce/Header/CartLink.tsx`، `components/ECommerce/Header/StoreHeader.tsx`، `components/ECommerce/StoreJsonLd.tsx`، `interface/index.ts`، `interface/store.ts`، `lib/cartToken.ts`، `lib/jsonld.ts`، `lib/routes.ts`، `lib/server/storeQueries.ts`، `messages/ar.json`، `messages/en.json`، `store/cartApi.ts`، `validation/index.ts`، `validation/storeProduct.ts`، و`docs/PROGRESS.md`.
+- ملفات G0–G4 غير المتتبعة ما زالت كما هي، مثل `app/[locale]/(Store)/cart/`، `app/[locale]/(Store)/search/`، `components/ECommerce/Cart/`، `components/ECommerce/Search/`, `hooks/useCartBadge.ts`، `hooks/useCartToken.ts`، `hooks/useCartActions.ts`، `hooks/useDrawerFocus.ts`، `lib/cartError.ts`، `lib/searchQuery.ts`، `validation/storeSearch.ts`، و`components/Skelton/{CartSkeleton,SearchSkeleton}.tsx`.
+- `git diff --stat` → `18 files changed, 659 insertions(+), 26 deletions(-)` قبل تعديلات G5، `DIFF_STAT_EXIT=0`.
+- `git diff --check` → `DIFF_CHECK_EXIT=0` مع تحذيرات CRLF فقط، `git diff -- package.json package-lock.json` → فارغ، `DEPENDENCY_DIFF_EXIT=0`.
+
+**حالة البيئة الحية أثناء G5:**
+- `Get-NetTCPConnection -LocalPort 3001,3002 -State Listen`: المنفذ `3001` مستمع بالـPID `65512`؛ المنفذ `3002` لا يوجد عليه LISTENING.
+- `curl http://localhost:3002/api/store/settings` → `SETTINGS_HTTP=000`، `SETTINGS_CURL_EXIT=7`؛ لا HTTP response، لذلك لا يمكن اعتبار أي API متحققًا حيًا في هذه الجولة.
+- لم تُجرَّ طلبات search/cart أو POST/PATCH/DELETE حية، ولم تُبدأ أو تُوقف أي عملية.
+
+**مصفوفة تدقيق Gates/Tasks — الحالة الفعلية:**
+
+| Task ID | الحالة الفعلية | الملفات/المسارات الفعلية | الدليل |
+| --- | --- | --- | --- |
+| G0 baseline | IMPLEMENTED | `docs/PROGRESS.md` §22 | baseline موثّق، عقود صالحة من المصدر، لا تعديل مصدر داخل G0. |
+| G0 live smoke | BLOCKED | `backend/src/modules/store/{search,cart}/**`, `backend/src/modules/store/settings/service.ts` | المنفذ 3002 غير متاح حاليًا؛،`SETTINGS_CURL_EXIT=7`. |
+| G1 search data/inputs | IMPLEMENTED | `lib/searchQuery.ts`, `validation/storeSearch.ts`, `interface/store.ts`, `lib/server/storeQueries.ts`, `lib/routes.ts` | `q` 1–200، `limit` 1–50/default 20، Zod للرد، لا `"use cache"`/`cacheTag`/`cacheLife` في `getStoreSearch`. |
+| G1 API success contract | BLOCKED | `backend/src/modules/store/search/service.ts`, `PROGRESS.md` §23 | استعلامات صحيحة سابقة رجعت `DB_CONSTRAINT_ERROR`؛ لا رد 200 حقيقي لتحقق الـschema/الاقتراحات/الأسعار. |
+| G2 search UI/page/SEO | IMPLEMENTED | `components/ECommerce/Header/SearchForm.tsx`, `components/ECommerce/Header/StoreHeader.tsx`, `app/[locale]/(Store)/search/*`, `components/ECommerce/Search/*`, `components/Skelton/SearchSkeleton.tsx`, `lib/jsonld.ts`, `components/ECommerce/StoreJsonLd.tsx`, `messages/{ar,en}.json` | `q` في الرابط عبر `router.push(searchHref(...))`، نفس `ProductCard`، suggestions/empty/error منفصلة،`WebSite.SearchAction`، 16 مفتاح `search.*` متطابق. |
+| G2 browser/API real data | NOT TESTED / BLOCKED | `PROGRESS.md` §24 | لا أداة متصفح، لا رد بحث حقيقي؛ SSR/HTML السابق سجل تاريخي لا يرقى إلى BROWSER VERIFIED أو API VERIFIED. |
+| G3 cart API/badge | IMPLEMENTED | `store/cartApi.ts`, `store/baseApi.ts`, `lib/cartToken.ts`, `hooks/useCartToken.ts`, `hooks/useCartBadge.ts`, `components/ECommerce/Header/CartLink.tsx` | `getCartByToken` للقراءة فقط، `skip` عند غياب التوكن، توكن `om_cart_token` محفوظ، badge من `itemsCount`، `getOrCreateCart` ما زال لمسار الإضافة القديم فقط. |
+| G3 live cart read | BLOCKED | `PROGRESS.md` §25 | توكن صحيح الشكل غير موجود رجع سابقًا `DB_CONSTRAINT_ERROR`؛ `CART_NOT_FOUND` لم يتحقق حيًا. |
+| G4 cart page/drawer | IMPLEMENTED | `app/[locale]/(Store)/cart/*`, `components/ECommerce/Cart/*`, `components/Skelton/CartSkeleton.tsx`, `hooks/useCartActions.ts`, `hooks/useDrawerFocus.ts`, `lib/cartError.ts`, `messages/{ar,en}.json` | صفحة رفيعة، قراءة بالتوكن، PATCH/DELETE على `itemId`، `subtotal/itemsCount/isAvailable/freeShippingThreshold` من الباك، 31 مفتاح `cart.*` متطابق، كل ملف ≤200 سطر. |
+| G4 live PATCH/DELETE | BLOCKED / NOT TESTED | `PROGRESS.md` §26 | `R-CART-WRITE` ما زال مفتوحًا؛ لا بيئة سلة حقيقية مأذونة، لا Network assertions، لا double-click حقيقي. |
+| G5 audit report | IMPLEMENTED | `docs/PROGRESS.md` §27, `docs/DAY5_TASKS.md` | تدقيق مصدر + فحوص محدّثة + تصنيف صريح للقيود. |
+| Astra review | ASTRA REVIEWED: NOT TESTED | نهاية هذا التقرير | طلب مراجعة فقط؛ لا نتيجة مراجعة مكتملة في السجل. |
+| Owner final approval | OWNER APPROVED: NOT TESTED | نهاية هذا التقرير | Owner منح إذن Gates للتنفيذ فقط؛ لا اعتماد بصري/نهائي للنواتج. |
+
+**Automated verification — G5 (كل أمر على حدة من `Om-Eman/frontend`):**
+
+| الأمر | النتيجة | مقتطف مفيد |
+| --- | --- | --- |
+| `npm run lint` | `LINT_EXIT=0` | لا أخطاء ESLint. |
+| `npm run check` | `CHECK_EXIT=0` | `Scanned 172 code files, 217 message keys per locale.` و`0 failure(s), 0 warning(s).` |
+| `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` | `TSC_EXIT=0` | لا أخطاء TypeScript. |
+| `git diff --check` | `DIFF_CHECK_EXIT=0` | تحذيرات CRLF فقط من Git. |
+| `npm run build` | `BUILD_EXIT=0` | `Compiled successfully in 12.0s`، TypeScript انتهى، `29/29` static pages، ومسارات `ƒ /ar/search`، `ƒ /en/search`، `ƒ /ar/cart`، `ƒ /en/cart` ظهرت في جدول Build. لم يتكرر `B-BUILD` في هذه الجولة. |
+| `git diff -- package.json package-lock.json` | `DEPENDENCY_DIFF_EXIT=0` | فارغ؛ لا تبعيات جديدة. |
+
+**API / Browser / Review status:**
+- `API VERIFIED`: لا يوجد. لا قراءة search حقيقية، لا قراءة cart حقيقية، ولا PATCH/DELETE حي.
+- `BROWSER VERIFIED`: لا يوجد. لم تُختبر RTL/LTR، 360px/desktop، الثيمات الأربعة، Tab/Enter/Escape/focus-visible، reduced-motion، overflow الأفقي، back/forward، أو Network أثناء التفاعل.
+- `ASTRA REVIEWED`: لا يوجد؛ Astra مطلوب في نهاية هذا التقرير.
+- `OWNER APPROVED`: لا يوجد؛ الاعتماد البصري والانتقال النهائي قرار المالك.
+
+**تدقيق المصدر الإضافي في G5 — انحرافات/مخاطر لم تُصلح:**
+- `components/ECommerce/Header/SearchForm.tsx:35-51`: النموذج فيه `method="get"` لكن الإدخال بلا `name="q"` ولا يوجد `action`؛ مسار JS عبر `router.push(searchHref(...))` يعمل، أما native/no-JS fallback فلا يحمل `q`. لم يُصلح لأن G5 توثيق فقط.
+- `components/ECommerce/Search/SearchResults.tsx:13` و`components/Skelton/SearchSkeleton.tsx:9`: تكرار نفس شبكة `FeaturedGrid` بدل إعادة استخدام المكوّن؛ `ProductCard` نفسه مستخدم بالفعل، ولا توجد نسخة search-card.
+- `app/[locale]/(Store)/search/metadata.ts:18,31`: `getTranslations` يستقبل `locale` غير مُضيّق، وكل صفحات البحث `noindex` مع وجود `SearchAction`؛ قرار SEO محفوظ من G2 ويحتاج مراجعة Astra/Owner.
+- `components/ECommerce/Cart/CartDrawer.tsx:90-143`: المكوّن يعمل بنمطين؛ عند الإغلاق يعرض محتوى السلة داخل صفحة السلة نفسها، وعند الفتح يصبح dialog ثابتًا. هذا تحقق مصدرًا فقط وسلوكه البصري `NOT TESTED`.
+- `hooks/useDrawerFocus.ts:13-16,48-52`: يوجد احتمال double focus restore بين `close()` وتنظيف الـeffect؛ لم يُختبر في متصفح.
+- `components/ECommerce/Cart/CartSummary.tsx:17-31`: `Number(subtotal)` بلا حماية `NaN/Infinity`؛ العقد يفترض decimal string صالحًا، وسُجّل كملاحظة تحسين لا كعيب مؤكد.
+- لا raw colors ولا Sass ولا أنيميشن جديد في ملفات G5؛ التزام `R-STYLE-ANIM` ما زال قائمًا، وحركات fly/bounce/count-up الموجودة لم تتغير.
+
+**النطاق والـregression audit:**
+- لا تعديلات في backend/DB/migrations/seed/npm scripts/config/package files.
+- لا cart slice/provider موازٍ، لا cookie ثانٍ، لا localStorage key جديد، لا parallel search suggestions endpoint، لا `POST /api/search-logs`، لا checkout/merge، لا حساب subtotal محلي.
+- لا تعديل في `ProductCard` أو `FeaturedGrid` أو fly-target؛ `R-G4-MAJOR` ما زال مؤجلًا.
+- لا تعديلات أنيميشن/ستايل جديدة؛ `D3-RM` و`R-STYLE-ANIM` ما زالا مؤجلين.
+- الفحوص الآلية الآن خضرا، لكنها لا تغيّر حالة API/Browser/Astra/Owner.
+
+**المتبقي/الـblockers:**
+- `R-API-SEARCH`: مفتوح؛ real results/suggestions/zero-result/SearchLog runtime `BLOCKED`.
+- `R-CART-WRITE`: مفتوح؛ PATCH/DELETE وقراءة سلة حقيقية `BLOCKED/NOT TESTED`.
+- `R-VIS`: مفتوح؛ كل مصفوفة المتصفح والاعتماد البصري `NOT TESTED`.
+- `B-BUILD`: Build الحالي ناجح، لكن الخطر التاريخي ما زال مسجّلًا؛ لا ختم production-ready.
+- `R-G4-MAJOR`, `D3-RM`, `R-STYLE-ANIM`, B-PUB negative cases, guest-merge/checkout/account: كلها مؤجلة أو خارج نطاق اليوم الخامس.
+- `R-PORTS`: `:3001` مستمع بالـPID `65512`، `:3002` غير متاح؛ لا تدخل G5 على العمليات.
+
+**مراجعة Astra المطلوبة:**
+يرجى من Astra، دون تعديل كود، مراجعة:
+1. مصفوفة Gates/Tasks وفصل `IMPLEMENTED` عن `AUTOMATED CHECK PASSED` عن `API VERIFIED` عن `BROWSER VERIFIED` عن `ASTRA REVIEWED` عن `OWNER APPROVED`.
+2. الانحرافات المكتشفة في G5: native search fallback، تكرار grid classes، `noindex`/SearchAction، dual-mode CartDrawer، double focus restore، `Number(subtotal)`.
+3. استمرار `R-API-SEARCH` و`R-CART-WRITE` و`R-VIS` و`B-BUILD` وعدم اعتماد أي منها تلقائيًا.
+4. هل التصنيف النهائي أدناه مناسب كـTECHNICAL HANDOFF أم يجب تحويله إلى `PARTIAL HANDOFF` أو `DAY 5 INCOMPLETE — BLOCKED` بقرار Astra/Mالك.
+
+**قرار Owner المطلوب:**
+- هل يُعتمد هذا كـtechnical handoff رغم فجوات API/browser؟
+- هل تُوفَّر بيئة `:3002`/DB سليمة وبيئة cart write مأذونة لإغلاق `R-API-SEARCH` و`R-CART-WRITE`؟
+- هل تُجرى مصفوفة متصفح مستقلة للبحث والسلة قبل أي اعتماد بصري؟
+- هل تُعالج انحرافات G5 في تكليف منفصل أم تُقبل كـdeferred technical debt؟
+- هل يُعاد فتح G4 لهدف fly، أو يُبقى خارج النطاق كما هو؟
+
+**التصنيف النهائي:** `DAY 5 COMPLETE — TECHNICAL HANDOFF READY` مع تسجيل صريح بأن `API VERIFIED`, `BROWSER VERIFIED`, `ASTRA REVIEWED`, و`OWNER APPROVED` ليست متحققة، وأن لا ختم production-ready.
+
+⛔ STOP — DAY 5 GATE 5 COMPLETE — WAITING FOR OWNER REVIEW

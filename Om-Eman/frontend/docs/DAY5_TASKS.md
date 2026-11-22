@@ -1,8 +1,10 @@
 # اليوم 5 — البحث + سلة الضيف — تاسكات التخطيط والتفكيك
 
-> آخر تحديث: 2026-11-19. **حالة المستند: DAY 5 PLANNING COMPLETE — WAITING FOR OWNER APPROVAL.**
+> آخر تحديث: 2026-11-21. **حالة المستند: DAY 5 GATE 5 COMPLETE — TECHNICAL HANDOFF READY — WAITING FOR OWNER REVIEW.**
 > **المدير/المراجع:** Astra. **المنفّذ المقترح:** GLM. **المالك:** صاحب القرار في النطاق، العقود، الشكل، فتح كل Gate والانتقال للي بعدها.
-> المسارات نسبية إلى `Om-Eman/frontend/` إلا لو ذُكر الباك صراحة. هذا المستند **تخطيط ومراجعة فقط**؛ لا يمنح إذن implementation، ولا يفتح أي Gate، ولا يغيّر حالة D5-SEARCH/D5-CART من `Not Started`.
+> المسارات نسبية إلى `Om-Eman/frontend/` إلا لو ذُكر الباك صراحة. هذا المستند سجل تخطيط ومراجعة Day 5؛ نُفّذت Gates G0–G4 بإذونات مالك منفصلة، واكتمل التدقيق النهائي في G5. لا يمنح هذا السجل وحده اعتمادًا بصريًا أو انتقالًا تلقائيًا.
+
+> **تحديث الحالة الفعلية بعد G5:** التصنيف `DAY 5 COMPLETE — TECHNICAL HANDOFF READY`. `D5-SEARCH` و`D5-CART` كلاهما `IMPLEMENTED` و`AUTOMATED CHECK PASSED`؛ `API VERIFIED`, `BROWSER VERIFIED`, `ASTRA REVIEWED`, و`OWNER APPROVED` غير متحققة. التفاصيل والأدلة في `docs/PROGRESS.md` §27.
 
 ---
 
@@ -367,7 +369,7 @@ curl -i 'http://localhost:3002/api/store/cart'
 - دقة تصنيف «Implemented but not fully verified» و«Deferred» و«Blocked»؛
 - أن الملفات كلها «متوقعة» وليست إذن تنفيذ، وأن STOP موجود.
 
-**قرار Astra:** ______________________________________  
-**اعتماد المالك / إذن فتح Gate:** _____________________  
+**قرار Astra:** PENDING — مراجعة G5 مطلوبة مقابل `docs/PROGRESS.md` §27، خصوصًا فصل statuses والانحرافات المكتشفة واستمرار `R-API-SEARCH` و`R-CART-WRITE` و`R-VIS` و`B-BUILD`.
+**اعتماد المالك / إذن فتح Gate:** PENDING — لا اعتماد بصري أو انتقال تلقائي؛ المالك يقرر technical handoff والبيئة المطلوبة والانحرافات المؤجلة.
 
-⛔ STOP — DAY 5 PLANNING COMPLETE — WAITING FOR OWNER APPROVAL
+⛔ STOP — DAY 5 GATE 5 COMPLETE — WAITING FOR OWNER REVIEW

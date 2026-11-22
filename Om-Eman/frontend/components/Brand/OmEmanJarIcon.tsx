@@ -49,13 +49,18 @@ export const OmEmanJarIcon = ({
       />
       <g clipPath={`url(#${clipId})`}>
         {animated ? (
-          <g className="jar-fill-anim">
-            <rect x="12" y="24" width="40" height="58" className="fill-accent/25" />
-            <path d="M12 46c6-5 10 5 16 0s10 5 16 0s10 5 16 0v36H12z" className="fill-primary/30" />
-            <circle cx="24" cy="52" r="2.2" className="fill-accent/70 herb-float" />
-            <circle cx="36" cy="48" r="1.8" className="fill-primary/70 herb-float" style={{ animationDelay: "0.4s" }} />
-            <circle cx="42" cy="56" r="1.8" className="fill-accent/70 herb-float" style={{ animationDelay: "0.8s" }} />
-            <path d="M29 58c2.5-4 5-4 6.5 0c-2.5 2-4.5 2-6.5 0z" className="fill-primary/60 herb-float" style={{ animationDelay: "1s" }} />
+          <g className="jar-spice-fill">
+            <rect x="12" y="24" width="40" height="58" className="fill-primary/15" />
+            <rect x="12" y="36" width="40" height="46" className="fill-accent/25" />
+            <circle cx="21" cy="48" r="2.1" className="fill-primary/70 spice-grain" />
+            <circle cx="30" cy="44" r="1.7" className="fill-accent/80 spice-grain" style={{ animationDelay: "0.3s" }} />
+            <ellipse cx="40" cy="50" rx="2.6" ry="1.6" className="fill-primary/65 spice-grain" style={{ animationDelay: "0.6s" }} />
+            <circle cx="25" cy="57" r="2.4" className="fill-accent/80 spice-grain" style={{ animationDelay: "0.9s" }} />
+            <circle cx="36" cy="59" r="1.9" className="fill-primary/75 spice-grain" style={{ animationDelay: "1.2s" }} />
+            <ellipse cx="46" cy="62" rx="2.2" ry="1.4" className="fill-accent/70 spice-grain" style={{ animationDelay: "0.45s" }} />
+            <circle cx="19" cy="67" r="1.8" className="fill-primary/70 spice-grain" style={{ animationDelay: "0.75s" }} />
+            <circle cx="33" cy="70" r="2.3" className="fill-accent/80 spice-grain" style={{ animationDelay: "1.05s" }} />
+            <ellipse cx="43" cy="73" rx="2.5" ry="1.5" className="fill-primary/70 spice-grain" style={{ animationDelay: "1.35s" }} />
           </g>
         ) : null}
       </g>

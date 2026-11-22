@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, m, useScroll } from "motion/react";
 import { ArrowUp } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useIsScrolled } from "@/hooks/useIsScrolled";
 import { SPRING_CARD } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { ScrollProgressRing } from "./ScrollProgressRing";
@@ -14,31 +15,15 @@ interface IProps {
 }
 
 const subscribe = () => () => {};
-const THRESHOLD = 10;
-
-const getScrollTop = () =>
-  window.scrollY || document.scrollingElement?.scrollTop || document.documentElement.scrollTop || 0;
 
 export const ScrollTopFab = ({ className }: IProps) => {
   // 1- state
-  const [isVisible, setIsVisible] = useState(false);
+  const isVisible = useIsScrolled();
   const mounted = useSyncExternalStore(subscribe, () => true, () => false);
   const t = useTranslations("common");
   const { scrollYProgress } = useScroll();
 
   // 2- handlers
-  useEffect(() => {
-    if (!mounted) return;
-    const onScroll = () => setIsVisible(getScrollTop() > THRESHOLD);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    document.addEventListener("scroll", onScroll, { passive: true, capture: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      document.removeEventListener("scroll", onScroll, { capture: true });
-    };
-  }, [mounted]);
-
   const onScrollTop = () => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
@@ -64,7 +49,7 @@ export const ScrollTopFab = ({ className }: IProps) => {
           )}
         >
           <ScrollProgressRing progress={scrollYProgress} />
-          <ArrowUp aria-hidden="true" className="relative size-5 text-white" />
+          <ArrowUp aria-hidden="true" className="relative size-5 text-ink-strong" />
         </m.button>
       ) : null}
     </AnimatePresence>,

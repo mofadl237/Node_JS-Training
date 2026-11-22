@@ -14,6 +14,7 @@ interface IWebSiteProps {
   siteUrl: string;
   locale: string;
   name: string;
+  searchPath: string;
 }
 
 export const buildOrganizationJsonLd = ({
@@ -45,13 +46,27 @@ export const buildOrganizationJsonLd = ({
   return data;
 };
 
-export const buildWebSiteJsonLd = ({ siteUrl, locale, name }: IWebSiteProps): Record<string, unknown> => ({
-  "@context": "https://schema.org",
-  "@type": "WebSite",
+export const buildWebSiteJsonLd = ({
+  siteUrl,
+  locale,
   name,
-  url: `${siteUrl}/${locale}`,
-  inLanguage: locale,
-});
+  searchPath,
+}: IWebSiteProps): Record<string, unknown> => {
+  const data: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name,
+    url: `${siteUrl}/${locale}`,
+    inLanguage: locale,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${siteUrl}/${locale}${searchPath}?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
+
+  return data;
+};
 
 interface IBuildBreadcrumbProps {
   siteUrl: string;

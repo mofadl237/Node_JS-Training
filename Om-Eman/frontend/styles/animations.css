@@ -226,39 +226,67 @@
   .border-beam,
   .pulse-ring-layer,
   .marquee-track,
-  .jar-fill-anim,
-  .herb-float {
+  .jar-spice-fill,
+  .spice-grain,
+  .cart-cta {
     animation: none;
   }
 }
 
-/* 9- branded jar loading (Gate 3) */
-@keyframes jar-fill-rise {
+@keyframes jar-spice-rise {
   0%,
   100% {
-    transform: translateY(68%);
+    transform: translateY(62%);
   }
-  50% {
+  45% {
+    transform: translateY(12%);
+  }
+  70% {
     transform: translateY(18%);
   }
 }
 
-@keyframes herb-float {
+@keyframes spice-grain-drift {
   0%,
   100% {
     transform: translateY(0) rotate(0deg);
-    opacity: 0.55;
+    opacity: 0.6;
   }
   50% {
-    transform: translateY(-4px) rotate(6deg);
-    opacity: 0.85;
+    transform: translateY(-5px) rotate(14deg);
+    opacity: 0.95;
   }
 }
 
-.jar-fill-anim {
-  animation: jar-fill-rise 3.2s var(--ease-out) infinite;
+.jar-spice-fill {
+  animation: jar-spice-rise 3.2s var(--ease-out) infinite;
 }
 
-.herb-float {
-  animation: herb-float 2.4s var(--ease-out) infinite;
+.spice-grain {
+  animation: spice-grain-drift 2.4s var(--ease-out) infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+@keyframes cart-cta-nudge {
+  0%,
+  88%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  92% {
+    transform: translateY(-4px) scale(1.02);
+  }
+  96% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.cart-cta {
+  animation: cart-cta-nudge 5s var(--ease-out) 1s infinite;
+}
+
+.cart-cta:hover,
+.cart-cta:focus-visible {
+  animation-play-state: paused;
 }

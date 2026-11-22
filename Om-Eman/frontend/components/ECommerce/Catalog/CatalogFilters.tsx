@@ -16,7 +16,7 @@ const SORTS: TCatalogSort[] = ["newest", "price_asc", "price_desc", "name"];
 
 const chip = (active: boolean) =>
   cn(
-    "inline-flex h-9 items-center rounded-full border px-3 text-sm transition-colors",
+    "inline-flex h-8 items-center rounded-full border px-2.5 text-xs transition-colors",
     active
       ? "border-primary bg-primary/10 text-primary"
       : "border-ink/10 bg-surface text-ink-soft hover:text-ink",
@@ -35,11 +35,11 @@ export const CatalogFilters = async ({ locale, query, categories, categoriesErro
   const subs = activeCategory?.subcategories ?? [];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {categoriesError ? <p className="text-sm text-danger">{t("filtersError")}</p> : null}
-      <div className="space-y-2">
-        <p className="text-sm font-semibold text-ink">{t("category")}</p>
-        <div className="flex flex-wrap gap-2">
+      <div className="space-y-1.5">
+        <p className="text-xs font-semibold text-ink">{t("category")}</p>
+        <div className="flex flex-wrap gap-1.5">
           <Link href={buildHref({ sort: query.sort, page: 1 })} className={chip(!query.category)}>
             {t("allCategories")}
           </Link>
@@ -58,9 +58,9 @@ export const CatalogFilters = async ({ locale, query, categories, categoriesErro
         </div>
       </div>
       {query.category && subs.length > 0 ? (
-        <div className="space-y-2">
-          <p className="text-sm font-semibold text-ink">{t("subcategory")}</p>
-          <div className="flex flex-wrap gap-2">
+        <div className="space-y-1.5">
+          <p className="text-xs font-semibold text-ink">{t("subcategory")}</p>
+          <div className="flex flex-wrap gap-1.5">
             <Link
               href={buildHref({ category: query.category, sort: query.sort, page: 1 })}
               className={chip(!query.subcategory)}
@@ -82,9 +82,9 @@ export const CatalogFilters = async ({ locale, query, categories, categoriesErro
           </div>
         </div>
       ) : null}
-      <div className="space-y-2">
-        <p className="text-sm font-semibold text-ink">{t("sort")}</p>
-        <div className="flex flex-wrap gap-2">
+      <div className="space-y-1.5">
+        <p className="text-xs font-semibold text-ink">{t("sort")}</p>
+        <div className="flex flex-wrap gap-1.5">
           {SORTS.map((sort) => (
             <Link
               key={sort}

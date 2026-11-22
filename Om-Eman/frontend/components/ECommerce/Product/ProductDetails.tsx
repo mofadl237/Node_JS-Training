@@ -61,6 +61,9 @@ export const ProductDetails = async ({ locale, slug }: IProps) => {
             {product.productType === "PREDEFINED_BUNDLE" ? (
               <Badge variant="bundle">{tProduct("bundle")}</Badge>
             ) : null}
+            <Badge variant="accent" className="w-fit tracking-[0.18em]">
+              {t("premium")}
+            </Badge>
             {description && description.trim() !== "" ? (
               <p className="leading-relaxed text-ink-soft">{description}</p>
             ) : null}

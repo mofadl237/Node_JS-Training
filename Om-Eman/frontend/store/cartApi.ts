@@ -44,6 +44,13 @@ export const cartApi = baseApi.injectEndpoints({
       transformResponse: (res: IApiSuccess<IStoreCart>) => unwrapEnvelope(res).data,
       providesTags: [{ type: "Cart", id: "CURRENT" }],
     }),
+    getCartByToken: build.query<IStoreCart, string>({
+      query: (guestToken) => ({
+        url: `/store/cart/${guestToken}`,
+      }),
+      transformResponse: (res: IApiSuccess<IStoreCart>) => unwrapEnvelope(res).data,
+      providesTags: [{ type: "Cart", id: "CURRENT" }],
+    }),
     addCartItem: build.mutation<IStoreCart, { guestToken: string; productPackageId: string; quantity: number }>({
       query: ({ guestToken, productPackageId, quantity }) => ({
         url: `/store/cart/${guestToken}/items`,
@@ -53,8 +60,35 @@ export const cartApi = baseApi.injectEndpoints({
       transformResponse: (res: IApiSuccess<IStoreCart>) => unwrapEnvelope(res).data,
       invalidatesTags: [{ type: "Cart", id: "CURRENT" }],
     }),
+    updateCartItem: build.mutation<
+      IStoreCart,
+      { guestToken: string; itemId: string; quantity: number }
+    >({
+      query: ({ guestToken, itemId, quantity }) => ({
+        url: `/store/cart/${guestToken}/items/${itemId}`,
+        method: "PATCH",
+        body: { quantity },
+      }),
+      transformResponse: (res: IApiSuccess<IStoreCart>) => unwrapEnvelope(res).data,
+      invalidatesTags: [{ type: "Cart", id: "CURRENT" }],
+    }),
+    removeCartItem: build.mutation<IStoreCart, { guestToken: string; itemId: string }>({
+      query: ({ guestToken, itemId }) => ({
+        url: `/store/cart/${guestToken}/items/${itemId}`,
+        method: "DELETE",
+      }),
+      transformResponse: (res: IApiSuccess<IStoreCart>) => unwrapEnvelope(res).data,
+      invalidatesTags: [{ type: "Cart", id: "CURRENT" }],
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetOrCreateCartQuery, useAddCartItemMutation, useLazyGetOrCreateCartQuery } = cartApi;
+export const {
+  useGetOrCreateCartQuery,
+  useAddCartItemMutation,
+  useLazyGetOrCreateCartQuery,
+  useGetCartByTokenQuery,
+  useUpdateCartItemMutation,
+  useRemoveCartItemMutation,
+} = cartApi;
