@@ -25,15 +25,15 @@ export type TSocialPlatform =
 
 export const SOCIAL_LINKS: Record<TSocialPlatform, string | null> = {
   instagram: "https://www.instagram.com/om_eman.herbs/",
-  facebook: null,
-  tiktok: null,
+  facebook: "https://www.facebook.com/profile.php?id=61596692732641",
+  tiktok: "https://www.tiktok.com/@om_eman.herbs",
   youtube: null,
   x: null,
+  linkedin: null,
+  telegram: null,
   snapchat: null,
   pinterest: null,
   threads: null,
-  linkedin: null,
-  telegram: null,
 };
 
 export interface IContactPhone {

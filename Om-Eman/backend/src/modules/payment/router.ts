@@ -20,12 +20,12 @@ const controller = new PaymentController();
 
 router.get(
   "/",
-  authenticate, validateQuery(listPaymentQuerySchema),
+  authenticate, authorize(EEmployeeRole.OWNER, EEmployeeRole.ADMIN), validateQuery(listPaymentQuerySchema),
   controller.list,
 );
 router.get(
   "/:id",
-  authenticate, validateParams(paymentIdParamSchema),
+  authenticate, authorize(EEmployeeRole.OWNER, EEmployeeRole.ADMIN), validateParams(paymentIdParamSchema),
   controller.getById,
 );
 

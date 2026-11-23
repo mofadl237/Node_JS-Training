@@ -289,3 +289,108 @@
 4. مفيش `any`، مفيش نص hard-coded، الـ RTL سليم، الوضع الداكن سليم.
 5. في المتجر: metadata + hreflang + JSON-LD موجودة، والصور lazy بـ alt.
 6. مفيش شكل "template AI": الألوان من tokens البراند، الميكروكوبي مصري حقيقي.
+
+---
+
+## Future Feature: Smart Egypt Address & Location System
+
+> حالة القسم: **تخطيط مستقبلي فقط — التنفيذ غير مأذون**. تاريخ التخطيط: 2026-11-22.
+> لا يفتح القسم ده أي Gate من Day 6، ولا يسمح بتعديل checkout الحالي أو الباك أو الداتابيز أو الدependencies.
+> المرجع الباكي: `../../backend/docs/FUTURE_SMART_EGYPT_ADDRESS_SYSTEM.md`.
+
+### 7.1 الوضع الحالي (Existing Implementation — بأدلة)
+
+- `CustomerAddress` في الباك يخزّن `governorate` و`city` كنص، و`district/street/building/floor/landmark` كنصوص، مع `latitude/longitude` اختياريين. مفيش جداول مرجعية للمحافظات/المدن/الأحياء.
+- Checkout الحالي يعرض حقول العنوان في `components/ECommerce/Checkout/CheckoutAddressForm.tsx` و`CheckoutAddressMainFields.tsx` و`CheckoutAddressOptionalFields.tsx`، عبر `useCheckoutForm.ts` و`validation/checkout.ts`.
+- `store/shippingApi.ts` يقرأ `GET /api/store/shipping/areas` و`GET /api/store/shipping/quote`. قائمة المدن الحالية هي datalist مبنية على التعريفات الموجودة في الباك فقط، مش قائمة كل مدن مصر.
+- `CheckoutShipping.tsx` يعرض `cost` وETA القادمين من الباك؛ لو مفيش تعريفة بيظهر `SHIPPING_AREA_NOT_CONFIGURED`، ومفيش شحن مجاني ضمني.
+- مفيش اليوم: browser geolocation، reverse geocoding، address autocomplete، خريطة، بحث عن عنوان، أو إدارة/reference data للجغرافيا.
+- البنية المتاحة للاستخدام عند الإذن: `store/baseApi.ts` لـRTK Query، `validation/*` لـZod، `interface/*`، `messages/{ar,en}.json`، `components/ui` و`components/shared`، و`next-intl` بالعربية والإنجليزية.
+
+### 7.2 المشكلة والقاعدة المعمارية
+
+المشكلة ليست "العميل مش عارف عنوانه" بس، بل إن العنوان نفسه ممكن يتبنى بشكل خاطئ، والمنطقة الجغرافية مش بالضرورة منطقة توصيل.
+
+قاعدة لازم تتفهم قبل أي تصميم:
+
+> **الجغرافيا الإدارية مش قابلية التوصيل.** وجود محافظة أو مدينة أو حي في مصدر خرائط أو قاعدة مرجعية لا يعني أن Om Eman توصّل إليها، ولا يعني أن الشحن مجاني. أي عنوان لازم يمر عبر قاعدة `ShippingTariff` الحالية، وغياب التعريفة يفضل خطأ صريح `SHIPPING_AREA_NOT_CONFIGURED`.
+
+### 7.3 UX Approaches A–D (مقارنة تخطيطية)
+
+| Approach | الفكرة | الإيجابيات | التكلفة/المخاطر | الحالة المقترحة |
+| --- | --- | --- | --- | --- |
+| **A — Structured manual entry** | محافظة ← مدينة ← حي/شارع/مبنى/دور/علامة مميزة، مع قوائم مرجعية صحيحة ورسالة واضحة للمنطقة غير المهيأة. | الأرخص، يعمل بدون provider، سهل في ar/en وRTL، قابل للاختبار، يحافظ على قاعدة الشحن الحالية. | ما بيحلش مشكلة العميل اللي مش عارف يكتب اسم الحي أو يقع في محافظة غلط. | **Baseline إلزامي**؛ لا يُلغى في أي خيار تاني. |
+| **B — Browser location + reverse geocode prefill** | زر "استخدم موقعي" يطلب إذن المتصفح، ثم reverse geocoding يقترح محافظة/مدينة/شارع، والمستخدم يراجع ويعدّل. | سريع على الموبايل، يقلل الإملاء، تجربة حديثة. | HTTPS + إذن صريح + خصوصية + جودة غير مضمونة؛ Nominatim قد يرجع أقرب object أو شارع مختلف في المدن الكثيرة؛ الفشل/الرفض حالة طبيعية. | مرحلة لاحقة اختيارية بعد موافقة provider وconsent. |
+| **C — Address search / autocomplete** | المستخدم يكتب جزءًا من العنوان فيظهر مرشّحون منظّمون من مصدر جغرافي أو مزوّد. | أسرع من القوائم الطويلة، يساعد الأسماء البديلة والإنجليزية. | تكلفة/رخصة/تغطية عربية، ونتائجه لا تساوي قابلية التوصيل؛ محتاج cache وrate limit. | مرحلة متقدمة بعد تثبيت reference data. |
+| **D — Interactive map / drag pin** | خريطة + pin قابل للسحب، واستخدام الموقع الحالي، ثم عرض المقترح في الحقول. | أوضح للعقارات والشوارع الجديدة والعلامات المميزة. | أثقل حزمة وأداءً، تعقيد RTL/accessibility، سياسات tiles، ومخاطر الاعتماد على الخريطة كبديل للحقول. | اختياري تمامًا ومؤجل؛ لا يكون المسار الوحيد. |
+
+**الترشيح التخطيطي:** hybrid متدرّج: A كأساس دائم، ثم B كـprefill اختياري، ثم C بعد توفر بيانات مرجعية موثوقة، وD للاستخدام الضروري فقط. أي prefill أو خريطة يجب أن يمر على نفس حقول Zod وأن يبقى قابلًا للتعديل اليدوي قبل الإرسال.
+
+### 7.4 مصادر البيانات والـproviders (خلاصة)
+
+التفاصيل والروابط الرسمية في مستند الباك. الخلاصة:
+
+- OSM/Nominatim: policy تسمح استخدامًا تفاعليًا محدودًا بحد `1 request/sec` مع attribution وUser-Agent/Referer صالح، وتفضّل proxy+caching؛ غير مناسب كـSLA إنتاجي عالي الحجم.
+- Photon: بديل OSM ببحث/عكس و`lang`؛ الاستخدام الكثيف قد يُخنق.
+- geoBoundaries/GADM: حدود إدارية؛ geoBoundaries يتطلب attribution ولا يضمن uptime، وGADM ترخيصه غير تجاري بدون إذن، لذا يحتاج قرار قانوني.
+- Google/Mapbox/OpenCage: جودة وتغطية مقابل تكلفة وقيود تخزين وربط بالخريطة؛ OpenCage free trial للتجربة فقط.
+- أي خريطة تعتمد على OSM tiles لازم تحترم attribution وcache policy ومنع الاستهلاك الجماعي.
+
+المالك لسه لم يختر مصدرًا أو مزوّدًا؛ لا يُفترض وجود حساب أو مفتاح أو رخصة.
+
+### 7.5 Frontend Architecture المقترح — عند الإذن فقط
+
+| الملف/المجلد المقترح | المسؤولية الواحدة |
+| --- | --- |
+| `interface/location.ts` | عقود `IGovernorate` و`ICity` و`IDistrict` و`IAddressCandidate` و`IReverseGeocodeResult` بالـ`I` prefix. |
+| `validation/location.ts` | Zod لكل payload خارجي ومدخلات البحث والإحداثيات، برسائل من `messages/`. |
+| `store/locationsApi.ts` | RTK Query endpoints عبر `baseApi` فقط، مع tag invalidation وعدم تكرار الطلبات. |
+| `hooks/useBrowserLocation.ts` | طلب إذن المتصفح، حالات `idle/loading/denied/unavailable/success`، بدون setState متزامن في effect. |
+| `hooks/useAddressSuggestions.ts` | تحويل استجابة البحث/الـreverse إلى مرشّح عنوان موحّد. |
+| `lib/locationDisplay.ts` | تنسيق الاسم العربي/الإنجليزي واتجاه RTL/LTR ودمج الأجزاء داخل سطر عنوان واحد. |
+| `components/ECommerce/Checkout/Location/*` | حقول المحافظة/المدينة/الحي، زر "استخدم موقعي"، قائمة الاقتراحات، اختياريًا خريطة صغيرة منفصلة. |
+| `components/ECommerce/Address/*` | إدارة عناوين العميل المستقبلية، منفصلة عن checkout. |
+| `messages/{ar,en}.json` | namespace جديد `checkout.location.*` و`errors.location.*` بنفس المفاتيح بالضبط. |
+
+شروط بناء لاحقة:
+
+- صفحة checkout تظل رقيقة؛ المنطق في hooks/services/components صغيرة ≤150 سطر.
+- لا مكوّن يستدعي `navigator.geolocation` أو API مباشرة؛ كل ده عبر hooks/RTK Query.
+- لا dependency جديدة بدون موافقة؛ لو احتُجت خريطة تُقارَن MapLibre/Leaflet أولًا.
+- لا عرض raw provider message أو error code؛ كل خطأ يُترجم من `messages/`.
+- لا تخزين إحداثيات أو نتائج مقترحة في localStorage بدون قرار خصوصية صريح.
+
+### 7.6 UI States وAccessibility و i18n
+
+- كل أداة جديدة لازم لها: loading skeleton، error، empty، success، وfeedback بعد الاختيار.
+- زر الموقع: حالة واضحة لو الإذن مرفوض أو المتصفح مش مدعم أو الموقع خارج نطاق مصر المسموح؛ لازم يفضل الإدخال اليدوي شغال.
+- reverse geocoding مقترح وليس حقيقة؛ المستخدم يوافق على الحقول أو يعدّلها قبل الإرسال.
+- `aria-live` للاقتراحات، focus واضح، ترتيب tab منطقي، logical properties بدل left/right، واختبار 360px + desktop في ar/en والثيمات الأربعة.
+- أي حركة بسيطة (مثل ظهور الاقتراحات) تتبع قواعد `motion/react` و`prefers-reduced-motion`؛ مفيش حركة تحجب المحتوى فوق الـfold.
+
+### 7.7 مراحل مقترحة واعتماديات
+
+| المرحلة | العمل | الاعتماد |
+| --- | --- | --- |
+| 0 — قرار | اختيار مصدر/مزوّد، الرخصة، الميزانية، ملكية تحديث البيانات، هل الخريطة مطلوبة؟ | موافقة مالك؛ لا كود. |
+| 1 — أساس | بيانات مرجعية للمحافظات/المدن + قوائم تقليل الأخطاء، من غير تغيير قاعدة الشحن. | مصدر بيانات موثوق. |
+| 2 — ربط الخدمة | ربط اختياري بين المرجع ومناطق الشحن مع اختبارات quote/checkout. | موافقة على النمذجة في الباك. |
+| 3 — Location assist | زر استخدام الموقع + reverse geocoding عبر proxy مع consent وcache. | HTTPS + مزوّد + سياسة خصوصية. |
+| 4 — Autocomplete | بحث عن عنوان/منطقة ونتائج منظّمة قابلة للتعديل. | Phase 1/2 + رخصة مزوّد. |
+| 5 — الخريطة | pin/خريطة اختيارية تمامًا مع manual fallback. | قرار مالك + أداء/accessibility/tiles policy. |
+
+### 7.8 قرارات مفتوحة
+
+1. نبدأ بالقوائم المرجعية فقط ولا نضمّن geocoding من البداية؟
+2. إيه هو مصدر الأسماء المعتمد لمصر، خصوصًا الأحياء والمناطق غير الرسمية؟
+3. هل نحتاج مناطق شحن صريحة ولا يكفي نص `governorate/city` الحالي؟
+4. إيه مدة الاحتفاظ بالإحداثيات وبيانات الاقتراحات المرفوضة؟
+5. هل الخريطة التفاعلية مطلوبة في الإصدار الأول ولا مؤجلة؟
+
+### 7.9 المراجع
+
+- Planning كامل: `../../backend/docs/FUTURE_SMART_EGYPT_ADDRESS_SYSTEM.md`.
+- عقود الشحن الحالية: `../../backend/docs/STORE_BACKEND_TASKS.md` B9/B10.
+- سجل التخطيط: `./PROGRESS.md` §32.
+
+**Planning status: DOCUMENTATION ONLY — IMPLEMENTATION NOT AUTHORIZED.**

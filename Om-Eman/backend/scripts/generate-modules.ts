@@ -71,6 +71,8 @@ const publicReadModels = new Set([
   "StaticPage",
   "Faq",
 ]);
+const restrictedReadModels = new Set(["Payment"]);
+const searchExcludedFields = new Set(["Payment.proofImageUrl"]);
 
 const modelTags: Record<string, string> = {
   Employee: "Employees",
@@ -465,7 +467,9 @@ function generateSelect(model: IModel): string {
 }
 
 function generateListWhere(model: IModel): string {
-  const fields = stringFields(model);
+  const fields = stringFields(model).filter(
+    (field) => !searchExcludedFields.has(`${model.name}.${field.name}`),
+  );
   if (fields.length === 0) return "";
 
   const ors = fields
@@ -715,7 +719,11 @@ function generateRouter(model: IModel): string {
   const appendOnly = appendOnlyModels.has(modelName);
   const authImport =
     'import { authenticate } from "../../middlewares/auth.middleware.js";\n';
-  const readAuth = publicRead ? "" : "authenticate, ";
+  const readAuth = publicRead
+    ? ""
+    : restrictedReadModels.has(modelName)
+      ? "authenticate, authorize(EEmployeeRole.OWNER, EEmployeeRole.ADMIN), "
+      : "authenticate, ";
   const writeAuth =
     "authenticate, authorize(EEmployeeRole.OWNER, EEmployeeRole.ADMIN), ";
 

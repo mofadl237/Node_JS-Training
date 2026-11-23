@@ -1,7 +1,7 @@
 # PROGRESS — سجل الشغل (محدَّث بعد كل جلسة)
 
 > ده ملف المتابعة الوحيد: أي AI يقراه يعرف اتعمل إيه بالظبط، وإيه اللي لسه.
-> آخر تسليم: [خطة Day 4](./DAY4_TASKS.md) — **النطاق معتمد، التنفيذ غير مأذون، حتى Gate 0**. مرجع اليوم السابق: `DAY3_TASKS.md`؛ الخطة الكاملة: `FRONTEND_TASKS_10_DAYS.md` §0.3.
+> آخر تسليم: [خطة Day 7](./DAY7_TASKS.md) — **ملف مستقل؛ تخطيط فقط؛ التحديثات وآخر القرارات اعتمدها المالك، ولا Gate مفتوح ولا تنفيذ مأذون**. مرجع اليوم السابق: `DAY6_TASKS.md` §12؛ الخطة الكاملة: `FRONTEND_TASKS_10_DAYS.md` §0.3.
 > **رموز الحالة:** ✅ متأكد بأوامر · 🟢 بصري اعتمده المالك · 🟡 بصري بانتظار المالك · ⛔ محجوب · ⚠️ جزئي.
 > أداة الفحص الموحدة للمراجعة: `npm run check` (`scripts/check-rules.mjs`) — حدود الأسطر، نصوص عربي hard-coded، ألوان خام، any/console.log/framer-motion، تطابق `ar.json`/`en.json`.
 > القاعدة: نحدّث الملف ده **قبل ما نقفل أي خطوة** (مش بعد).
@@ -1736,3 +1736,637 @@ grep framer-motion / any / @ts-ignore / console.log في الكود → فاضي
 **التصنيف النهائي:** `DAY 5 COMPLETE — TECHNICAL HANDOFF READY` مع تسجيل صريح بأن `API VERIFIED`, `BROWSER VERIFIED`, `ASTRA REVIEWED`, و`OWNER APPROVED` ليست متحققة، وأن لا ختم production-ready.
 
 ⛔ STOP — DAY 5 GATE 5 COMPLETE — WAITING FOR OWNER REVIEW
+
+---
+
+## 28) تخطيط اليوم 6 وضبط الـFloating Cart CTA قبل التنفيذ (2026-11-22)
+
+**الحالة:** `DAY 6 PLANNING COMPLETE — WAITING FOR ASTRA REVIEW & OWNER GATE PERMISSION`. لم تُفتح أي Gate، ولم يُنفّذ checkout/proof، ولا يوجد اعتماد بصري أو موافقة على فتح implementation.
+
+### 28.1 ما أُنجز في التخطيط
+- أُنشئ `docs/DAY6_TASKS.md` بنفس أسلوب `DAY4_TASKS.md` / `DAY5_TASKS.md`: 12 حقلًا لكل Gate، G0–G6، نطاق وخارج نطاق، جرد ملفات متوقع، أولويات P0/P1/P2، أوامر تحقق، مخاطر، قالب تقرير، وSTOP لكل Gate.
+- رُاجعت مصادر الحجة: `AGENTS.md`، `PROGRESS.md` §27، `DAY5_TASKS.md`، `DESIGN_SYSTEM.md`، عقود checkout/shipping/coupon/payment/upload/track في الباك، وواقع cart/routes/messages في الفرونت.
+- فُصلت العناصر المؤجلة صريحًا حتى لا تتراكم:
+  - `D6-CHECKOUT` و`D6-PROOF`: P0 داخل Day 6 (G2/G3/G4).
+  - `D6-MOTION`: G5 فقط، بعد الهيكل وبإذن منفصل.
+  - `D7-TRACK` و`D7-ACCOUNT` وguest-merge: Day 7، لا يُبدأ هنا.
+  - `R-API-SEARCH`, `R-CART-WRITE`, `R-VIS`, `R-G4-MAJOR`, `D3-RM`, B-PUB negative cases، وانحرافات Day 5: سجلها G0 واستمرارها P2/مالك، لا إصلاح ضمن Day 6.
+- سُجّل قراران معلّقان للملك: نقل إيصال الطلب عبر `sessionStorage` مقابل بديل آمن آخر، وتوقيت مراجعة الشكل/الأنيميشن في G5.
+- وُثّق أن الإجماليات والضريبة والشحن من الباك فقط، وأن `trackingToken` لا يظهر في URL/canonical/JSON-LD/السجلات.
+
+### 28.2 طلب تعديل قبل Day 6 — الـFloating Cart CTA
+- ملاحظة المالك: الزرار يجب أن يظهر **مع ظهور زرار BackToTop** مباشرة، ويكون ثابتًا فوقه، لا يظهر في آخر الصفحة فقط.
+- `hooks/useIsScrolled.ts` أصبح مصدر الحجة المشترك: عتبة `SCROLL_THRESHOLD = 10`، `useSyncExternalStore`، passive scroll listeners، و`getServerSnapshot = false`.
+- `hooks/useFloatingCartCta.ts`: `isVisible` أصبح `isScrolled && isReady && !hasError && itemsCount > 0 && !isCartPage`؛ أي لا يظهر قبل أول سكرول، ويظهر فور تخطي العتبة.
+- `components/ECommerce/Cart/FloatingCartCta.tsx`: أُزيل الوضع المركزي في أعلى الصفحة؛ الوضع ثابت `fixed bottom-24 end-6 z-50`، مع `AnimatePresence` و`m.div` بحركة دخول/خروج متسقة (`y`, `opacity`, `scale` و`SPRING_CARD`). الـnudge الدوري بقي على الرابط نفسه.
+- `components/Animation/ScrollTopFab.tsx`: أُزيل `useEffect`/`useState` المحليين واعتمد نفس `useIsScrolled`؛ لذلك يظهر زرار BackToTop والـCTA من نفس الشرط ونفس اللحظة. لون السهم بقي `text-ink-strong` حسب تثبيت الثيمات.
+- `styles/animations.css`: حُذف `cart-cta-enter` لتفادي تكرار الدخول بين CSS وmotion؛ بقي `cart-cta-nudge` فقط مع إيقافه عند hover/focus وreduce-motion.
+
+### 28.3 الفحوص الآلية بعد هذا التحديث
+
+| الأمر | النتيجة |
+| --- | --- |
+| `npm run lint` | `CTA_SYNC_LINT_EXIT=0` |
+| `npm run check` | `CTA_SYNC_CHECK_EXIT=0` — 0 failure، 0 warning، 176 code files، 221 message keys/locale |
+| `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` | `CTA_SYNC_TSC_EXIT=0` |
+| `git diff --check` | `CTA_SYNC_DIFF_CHECK_EXIT=0` |
+| `npm run build` | `CTA_SYNC_BUILD_EXIT=0` — 29 صفحة مولّدة، لا أخطاء TypeScript |
+
+### 28.4 حالة التحقق والاعتماد
+- `API VERIFIED`: لا يوجد لهذا التحديث؛ التغيير واجهة/scroll فقط.
+- `BROWSER VERIFIED`: لا يوجد؛ لم يُشاهد في متصفح بعد. المطلوب: أول سكرول خفيف ⇒ يظهر زرار BackToTop والـCTA معًا، الـCTA فوقه بفاصل ثابت، لا تظهر على cart page، وتختفي معه عند العودة للأعلى، مع RTL/LTR والثيمات الأربعة و`prefers-reduced-motion`.
+- `ASTRA REVIEWED`: لا يوجد؛ مراجعة `DAY6_TASKS.md` مطلوبة.
+- `OWNER APPROVED`: لا يوجد؛ لا ختم Day 6 ولا إذن Gate.
+- التصنيف: `PRE-DAY6 UI SYNC + DAY 6 PLANNING COMPLETE` مع بقاء كل Gate مقفولة حتى إذن صريح.
+
+⛔ STOP — DAY 6 PLANNING COMPLETE — WAITING FOR ASTRA REVIEW & OWNER GATE PERMISSION
+
+---
+
+## 29) Day 6 — Gate 0: Pre-flight وتثبيت العقود (2026-11-22)
+
+**الحالة:** `DAY 6 GATE 0 COMPLETE — WAITING FOR OWNER PERMISSION FOR GATE 1`.
+**إذن المالك:** اعتماد خطة اليوم 6 + إذن مستقل باسم `Gate 0` فقط. لم يُفتح G1، ولم يُنفّذ checkout/proof، ولا يوجد تغيير مصدر/باك/DB/config/dependencies.
+
+### 29.1 قراءات Gate 0 الإلزامية
+- `frontend/AGENTS.md` §0–1: قواعد القراءة قبل التنفيذ، الملف الصغير، `I/T`، Zod، RTK Query، منع `useEffect` setState، و`npm run lint/build` قبل الإنهاء.
+- `frontend/docs/PROGRESS.md` §28 + آخر سطر Day 5: حالة ما قبل G0، تثبيت الـCTA، والفحوص الآلية الآمنة.
+- `frontend/docs/DAY6_TASKS.md:235-248` حقل G0 الـ12، و`§11` قرار الاعتماد.
+- عقود الباك source-verified أثناء G0:
+  - `backend/src/modules/store/checkout/validation.ts:3-41`: `addressSchema`, `guestCheckoutSchema`, `paymentMethod: COD|ONLINE_TRANSFER`، `items` 1..50، `guestToken` 10..200.
+  - `backend/src/modules/store/checkout/routes.ts:11-23`: rate limit `20/15m` + `validateBody`.
+  - `backend/src/services/checkout-contracts.ts:35-42`: `IGuestCheckoutResult`.
+  - `backend/src/services/checkout-totals.service.ts:10-17`: `IOrderTotals` decimal strings.
+  - `backend/src/modules/store/coupons/validation.ts:3-26`: `validateCouponSchema` + `IValidateCouponResponse`.
+  - `backend/src/modules/store/shipping/validation.ts:4-19`: `AREA_NAME_PATTERN`, shipping quote query.
+  - `backend/src/modules/uploads/validation.ts:14-35`: `proofSignSchema`, `IUploadSignature`.
+  - `backend/src/modules/store/payments/validation.ts:4-18`: `paymentProofSchema`.
+
+### 29.2 baseline Git/البيئة
+| البند | الدليل |
+| --- | --- |
+| HEAD | `e256375 End Day5`. |
+| Working tree عند بداية G0 | `docs/PROGRESS.md` فقط modifiers (+44 سطر من §28)؛ `docs/DAY6_TASKS.md` نظيف داخل HEAD. لا untracked checkout files. |
+| المنافذ | `:3001` PID `120092`، `:3002` PID `123612`؛ لم يُوقف أو يُشغَّل أي process. |
+| Frontend HTTP | `/ar` أول probe انتهى بـtimeout بعد 5s (`HTTP=000`, curl 28)، ثم نجح في probe ثانٍ `HTTP=200` بعد 19.23s؛ لم يُترجمTimeout إلى فشل DNS أو إجراء إداري. |
+| `GET /api/store/settings` | `HTTP=200`, curl exit 0. |
+| `GET /api/store/shipping/areas` | `HTTP=200`, curl exit 0. |
+| `GET /api/store/shipping/quote?governorate=Cairo&city=Cairo` | `HTTP=400`, curl exit 0؛ متوافق مع قاعدة «لا تعريفة ⇒ `SHIPPING_AREA_NOT_CONFIGURED`»، لا يُفسَّر كشحن مجاني. |
+| `POST /api/store/coupons/validate` بـ`{}` | `400 VALIDATION_ERROR` مع `couponCode` و`items`؛ لا إنشاء checkout، لا trackingToken/ guestToken في الطلب أو السجل. |
+| Checkout/proof | لم تُجرَب كتابة، لم تُرسل write requests، لم يُستخدم seed/بيانات وهمية. |
+| `git diff --check` | `G0_DIFF_CHECK_EXIT=0` (مع تحذير LF→CRLF اعتيادي في PROGRESS.md). |
+
+### 29.3 آخر فحوص آلية سارية
+- من §28 بعد تثبيت CTA: `npm run lint = CTA_SYNC_LINT_EXIT=0`، `npm run check = CTA_SYNC_CHECK_EXIT=0`، `tsc --noEmit = CTA_SYNC_TSC_EXIT=0`، `npm run build = CTA_SYNC_BUILD_EXIT=0`.
+- لم يتغير كود المصدر منذ تلك الفحوص؛ G0 وثائق/قراءة فقط. HTTP 200/400 ليس acceptance بصريًا ولا ختمًا لصحة الـAPI.
+
+### 29.4 توزيع المؤجلات وقرارات G0
+- `D6-CHECKOUT` (G2/G3)، `D6-PROOF` (G4)، و`D6-MOTION` (G5 بعد الهيكل): داخل Day 6.
+- `D7-TRACK`, `D7-ACCOUNT`, guest-merge: Day 7؛ لا يُبدأ هنا.
+- `R-API-SEARCH`, `R-CART-WRITE`, `R-VIS`, `R-G4-MAJOR`, `D3-RM`, B-PUB negative cases، وانحرافات Day 5: سجلت كما هي؛ لا إصلاح داخل G0/G1 تلقائيًا.
+- بناءً على اعتماد الخطة: `sessionStorage` هو نقل الإيصال الافتراضي دون `trackingToken` في URL/canonical/logs؛ G5 يبقى جلسة مراجعة منفصلة.
+- `R-PORTS`: استجابة frontend بطيئة (19.23s) سُجّلت كملاحظة baseline؛ لا تغيير عمليات.
+- `B-BUILD` و`R-VIS`: ما زالا مفتوحين؛ لا ختم production-ready ولا اعتماد متصفح.
+
+### 29.5 تحديثات الوثائق في G0
+- `docs/DAY6_TASKS.md`: الحالة إلى `DAY 6 PLAN APPROVED — GATE 0 COMPLETE — WAITING FOR GATE 1 PERMISSION`؛ G0 موعده 2026-11-22؛ قرار الإيصال/G5 مثبّت؛ قسم 11 يعكس اعتماد المالك لـDay 6 Plan + G0 فقط.
+- `docs/PROGRESS.md`: أُضيف هذا القسم تلقائيًا حتى أي AI لاحق يجد سلسلة الاعتماد دون سؤال.
+- صفر تعديلات كود، صفر تعديلات باك/DB/migrations/seed/npm scripts/config/package files.
+
+### 29.6 حالة التحقق والاعتماد
+- `API VERIFIED`: جزئي للقراءة فقط (settings/areas/quote/coupon validation)؛ لا checkout/proof runtime.
+- `BROWSER VERIFIED`: لا يوجد؛ G0 لا يشمل شاشة.
+- `ASTRA REVIEWED`: لا يوجد؛ مراجعة استشارية معلّقة ولا تمنع G0 المعتمد من المالك.
+- `OWNER APPROVED`: نعم لـDay 6 Plan + Gate 0 فقط؛ G1 يحتاج إذنًا صريحًا جديدًا.
+- التصنيف: `DAY 6 GATE 0 COMPLETE — BASELINE LOCKED`.
+
+⛔ STOP — DAY 6 GATE 0 COMPLETE — WAITING FOR OWNER PERMISSION FOR GATE 1
+
+---
+
+## 30) Day 6 — Gate 1: Contracts, Validation & API Helpers
+
+### 30.1 الإذن والنطاق
+- الإذن الصريح من المالك: `DAY 6 — G1: Contracts, Validation & API Helpers` فقط؛ G2 ما زال مقفولًا.
+- قبل التنفيذ عُرضت خطة الملفات ومسؤولية كل ملف والعقود والانحرافات؛ لم يظهر تعارض يوقف التنفيذ.
+- نُفّذت العقود والـZod والhelpers وendpoints عبر `baseApi.injectEndpoints` فقط. لا route/checkout UI، لا رفع ملف، لا إجمالي/ضريبة محلية، لا باك/DB/migrations/seed، لا dependencies/config/scripts، لا commit/push/deploy.
+- working tree موروث من G0 كان يحتوي تعديلات `docs/PROGRESS.md` و`docs/DAY6_TASKS.md`؛ لم يُلمس غيرها من الوثائق خارج نطاق G1.
+
+### 30.2 الملفات المنفذة في المصدر
+| الملف | المسؤولية |
+| --- | --- |
+| `interface/checkout.ts` (جديد) | عقود checkout/shipping/coupon/proof/receipt؛ decimal strings تبقى `string`؛ `TPaymentStatus` من Prisma enum. |
+| `validation/checkout.ts` (جديد) | `checkoutAddressSchema`, `checkoutItemSchema`, `guestCheckoutSchema`, `orderTotalsSchema`, `checkoutResultSchema`؛ يطابق `guestCheckoutSchema` في الباك. |
+| `validation/shipping.ts` (جديد) | query الشحن بنفس `AREA_NAME_PATTERN`، وresponse schemas للمناطق والـquote. |
+| `validation/coupon.ts` (جديد) | payload validate coupon وresponse schema؛ الأرقام العشرية strings. |
+| `validation/paymentProof.ts` (جديد) | sign-proof، proof payload، upload signature، proof result؛ token 43..64. |
+| `validation/orderReceipt.ts` (جديد) | تحقق الإيصال المخزّن محليًا قبل الوثوق به. |
+| `lib/checkoutForm.ts` (جديد) | تحويل cart lines إلى `items` وتطبيع payload بدون حساب مبالغ. |
+| `lib/checkoutError.ts` (جديد) | خريطة أكواد الباك الحقيقية إلى مفاتيح `next-intl`؛ fallback `checkout.errors.unexpected`. |
+| `lib/orderReceipt.ts` (جديد) | حفظ/قراءة/حذف الإيصال في `sessionStorage` مع SSR guard وتحقق Zod؛ لا token في URL/canonical/logs. |
+| `store/checkoutApi.ts` (جديد) | `placeOrder` → `POST /store/checkout` ويُبطل `{ type: "Cart", id: "CURRENT" }`. |
+| `store/shippingApi.ts` (جديد) | areas وquote؛ كل payload وresponse يمرّان عبر Zod. |
+| `store/couponApi.ts` (جديد) | validate coupon؛ كل payload وresponse يمرّان عبر Zod. |
+| `store/paymentApi.ts` (جديد) | sign-proof على `/uploads/sign-proof` وsubmit-proof على `/store/payments/proof`؛ لا رفع ملف فعلي. |
+| `interface/index.ts`, `validation/index.ts` (تعديل) | barrel exports فقط. |
+| `lib/routes.ts` (تعديل) | `CHECKOUT_HREF` و`CHECKOUT_SUCCESS_HREF`. |
+| `messages/ar.json`, `messages/en.json` (تعديل) | مساحات `checkout.errors` و`payment.errors` فقط؛ نفس المفاتيح بالضبط. |
+
+### 30.3 العقود المعتمدة من مصدر الباك
+- `backend/src/modules/store/checkout/validation.ts`: `guestCheckoutSchema`، Phone/address/items/coupon/paymentMethod limits.
+- `backend/src/services/checkout-contracts.ts` و`checkout-totals.service.ts`: `IGuestCheckoutResult` و`IOrderTotals`؛ المبالغ سلاسل عشرية.
+- `backend/src/modules/store/shipping/{validation,service}.ts`: `AREA_NAME_PATTERN`، `IShippingArea`، `SHIPPING_AREA_NOT_CONFIGURED`.
+- `backend/src/modules/store/coupons/validation.ts` و`coupon.service.ts`: `IValidateCouponResponse` وأكواد `COUPON_INVALID`, `COUPON_NOT_ACTIVE`, `COUPON_EXPIRED`, `COUPON_NOT_FOR_CUSTOMER`, `COUPON_MIN_ORDER`, `COUPON_LIMIT_REACHED`, `COUPON_PER_CUSTOMER_REACHED`.
+- `backend/src/modules/uploads/validation.ts`: `proofSignSchema` و`IUploadSignature`.
+- `backend/src/modules/store/payments/{validation,service}.ts`: `paymentProofSchema`، `amount` هو المبلغ المحوّل الفعلي، `EPaymentStatus`، وأكواد `ORDER_NOT_FOUND`, `ORDER_ACCESS_DENIED`, `PAYMENT_ALREADY_CONFIRMED`, `PAYMENT_UNDER_REVIEW`, `PAYMENT_METHOD_NOT_ONLINE`.
+- مسارات API النهائية من `backend/src/modules/{index,store/routes}.ts`: `/store/checkout`, `/store/shipping/*`, `/store/coupons/validate`, `/uploads/sign-proof`, `/store/payments/proof` مع `API_BASE_URL = .../api`.
+
+### 30.4 الفحوص الآلية — أوامر منفصلة
+| الأمر | النتيجة |
+| --- | --- |
+| `npm run lint` | `G1_LINT_EXIT=0`. |
+| `npm run check` | `G1_CHECK_EXIT=0` — `189 code files`, `243 message keys per locale`, `0 failure(s), 0 warning(s)`. |
+| `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` | `G1_TSC_EXIT=0`. |
+| `git diff --check` | `G1_DIFF_CHECK_EXIT=0`؛ تحذيرات LF→CRLF اعتيادية فقط. |
+| `npm run build` | `G1_BUILD_EXIT=0` — Turbopack compile + TypeScript + 29 static pages، دون أخطاء. |
+
+### 30.5 API smoke — قراءة فقط
+- `GET /api/store/settings` → `HTTP=200`.
+- `GET /api/store/shipping/areas` → `HTTP=200`.
+- `GET /api/store/shipping/quote?governorate=Cairo&city=Cairo` → `HTTP=400` متوافق مع غياب التعريفة؛ لا يُترجم كشحن مجاني.
+- `POST /api/store/coupons/validate` بـ`{}` → `HTTP=400` validation؛ لا طلب checkout، لا trackingToken، لا كتابة.
+- لم تُرسل أي عملية checkout/proof write؛ لم يُستخدم seed أو بيانات وهمية أو رفع ملف.
+
+### 30.6 الانحرافات والتقييدات داخل G1
+- قُسّمت Zod إلى ملفات صغيرة وفق `AGENTS.md` رغم أن خطة Gate ذكرت `validation/checkout.ts` فقط؛ لا تغيير في المنطق أو العقود.
+- `lib/proofUpload.ts` لم يُنشأ في G1؛ مكانه G4 لأن G1 يمنع رفع الملفات، وتفاديًا لتخمين حقول FormData.
+- Frontend لا يعرف `CLOUDINARY_CLOUD_NAME`؛ تحقق `proofImageUrl` يبقى general HTTPS URL≤500، والباك هو المصدر النهائي لتحقق Cloudinary.
+- أكواد إضافية من الباك دخلت خريطة الأخطاء؛ لا raw `code` أو رسالة باك تُعرض للمستخدم في G2+.
+- `baseApi.ts` لم يُعدَّل؛ tagTypes بقي `["Cart"]`، وplaceOrder يبطل فقط Cart الحالي.
+- لا حركة أو ستايل جديد؛ G5 ما زال جلسة منفصلة بعد G2–G4.
+
+### 30.7 مراجعة الـdiff
+- `git status --short`: تعديلات الوثائق الموروثة + 7 ملفات مصدر معدّلة + 13 ملفًا جديدًا غير متتبع، كلها داخل نطاق G1.
+- `git diff --stat`: 7 ملفات معدّلة، `223 insertions(+), 7 deletions(-)` قبل احتساب الملفات الجديدة؛ صفر تغيير في `package.json`/lock/config/backend.
+- لا untracked خارج القائمة في 30.2؛ لا ملفات أسرار أو logs أو ملفات generated.
+
+### 30.8 حالة التحقق والاعتماد
+- `IMPLEMENTED IN SOURCE`: نعم — 13 ملفًا جديدًا و7 تعديلات محددة في 30.2.
+- `AUTOMATED CHECKS`: نعم — lint/check/tsc/diff/build بـexit codes موثّقة في 30.4.
+- `API VERIFIED`: جزئي للقراءة فقط؛ checkout/proof write لم يُختبر ويعتمد على بيئة مأذونة في G3/G4.
+- `BROWSER VERIFIED`: لا يوجد؛ G1 بلا شاشة، ولم يُضف ستايل أو أنيميشن.
+- `ASTRA REVIEWED`: PENDING — مراجعة استشارية معلّقة.
+- `OWNER APPROVED`: إذن G1 موجود؛ مراجعة/اعتماد نتيجة G1 لم تحدث بعد؛ G2 مقفول.
+- التصنيف: `DAY 6 GATE 1 COMPLETE — SOURCE + CHECKS PASS — WAITING FOR OWNER REVIEW — G2 LOCKED`.
+
+⛔ STOP — DAY 6 GATE 1 COMPLETE — WAITING FOR OWNER REVIEW — G2 LOCKED
+
+---
+
+## 31) Day 6 — Gate 2: Checkout Address, Shipping, Coupon & Items
+
+### 31.1 الإذن والنطاق
+- الإذن الصريح من المالك: `G2 — CHECKOUT: ADDRESS, SHIPPING, COUPON & ITEMS` فقط؛ G3 ما زال مقفولًا.
+- قبل التنفيذ عُرضت خطة الملفات والمسؤوليات والانحرافات، ورُوجع G1 implementation والـcontracts والـendpoints؛ working tree الموروث حُفظ ولم يُلمس خارج نطاق G2 إلا `messages/{ar,en}.json` ووثائق اليوم.
+- نُفّذ route/skeleton/components/useCheckoutForm/رسائل ar/en فقط. لا `POST /checkout`، لا submit/success/proof، لا Cloudinary، لا تعديل Cart أو cart token، لا أسعار/خصوم/شحن محسوبة محليًا، لا motion جديد، لا backend/DB/dependencies/config.
+
+### 31.2 الملفات المنفذة في المصدر
+| الملف | المسؤولية |
+| --- | --- |
+| `app/[locale]/(Store)/checkout/{page,metadata,loading}.tsx` (جديد) | صفحة تركيب بعنوان SSR مرئي، metadata مع `isNoIndex: true`، وloading skeleton. |
+| `components/Skelton/CheckoutSkeleton.tsx` (جديد) | skeleton مطابق لتخطيط الخطوات/البنود/الملخص بلا `opacity:0`. |
+| `components/ECommerce/Checkout/CheckoutSection.tsx` (جديد) | حالة السلة/الشبكة/الفراغ + قراءة cart عبر RTK Query، ثم تركيب `CheckoutContent` بمفتاح يعتمد على بنود السلة. |
+| `components/ECommerce/Checkout/CheckoutContent.tsx` (جديد) | شبكة G2 الجاهزة؛ يبني النموذج من cart lines ويقرأ areas/quote، مع حالة كوبون محلية فقط. |
+| `components/ECommerce/Checkout/CheckoutFocusSection.tsx` (جديد) | غلاف `<section>` قابل للتركيز مع focus-visible موحّد لأقسام الـstepper. |
+| `components/ECommerce/Checkout/CheckoutStepper.tsx` (جديد) | 3 خطوات قابلة للوصول بلوحة المفاتيح عبر focus للـsection، دون حركة. |
+| `components/ECommerce/Checkout/CheckoutItems.tsx` (جديد) | عرض بنود `IStoreCart` للقراءة فقط؛ لا تعديل كمية. |
+| `components/ECommerce/Checkout/CheckoutAddressForm.tsx` (جديد) | غلاف العنوان: select المحافظة، حالة areas، وتجميع حقول العنوان. |
+| `components/ECommerce/Checkout/CheckoutAddressMainFields.tsx` (جديد) | الاسم/الهاتف/المحافظة/المدينة/الشارع مع Zod ورسائل مترجمة. |
+| `components/ECommerce/Checkout/CheckoutAddressOptionalFields.tsx` (جديد) | الحي/المبنى/الدور/علامة المميزة. |
+| `components/ECommerce/Checkout/CheckoutShipping.tsx` (جديد) | عرض quote وETA من الباك ورسالة المنطقة غير المهيأة. |
+| `components/ECommerce/Checkout/CheckoutCoupon.tsx` (جديد) | `coupon/validate`، يتحقق من `result.valid` قبل العرض، ويرفع الكود إلى الملخص. |
+| `components/ECommerce/Checkout/CheckoutSummary.tsx` (جديد) | عرض `cart.subtotal` وبيانات coupon preview و shipping quote فقط. |
+| `components/ECommerce/Checkout/CheckoutPaymentMethod.tsx` (جديد) | اختيار `COD`/`ONLINE_TRANSFER` داخل النموذج فقط، بلا تنفيذ دفع. |
+| `components/ECommerce/Checkout/CheckoutState.tsx` (جديد) | empty/error/network موحّدة عبر `EmptyState`/`ErrorState`. |
+| `components/ECommerce/Checkout/CheckoutField.tsx`, `CheckoutSelect.tsx` (جديد) | وسم/خطأ/مساعدة و_select_ محلي مُعاد استخدامه داخل الميزة. |
+| `hooks/useCheckoutForm.ts` (جديد) | RHF + `zodResolver(checkoutFormSchema)`، بناء `items` من cart lines واكتشاف كميات غير صالحة. |
+| `lib/checkoutFieldError.ts` (جديد) | تحويل مسار خطأ Zod إلى مفتاح `next-intl` عربي/إنجليزي. |
+| `messages/ar.json`, `messages/en.json` (تعديل) | مساحة `checkout.*` للعناوين والحقول والشحن والكوبون والملخص والتحقق؛ نفس المفاتيح بالضبط. |
+
+### 31.3 العقود والبيانات الحقيقية
+- Cart: `useGetCartByTokenQuery` مع نفس نمط `CartDrawer` و`useCartToken`؛ لا create/write للسلة.
+- Shipping: `useGetShippingAreasQuery` و`useGetShippingQuoteQuery` مع `shippingQuoteQuerySchema.safeParse` قبل الطلب؛ يعرض الباك `cost` و`etaMinDays/etaMaxDays`.
+- Coupon: `useValidateCouponMutation` بpayload `{couponCode, items}`؛ الأرقام decimal strings كما هي.
+- Form: `checkoutFormSchema` و`checkoutItemSchema` من G1؛ الهاتف/العنوان/الكميات تُراجع بـZod.
+- الأخطاء: `resolveCheckoutErrorKey` لأكواد الباك، و`resolveCheckoutFieldErrorKey` لأخطاء الحقول؛ لا raw code ولا رسالة باك تُعرض.
+
+### 31.4 الفحوص الآلية — أوامر منفصلة
+| الأمر | النتيجة |
+| --- | --- |
+| `npm run lint` | `G2_LINT_EXIT=0`. |
+| `npm run check` | `G2_CHECK_EXIT=0` — `210 code files`, `302 message keys per locale`, `0 failure(s), 0 warning(s)`. |
+| `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` | `G2_TSC_EXIT=0`. |
+| `git diff --check` | `G2_DIFF_CHECK_EXIT=0`؛ تحذيرات LF→CRLF اعتيادية فقط. |
+| `npm run build` | `G2_BUILD_EXIT=0` — Turbopack compile + TypeScript + 32 static pages، Includes `/[locale]/checkout`. |
+
+### 31.5 Zod وAPI verification
+- Zod عبر Node type-stripping: `BASE=true`, `BAD_PHONE=false`, `BAD_STREET=false`, `BAD_QTY=false`.
+- `GET /api/store/settings` → `HTTP=200`.
+- `GET /api/store/shipping/areas` → `HTTP=200`؛ المحافظات تعيد `cities: [{ city: null, ... }]` (تعريفة على مستوى المحافظة).
+- `GET /api/store/shipping/quote` بقيمة محافظة/مدينة عربية حقيقية → `HTTP=200` و`data.cost` سلسلة عشرية وETA من الباك.
+- `GET /api/store/shipping/quote?governorate=Cairo&city=Cairo` → `HTTP=400` و`code=SHIPPING_AREA_NOT_CONFIGURED`.
+- `POST /api/store/coupons/validate` بـ`{}` → `HTTP=400` و`code=VALIDATION_ERROR`.
+- لم تُرسل أي طلب checkout/proof، ولم يُستخدم guestToken أو seed أو بيانات وهمية في التقارير.
+
+### 31.6 Browser verification
+- `BROWSER VERIFIED`: لا يوجد؛ G2 لم يفتح متصفحًا ولم يُعتمد بصريًا.
+- Supporting implementation: h1 SSR في page، لا `opacity:0` فوق الـfold، `tabIndex=-1` وfocus-visible ring على الأقسام التي يستهدفها الـstepper، `aria-describedby` للحقول/الأخطاء، utilities منطقية `text-start`، mobile-first `sm:`/`lg:`، و4 ثيمات عبر tokens الحالية.
+- المطلوب من المالك: ar/en، RTL/LTR، 360px/desktop، الثيمات الأربعة، Tab/Enter/focus-visible، وظهور المحتوى بدون JS.
+
+### 31.7 الانحرافات والتقييدات داخل G2
+- §5.3 ذكر `CheckoutPaymentMethod`؛ نُفّذ كاختيار نموذج فقط لأن `checkoutFormSchema` يتطلب `paymentMethod`، دون إرسال أو إثبات دفع.
+- أُضيف `CheckoutContent.tsx` و`CheckoutFocusSection.tsx` وفُصلت حقول العنوان واستُخرج `CheckoutField/CheckoutSelect` لتحقيق حد `AGENTS.md` بدون تحذيرات check.
+- بُني `useCheckoutForm` داخل `CheckoutContent` بعد وصول cart lines، مع `key` يعتمد على id/quantity، حتى لا تبقى `items` فارغة في RHF ولا يتقادم preview الكوبون.
+- حقل المدينة أصبح `Input` مع `datalist` من مدن الباك فقط؛ عند كون `city: null` في التعريفة يكتب المستخدم مدينته الفعلية ويُحسب الشحن من تعريفة المحافظة. هذا انحراف موثّق عن سطر «governorate/city من القائمة فقط» لأن البيانات الحقيقية لا تحتوي أسماء مدن.
+- رُوعيت دقة الترجمة: رسائل المدينة تقول «أدخل» لا «اختر»، `REQUEST_FAILED` عامة لا تخص الطلب، واقتراحات المدن تُفلتر بـ`shippingQuoteQuerySchema` حتى لا تُعرض مدينة يرفضها التحقق المحلي.
+- لا إجمالي نهائي أو ضريبة قبل الطلب؛ `CheckoutSummary` يعرض فقط المبالغ القادمة من cart/coupon/shipping.
+- لا Motion أو Styles جديدة؛ G5 ما زال مقفولًا.
+- `usePlaceOrderMutation` و`store/paymentApi.ts` و`lib/orderReceipt.ts` من G1 لم يُستخدموا في G2.
+
+### 31.8 مراجعة الـdiff
+- `git status --short`: تغييرات G0/G1 الموروثة + 21 ملفًا جديدًا لـG2 + تعديل `messages/{ar,en}.json`؛ لا untracked خارج القائمة في 31.2.
+- لا تغيير في `package.json`/lock/config/backend/styles/motion/store APIs.
+
+### 31.9 حالة التحقق والاعتماد
+- `IMPLEMENTED IN SOURCE`: نعم — 21 ملفًا جديدًا وتعديل رسائل ar/en.
+- `AUTOMATED CHECKS`: نعم — lint/check/tsc/diff/build بـexit codes موثّقة في 31.4.
+- `API VERIFIED`: نعم للقراءة/التحقق من areas/quote/coupon validation؛ لا يوجد order/proof write.
+- `BROWSER VERIFIED`: لا — مطلوب من المالك.
+- `ASTRA REVIEWED`: PENDING — مراجعة استشارية معلّقة.
+- `OWNER APPROVED`: إذن G2 موجود؛ مراجعة/اعتماد نتيجة G2 لم تحدث بعد؛ G3 مقفول.
+- التصنيف: `DAY 6 GATE 2 COMPLETE — SOURCE + CHECKS PASS — API READ-ONLY VERIFIED — BROWSER NOT TESTED — WAITING FOR OWNER REVIEW — G3 LOCKED`.
+
+⛔ STOP — DAY 6 GATE 2 COMPLETE — WAITING FOR OWNER REVIEW — G3 LOCKED
+
+---
+
+## 32) Future Feature: Smart Egypt Address & Location System — Documentation-only Planning
+
+### 32.1 الإذن والنطاق
+- تكليف منفصل عن Day 6/G2: تخطيط مستقبلي فقط للعنوان الذكي/الموقع داخل مصر، دون فتح G3 أو أي Gate جديد.
+- حُفظت كل تغييرات G0/G1/G2 الموروثة في working tree؛ لم يُلمس checkout source، ولا الباك source/schema/migrations/seed/env/config/dependencies.
+- استُخدمت قراءة الكود والوثائق + بحث ويب للمصادر الرسمية فقط؛ لم تُجرى عمليات كتابة على البيانات أو مزوّدين خارجيين.
+
+### 32.2 المستندات المضافة/المحدَّثة
+| الملف | التغيير |
+| --- | --- |
+| `docs/FRONTEND_TASKS_10_DAYS.md` §7 | قسم `Future Feature: Smart Egypt Address & Location System`: الوضع الحالي، مقارنة UX A–D، ترشيح hybrid، معمارية فرونت مقترحة، states/a11y/i18n، مراحل وقرارات مفتوحة. |
+| `../../backend/docs/FUTURE_SMART_EGYPT_ADDRESS_SYSTEM.md` (جديد) | تخطيط باك مستقبلي: حقائق schema/shipping الحالية، قاعدة فصل الجغرافيا عن قابلية التوصيل، نمذجة ومسارات API مقترحة غير مأذونة، تقييم مصادر البيانات، مراحل وتكلفة وخصوصية. |
+| `../../backend/docs/BACKEND_PROGRESS.md` | سجل قصير بأن المستند الجديد تخطيط فقط. |
+| `../../backend/docs/architecture.md` §9 | مرجع معماري cross-project إلى مستندي الفرونت/الباك مع بيان أن التنفيذ غير مأذون. |
+| `docs/PROGRESS.md` §32 | سجل التخطيط الحالي. |
+
+### 32.3 القرارات التخطيطية المسجلة
+- **Existing:** العناوين نصية، لا جداول مرجعية جغرافية مؤكدة، والشحن يتم عبر `ShippingTariff`/`resolveShippingTariff` مع فشل صريح `SHIPPING_AREA_NOT_CONFIGURED`.
+- **Invariant:** وجود منطقة في مصدر خرائط أو قاعدة حدود لا يعني قابلية التوصيل ولا يعني شحنًا مجانيًا.
+- **UX recommendation:** Structured manual كbaseline، ثم browser location/reverse prefill اختياري، ثم autocomplete، ثم خريطة اختيارية مؤجلة؛ لا يُلغى المسار اليدوي.
+- **Data/providers:** لا مزوّد معتمد بعد؛ OSM/Nominatim وPhoton وgeoBoundaries وGADM وGoogle/Mapbox/OpenCage موثّقة مع قيود الرخصة/الـrate limit/التكلفة/التشغيل.
+- **Owner decisions:** مصدر البيانات، الرخصة، المزوّد، ملكية التحديث، مدة الاحتفاظ بالإحداثيات، نمذجة مناطق الشحن، هل الخريطة مطلوبة.
+
+### 32.4 التحقق
+- `git status --short` قبل التخطيط وبعده: نفس تغييرات G2 مصحوبة بملفات docs فقط؛ لم يظهر تغيير source/config/backend غير متوقع.
+- فحوص قراءة فقط على الحالة النهائية: `npm run lint` ✅، `npm run check` ✅ (`0 failure(s), 0 warning(s)`) في الفرونت، و`npm run typecheck` ✅ في الباك.
+- لا أوامر بناء أو خدمات شُغّلت في هذا التكليف لأن التغيير docs-only؛ فحوص G2 الآلية موثّقة في §31.4 وتبقى as-is.
+- لا تنفيذ ولا seed ولا مفاتيح provider ولا endpoints جديدة.
+
+### 32.5 الحالة
+- `PLANNING COMPLETE`: نعم.
+- `DOCUMENTATION ONLY`: نعم.
+- `IMPLEMENTATION AUTHORIZED`: لا.
+- `G3`: ما زال مقفولًا؛ مراجعة G2/Astra واعتماد المالك معلّقان.
+
+SMART EGYPT ADDRESS SYSTEM — PLANNING COMPLETE — DOCUMENTATION ONLY — IMPLEMENTATION NOT AUTHORIZED
+
+---
+
+## 33) Day 6 — Gate 3: Guest Checkout Submission & Secure Receipt
+
+### 33.1 الإذن والنطاق
+- الإذن الصريح من المالك: `AUTHORIZATION — OM EMAN DAY 6 — GATE 3` بعد قبول G2/all (`اعتمدت كمل`)؛ G4 مقفول.
+- قُدّمت خطة مسؤولية الملفات قبل الكود، ثم نُفّذ G3 فقط: إرسال النموذج المحقق إلى `POST /api/store/checkout`، وحفظ إيصال الجلسة، وصفحة نجاح `noindex`.
+- لم يُلمس باك/DB/schema/migration/seed/env/config/dependencies/services/api slices/Redux slices/motion/ثيمات/ستايل عام. لم يُبدأ G4؛ لا proof upload، لا Cloudinary، لا track page، لا حساب/ login/cart merge.
+- working tree الموروث من G0/G1/G2 وSmart Address بقي كما هو؛ لم تُصلَح انحرافات قديمة خارج نطاق G3.
+
+### 33.2 الملفات المنفذة في المصدر
+| الملف | المسؤولية |
+| --- | --- |
+| `hooks/useCheckoutSubmit.ts` (جديد) | تحويل القيم المحققة + بنود السلة + كود الكوبون + `guestToken` إلى payload واحد، منع double submit، حفظ الإيصال بعد 201، وإرجاع حالة submit typed بلا الاحتفاظ بالنتيجة. |
+| `hooks/useOrderReceipt.ts` (جديد) | قراءة آمنة للإيصال من `sessionStorage` عبر `useSyncExternalStore` مع snapshot مستقر وتحديث عند back/forward/focus. |
+| `components/ECommerce/Checkout/CheckoutSubmit.tsx` (جديد) | زر إرسال مع `disabled`/loading ورسالة خطأ مترجمة؛ لا نجاح وهمي. |
+| `components/ECommerce/Checkout/OrderSuccess.tsx` (جديد) | عرض orderNumber وطريقة الدفع والمبالغ القادمة من الباك فقط؛ لا `trackingToken` في الرابط أو DOM. |
+| `components/Skelton/CheckoutSuccessSkeleton.tsx` (جديد) | skeleton مطابق لصفحة الإيصال. |
+| `app/[locale]/(Store)/checkout/success/{page,metadata,loading}.tsx` (جديدة) | route رفيع، metadata `isNoIndex: true`، وحالة تحميل. |
+| `components/ECommerce/Checkout/CheckoutContent.tsx` (تعديل) | ربط `<form>` بـ hook الإرسال، تمرير كود الكوبون المطبَّق، تعطيل الإرسال مع البنود غير الصالحة، والانتقال للإيصال بعد الحفظ. |
+| `components/ECommerce/Checkout/CheckoutPaymentMethod.tsx` (تعديل) | تعطيل اختيار الدفع أثناء الإرسال فقط. |
+| `hooks/useCheckoutForm.ts` (تعديل) | إزالة الافتراض الصامت `paymentMethod: "COD"`؛ يجب اختيار طريقة الدفع صراحةً. |
+| `lib/checkoutError.ts` (تعديل) | رسالة `networkUnclear` عند تعذّر تأكيد وصول الطلب (status 0). |
+| `messages/ar.json`, `messages/en.json` (تعديل) | نصوص `checkout.submit/submitNotice/networkUnclear/receiptStorageFailed` ومساحة `orderSuccess.*`؛ نفس المفاتيح بالضبط. |
+| `docs/PROGRESS.md`, `docs/DAY6_TASKS.md` (تعديل) | سجل التنفيذ والأدلة والفحوص وحالة البوابة. |
+
+### 33.3 سلوك الإرسال والإيصال
+- يمرّ الطلب عبر `usePlaceOrderMutation` من G1 إلى `POST /store/checkout`؛ لا `clientIp` ولا `clientUserAgent` من العميل لأن الـcontroller يملؤهما.
+- `items` تُبنى من cart lines الحقيقية؛ `guestToken` يُقرأ من القارئ الحالي فقط ويُرسل عند وجوده؛ كود الكوبون المطبَّق يُرسل من preview ولا يُحسب خصم محلي.
+- `paymentMethod` إجباري بلا افتراض؛ `COD` و`ONLINE_TRANSFER` كلاهما مسموح؛ لا واجهة إثبات تحويل ولا رابط دفع وهمي في G3.
+- حارس `useRef` يُوضع قبل Zod/resolver ويبقى مفعولًا حتى إتمام الانتقال؛ الزر والـradio معطّلان أثناء الإرسال، ويُحرَّر فقط عند فشل تحقق محلي أو فشل API مؤكَّد. فشل الشبكة غير المؤكَّد يُبقي الإرسال مقفولًا مع رسالة `networkUnclear` ومنع إعادة المحاولة التلقائية.
+- الإيصال يُحفظ في `sessionStorage` عبر `lib/orderReceipt.ts` بعد نجاح الطلب فقط، ثم تتم إعادة التوجيه إلى `/checkout/success`؛ لا fake success ولا إجمالي مُعاد حسابه. لو فشل حفظ الإيصال بعد نجاح الطلب تظهر رسالة `receiptStorageFailed` تؤكد إرسال الطلب وتمنع إعادة الإرسال.
+- لا `trackingToken` في URL/canonical/metadata/DOM/analytics/logs/toasts/localStorage/cookies/Redux/third-party storage؛ الإيصال يبقى متاحًا لـG4 في جلسة المتصفح.
+- success route يعرض المبالغ decimal strings والعملة من الرد本身، ويظهر رسالة مختلفة لـCOD وONLINE_TRANSFER دون أي إجراء إثبات في هذه البوابة.
+
+### 33.4 الفحوص الآلية — أوامر منفصلة
+| الأمر | النتيجة |
+| --- | --- |
+| `npm run lint` | `G3_LINT_EXIT=0`. |
+| `npm run check` | `G3_CHECK_EXIT=0` — `218 code files`, `327 message keys per locale`, `0 failure(s), 0 warning(s)`. |
+| `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` | `G3_TSC_EXIT=0`. |
+| `git diff --check` | `G3_DIFF_CHECK_EXIT=0`؛ تحذيرات LF→CRLF اعتيادية فقط. |
+| `npm run build` | `G3_BUILD_EXIT=0` — Turbopack compile + TypeScript + 35 route entries، success route `/[locale]/checkout/success`Dynamic `ƒ`، دون أخطاء. |
+
+### 33.5 التحقق من العقد والبيئة
+- عقد الباك المقرء مصدرًا: `paymentMethod` إجباري؛ `IGuestCheckoutResult` يحوي `orderId/orderNumber/trackingToken/paymentMethod/paymentId/totals`؛ المبالغ سلاسل عشرية؛ `CHECKED_OUT` للسلة عند وجود `guestToken`.
+- أكواد الأخطاء المترجمة تشمل `CHECKOUT_EMPTY`, `CHECKOUT_INVALID_QUANTITY`, `PACKAGE_NOT_FOUND`, `PACKAGE_NOT_SALEABLE`, `PACKAGE_OUT_OF_STOCK`, `SHIPPING_AREA_NOT_CONFIGURED`, `TOO_MANY_REQUESTS`، ورسالة عدم وضوح الشبكة.
+- `GET /api/store/settings` → `HTTP=200`, `CURL_EXIT=0` قبل التنفيذ؛ لم يُشغَّل أي service، ولم تُرسل أي عملية checkout/proof write.
+- `API VERIFIED` للقراءة فقط؛ `CHECKOUT RUNTIME`: `NOT TESTED` لأن بيئة كتابة مأذونة صراحةً غير متاحة لهذا Gate.
+- `BROWSER VERIFIED`: لا يوجد؛ فحص المتصفح/index/noindex/back/reload مطلوب من المالك في بيئة مأذونة.
+
+### 33.6 مراجعة الـdiff
+- `git status --short --untracked-files=all`: تغييرات G0/G1/G2/Smart Address الموروثة + ملفات G3 الجديدة/المعدّلة فقط.
+- لا untracked خارج القائمة في 33.2؛ لا تغيير في `package.json`/lock/config/backend/styles/motion/store APIs.
+- لا أسرار ولا tokens ولا logs في التغييرات؛ لا ملفات generated.
+
+### 33.7 الحالة
+- `IMPLEMENTED IN SOURCE`: نعم.
+- `AUTOMATED CHECKS`: نعم — lint/check/tsc/diff/build بـexit codes موثّقة في 33.4.
+- `API VERIFIED`: للقراءة فقط؛ لا order/proof write.
+- `BROWSER VERIFIED`: لا — مطلوب من المالك.
+- `ASTRA REVIEWED`: نعم — G3 `APPROVE_WITH_WARNINGS` بعد إصلاح البلوكَرز؛ `Blockers: NONE`، `Required changes: NONE`، `Scope compliance: PASS`، `G4_CLEAR: NO`.
+- تحذيرات Astra المقبولة: `CheckoutPaymentMethod` يتعطّل أثناء `isSubmitting` لا `isLocked`، لكن الـ`inFlight ref` يمنع تكرار الطلب؛ القفل المستمر بعد فشل شبكة غير مؤكَّد أو حفظ إيصال يحتاج reload؛ لا تحقق متصفح أو كتابة مأذونة.
+- `OWNER APPROVED`: إذن G3 موجود؛ مراجعة/اعتماد نتيجة G3 لم تحدث بعد؛ G4 مقفول.
+- التصنيف: `DAY 6 GATE 3 COMPLETE — SOURCE + CHECKS PASS — ASTRA APPROVED WITH WARNINGS — WRITE RUNTIME NOT TESTED — WAITING FOR OWNER REVIEW — G4 LOCKED`.
+
+⛔ STOP — DAY 6 GATE 3 COMPLETE — WAITING FOR OWNER REVIEW — G4 LOCKED
+
+---
+
+## 34) Day 6 — Gate 4: ONLINE_TRANSFER Payment Proof
+
+### 34.1 الإذن والنطاق
+- الإذن الصريح من المالك: `G4` بعد accept G3؛ G5/G6 مقفولان.
+- قُدّمت خطة مسؤولية الملفات قبل الكود، ثم نُفّذ G4 فقط: رفع مباشر بإثبات موقَّع من `/api/uploads/sign-proof`، ثم `POST /api/store/payments/proof`، وعرض `PROOF_UPLOADED` بعد رد الباك فقط.
+- لم يُلمس باك/DB/schema/migration/seed/env/config/dependencies/ uploads config / product image flow / G3 receipt contract / `store/paymentApi.ts` / `store/baseApi.ts` / interfaces / validation barrel. لم يُبدأ G5؛ لا Motion/Styling جديد، لا backend proxy، لا base64، لا public_id/upload_preset/hash إضافي.
+- working tree الموروث من G0/G1/G2/G3 وSmart Address بقي كما هو؛ لم تُصلَح انحرافات قديمة خارج نطاق G4.
+
+### 34.2 الملفات المنفذة في المصدر
+| الملف | المسؤولية |
+| --- | --- |
+| `lib/proofUpload.ts` (جديد) | تحقق الصورة من `allowedFormats` والمIME والحجم ≤5MB، التحقق من `uploadUrl` مقابل `cloudName`، ثم FormData مباشر إلى Cloudinary بالحقول المطلوبة فقط، والتحقق من `secure_url` عبر Zod قبل إرجاعه. |
+| `hooks/useProofUpload.ts` (جديد) | قراءة إيصال G3، حارس `ONLINE_TRANSFER`، توقيع جديد لكل محاولة، منعdouble submit، تحويل `grandTotal` إلى number عند حد الطلب فقط، ربط sign→upload→submit، تعيين `PROOF_UPLOADED` بعد رد الباك فقط، وترجمة 429/status 0/أخطاء العقد. |
+| `components/ECommerce/Checkout/PaymentProofForm.tsx` (جديد) | نموذج معزول داخل success page: ملف إثبات، مرجع اختياري ≤100، أخطاء مترجمة، loading، وحالة نجاح `PROOF_UPLOADED`. |
+| `components/ECommerce/Checkout/OrderSuccess.tsx` (تعديل) | تركيب مشروط للنموذج عندما `paymentMethod === "ONLINE_TRANSFER"` فقط؛ لا عرض له مع COD. |
+| `messages/ar.json`, `messages/en.json` (تعديل) | مساحات `payment.form.*` و`payment.status.*` ورسائل `payment.errors.*` الجديدة؛ نفس المفاتيح بالضبط. |
+| `docs/PROGRESS.md`, `docs/DAY6_TASKS.md` (تعديل) | سجل التنفيذ والأدلة والفحوص وحالة البوابة. |
+
+### 34.3 سلامة المسار
+- `signProof` يرسل `orderId/trackingToken` من إيصال الجلسة فقط عبر endpoint الموجود؛ التوقيع يُطلب من جديد في كل محاولة، ولا يُخزَّن أو يُعاد استخدامه.
+- `uploadProofImage` يمنع أي file ليس JPG/JPEG/PNG/WebP، أو فارغًا، أو أكبر من 5MB؛ يرفض أي `uploadUrl` لا يطابق `https://api.cloudinary.com/v1_1/<cloudName>/image/upload`.
+- حقول الـFormData هي بالضبط `file`, `api_key`, `timestamp`, `signature`, `folder`, `allowed_formats`؛ لا `upload_preset` ولا `public_id` ولا حقول موقَّعة إضافية ولا رفع عبر الباك.
+- لا يُرسل `submitProof` إطلاقًا إلا بعد `response.ok` ووجود `secure_url` صالح من Cloudinary.
+- `amount` يأتي فقط من `receipt.totals.grandTotal`، ويُحوَّل إلى number عند بناء الطلب، مع رفض القيم غير المنتهية وغير الموجبة و`> 1,000,000`؛ لا إدخال المستخدم ولا حساب محلي.
+- طريقة الدفع literal `ONLINE_TRANSFER`؛ المرجع الاختياري يُقتطع ويُرسل فقط إذا非空؛ `trackingToken` لا يظهر في URL/canonical/metadata/DOM/analytics/logs/التقرير.
+- حالة النجاح تُعرض فقط لو رجع `paymentProofResultSchema` بـ`paymentStatus === "PROOF_UPLOADED"`؛ أي حالة أخرى تعدّ خطأً غير متوقعًا ولا تُعرض كنجاح.
+- فشل التوقيع أو الرفع أو الإرسال يترك الزر قابلًا لإعادة المحاولة؛ `inFlight ref` و`isBusy` يمنعان التكرار المتزامن؛ لا إعادة محاولة تلقائية ولا نجاح وهمي.
+
+### 34.4 الفحوص الآلية — أوامر منفصلة
+| الأمر | النتيجة |
+| --- | --- |
+| `npm run lint` | `G4_LINT_EXIT=0`. |
+| `npm run check` | `G4_CHECK_EXIT=0` — `221 code files`, `344 message keys per locale`, `0 failure(s), 0 warning(s)`. |
+| `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` | `G4_TSC_EXIT=0`. |
+| `git diff --check -- .` | `G4_DIFF_CHECK_EXIT=0`؛ تحذيرات LF→CRLF اعتيادية فقط. |
+| `npm run build` | `G4_BUILD_EXIT=0` — Turbopack compile + TypeScript + 35 route entries، success route `/[locale]/checkout/success` Dynamic `ƒ`، دون أخطاء. |
+
+> ملاحظة تنفيذ شفافة: تشغيل الفحوص الخمسة بالتوازي أدى إلى timeout لـ`lint` وإيقاع `build` بـ`ChildProcess.kill` بسبب تحميل الـshell؛ أُعيد تشغيل كلٍّ منهما منفصلًا بنجاح، والنتائج أعلاه من التشغيل النهائي المنفصل.
+
+### 34.5 التحقق من العقد والبيئة
+- عقد الباك المقرء مصدرًا: `/uploads/sign-proof` يُرجع `cloudName/apiKey/timestamp/signature/folder/allowedFormats/uploadUrl`؛ `/store/payments/proof` يستقبل `orderId/trackingToken/method/amount/proofImageUrl/transactionReference?` ويرجع `paymentId/paymentStatus`؛ حدود الرفع 5MB موثّقة في `STORE_BACKEND_TASKS.md`.
+- أكواد الأخطاء المترجمة تشمل `ORDER_NOT_FOUND`, `ORDER_ACCESS_DENIED`, `PAYMENT_ALREADY_CONFIRMED`, `PAYMENT_UNDER_REVIEW`, `PAYMENT_METHOD_NOT_ONLINE`, `RATE_LIMITED`، مع معالجة خاصة لـHTTP 429 وstatus 0.
+- لا `GET/POST` إلى sign-proof أو proof أو Cloudinary؛ لا صورة حقيقية، لا رد توقيع، لا `secure_url`، ولا orderId/trackingToken في أي سجل أو تقرير.
+- `SIGN/PROOF RUNTIME`: `NOT TESTED` لأن بيئة proof/upload/write مأذونة غير متاحة؛ `BROWSER VERIFIED`: لا يوجد؛ `API VERIFIED`: للقراءة فقط من G0/G1/G3.
+
+### 34.6 مراجعة الـdiff
+- `git status --short --untracked-files=all`: G4 أضافت الملفات الثلاثة الجديدة وعدّلت `OrderSuccess` والرسائل والوثائق فقط؛ بقية الملفات غير المتتبعة/المعدّلة موروثة من Gates سابقة.
+- `git diff -- package.json package-lock.json` فارغ في نطاق G4؛ لا backend/config/tooling/styles/motion/api slices جديدة.
+- لا أسرار ولا tokens ولا logs في التغييرات؛ لا ملفات generated.
+- External working-tree change observed at final G4 review: lib/siteContact.ts sets tiktok to "https://www.tiktok.com/@om_eman.herbs"; not made by G4, outside G4 authorization, left untouched; requires separate owner review.
+
+### 34.7 الحالة
+- `IMPLEMENTED IN SOURCE`: نعم.
+- `AUTOMATED CHECKS`: نعم — lint/check/tsc/diff/build بـexit codes موثّقة في 34.4.
+- `API VERIFIED`: للقراءة فقط؛ لا sign/upload/proof write.
+- `BROWSER VERIFIED`: لا — مطلوب من المالك.
+- `ASTRA REVIEWED`: نعم — G4 `APPROVE_WITH_WARNINGS` بعد إصلاح ترجمة `payment.errors.methodNotOnline`؛ `Blockers: NONE`، `Required changes: NONE`، `Scope compliance: PASS`، `G5_CLEAR: NO`.
+- تحذيرات Astra المقبولة: لا sign/upload/proof write runtime ولا browser verification؛ بعض أخطاء `checkout.errors.*` تظهر عبر namespace آخر مع بقائها مترجمة؛ كل الأخطاء تظهر تحت حقل الملف؛ `uploadUrl` مطابق حرفيًا لعقد الباك الحالي؛ تحديثات حالة الوثائق.
+- `OWNER APPROVED`: إذن G4 موجود؛ مراجعة/اعتماد نتيجة G4 لم تحدث بعد؛ G5 مقفول.
+- التصنيف: `DAY 6 GATE 4 COMPLETE — SOURCE + CHECKS PASS — ASTRA APPROVED WITH WARNINGS — WRITE RUNTIME NOT TESTED — WAITING FOR OWNER REVIEW — G5 LOCKED`.
+
+⛔ STOP — DAY 6 GATE 4 COMPLETE — WAITING FOR OWNER REVIEW — G5 LOCKED
+
+---
+
+## 35) Day 6 — Gate 5: CHECKOUT STYLE & MOTION
+
+### 35.1 الإذن والنطاق
+- الإذن الصريح من المالك بعد accept G4: `تمم اعتمنا واعمل G5`؛ نُفّذ `G5 — CHECKOUT STYLE & MOTION` فقط، وG6 ما زال مقفولًا.
+- قُدّمت خطة مسؤولية الملفات قبل الكود، ثم أُضيف تعديل `CheckoutContent.tsx` لإشارة النجاح اللازمة لحركة زر الإرسال؛ لا عقد جديد ولا تغيير في واجهة هوك.
+- لم يُلمس باك/DB/schema/migration/seed/env/config/dependencies/npm scripts/backend، ولا العقود أو الـvalidation أو RTK Query أو إيصال G3 أو مسار إثبات G4.
+- خارج النطاق لم يُلمس: الهيدر/الفوتر/السلة/المنتجات/الصور، `R-G4-MAJOR`/`D3-RM`، GSAP/Lottie/Three/Sass، ألوان خام في المكوّنات، ولا مكتبة حركة جديدة.
+- working tree الموروث بقي كما هو؛ لم تُصلَح الإضافات البصرية القديمة خارج هذا الـGate، ولم يُغيّر `lib/siteContact.ts` الخارجي عن G4.
+
+### 35.2 الملفات المنفذة في المصدر
+| الملف | المسؤولية |
+| --- | --- |
+| `components/ECommerce/Checkout/CheckoutStepper.tsx` (تعديل) | شريط تقدّم دلالي يعتمد على `activeStep`، وانزلاق خفيف للخطوة النشطة، مع حفظ وصول لوحة المفاتيح والتركيز. |
+| `components/ECommerce/Checkout/CheckoutCoupon.tsx` (تعديل) | إعادة استخدام `Shake` للكوبون الخاطئ فقط، مع مفتاح إعادة تشغيل للحالة المحلية و`COUPON_INVALID` القادم من الباك؛ لا حركة على النجاح. |
+| `components/ECommerce/Checkout/CheckoutSummary.tsx` (تعديل) | `Spotlight` عند hover + `BorderBeam` واحد فقط عند وجود رد coupon/shipping؛ إجماليات `PriceTag` تستخدم `CountUp` الموجود دون تغيير القيم المعروضة. |
+| `components/ECommerce/Checkout/CheckoutSubmit.tsx` (تعديل) | تحوّل loading→check داخل زر الإرسال بعد نجاح الطلب وحفظ الإيصال فقط، مع نص مقروء لشاشات القرّاء. |
+| `components/ECommerce/Checkout/CheckoutContent.tsx` (تعديل) | حالة نجاح محلية قصيرة قبل الانتقال للإيصال؛ الانتقال يُتخطّى تحت `prefers-reduced-motion`، ولا تؤخّر عرض فشل الطلب. |
+| `components/ECommerce/Checkout/OrderSuccess.tsx` (تعديل) | رسم علامة صح بجانب حالة الطلب المؤكَّد؛ نفس الإيصال/props دون تغيير. |
+| `components/ECommerce/Checkout/PaymentProofForm.tsx` (تعديل) | علامة صح drawn عند `PROOF_UPLOADED` فقط، دون تغيير منطق الرفع أو الرسائل. |
+| `styles/animations.css` (تعديل) | keyframes وclasses دلالية لشريط الخطوات، وانزلاق النص، ورسم الصح، ودخول علامة الزر؛ كلها ضمن `prefers-reduced-motion`. |
+
+### 35.3 سلامة الحركة والعقد
+- لا حركة تزيد أو تخفي القيم: `CountUp` يعرض نفس أرقام `PriceTag`، والشريط يعكس `activeStep` الحالي، والعلامات تظهر فقط بعد `PROOF_UPLOADED` أو نجاح `placeOrder` وحفظ الإيصال.
+- لا تأخير يخفي النجاح أو الفشل: أخطاء coupon/shipping/submit تظهر فورًا؛ انتقال الإيصال بعد علامة الصح يحدث بعد 520ms في الحركة العادية فقط، ويكون فوريًا تحت `prefers-reduced-motion`.
+- `MotionConfig reducedMotion="user"` يغطي حركات `m.*`؛ فحوص `matchMedia` وCSS `@media (prefers-reduced-motion: reduce)` تغطي `CountUp` والانتقال والـkeyframes الجديدة.
+- SSO/الصفحة فوق الـfold لا تعتمد على JS لإظهار المحتوى؛ الحركات الجديدة transform/opacity/width locally ولا تمنع التركيز أو الكيبورد.
+- لا حركة على كل البطاقات: `BorderBeam` واحد داخل بطاقة الملخص فقط؛ `Spotlight` يعمل على أجهزة hover فقط؛ لا pulse/confetti جديد في G5.
+- الألوان من tokens الأربعة الحالية عبر CSS variables/color-mix؛ لا hex/rgb داخل المكوّنات، ولا إضافة theme أو token جديد.
+
+### 35.4 الفحوص الآلية — أوامر منفصلة
+| الأمر | النتيجة |
+| --- | --- |
+| `npm run lint` | `G5_LINT_EXIT=0`. |
+| `npm run check` | `G5_CHECK_EXIT=0` — `221 code files`, `344 message keys per locale`, `0 failure(s), 0 warning(s)`. |
+| `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` | `G5_TSC_EXIT=0`. |
+| `git diff --check -- .` | `G5_DIFF_CHECK_EXIT=0`؛ تحذيرات LF→CRLF اعتيادية فقط. |
+| `npm run build` | `G5_BUILD_EXIT=0` — Turbopack compile + TypeScript + 35 route entries، success route `/[locale]/checkout/success` Dynamic `ƒ`، دون أخطاء. |
+
+### 35.5 مراجعة Astra
+- `VERDICT: APPROVE_WITH_WARNINGS`؛ `Blockers: NONE`؛ `Required changes: NONE`؛ `Scope compliance: PASS`؛ `G6_CLEAR: NO`.
+- أُصلح ملاحظتان بعد المراجعة الأولى: إعادة تشغيل `Shake` عند `COUPON_INVALID` من الباك، وإزالة التدرّج الفيزيائي من شريط الخطوات لصالح `var(--color-primary)`؛ أُعيد التحقق فبقيت التوصية `APPROVE_WITH_WARNINGS`.
+- تحذيرات مقبولة: لا browser/visual matrix ولا اعتماد بصري نهائي من المالك؛ `styles/animations.css` كان فوق 200 سطر قبل G5 وأُضيفت له حركات الـGate وفق الخطة (فحص `check` لا يغطي CSS)؛ spinner المشترك في `components/ui/Button.tsx` خارج نطاق G5 لم يُلمس.
+
+### 35.6 الحالة
+- `IMPLEMENTED IN SOURCE`: نعم.
+- `AUTOMATED CHECKS`: نعم — lint/check/tsc/diff/build بـexit codes موثّقة في 35.4.
+- `API VERIFIED`: للقراءة فقط من G0/G1/G3/G4؛ لا shop write ولا proof runtime جديد.
+- `BROWSER VERIFIED`: لا — مطلوب من المالك.
+- `OWNER APPROVED`: إذن تنفيذ G5 موجود؛ الاعتماد البصري النهائي لم يحدث بعد.
+- `ASTRA REVIEWED`: نعم — APPROVE_WITH_WARNINGS بلا blockers أو تغييرات مطلوبة.
+- التصنيف: `DAY 6 GATE 5 COMPLETE — SOURCE + CHECKS PASS — ASTRA APPROVED WITH WARNINGS — BROWSER/VISUAL NOT TESTED — WAITING FOR OWNER VISUAL REVIEW — G6 LOCKED`.
+
+⛔ STOP — DAY 6 GATE 5 COMPLETE — WAITING FOR OWNER VISUAL REVIEW — G6 LOCKED
+
+---
+
+## 36) Day 6 — Gate 6: المراجعة والتسليم — Verification Only
+
+### 36.1 الإذن والنطاق
+- الإذن الصريح: `G6 VERIFICATION ONLY`. الغرض تقرير كامل وتوصية Astra لا implementation.
+- سُمح بتحديث `docs/PROGRESS.md` و`docs/DAY6_TASKS.md` بالأدلة والنتائج والـblockers فقط؛ لا إصلاح عيوب ولا فتح Gate آخر.
+- لم يُلمس كود/باك/DB/schema/migration/seed/env/config/dependencies/npm scripts/routes/contracts، ولم تُنشأ أوصلة أوامر أو مكوّنات جديدة، ولم يُعمل commit/push/deploy.
+- لا بيئة اختبار مأذونة ولا بيانات اختبار مقدَّمة؛ لذلك كل ما يحتاج متصفحًا أو طلبات كتابة أو رفعًا حقيقيًا أو تحققًا أمنيًا فعليًا سُجِّل `NOT TESTED`. لا طلبات حقيقية ولا صور إثبات ولا أرقام هواتف/tokens استُخدمت.
+- طلب المالك «عاوز في المحافظات اعمل search جواها» خارج نطاق G6؛ سُجِّل كطلب مؤجّل ويحتاج إذنًا وتخطيطًا منفصلين.
+
+### 36.2 أين يظهر نموذج إثبات التحويل فعليًا
+- المسار الدقيق: `/{locale}/checkout/success` — `/ar/checkout/success` و`/en/checkout/success` — عبر `app/[locale]/(Store)/checkout/success/page.tsx:12`، وهو route ديناميكي في build.
+- الصفحة تُركّب `OrderSuccess` فقط (`page.tsx:22-24`). لا يوجد نموذج إثبات داخل `app/[locale]/(Store)/checkout/page.tsx` ولا داخل `CheckoutContent`; الانتقال إليه يحدث بعد نجاح `POST /store/checkout` وحفظ الإيصال (`hooks/useCheckoutSubmit.ts:70-80`, `components/ECommerce/Checkout/CheckoutContent.tsx:42-64`).
+- `OrderSuccess.tsx:17-33` يعرض skeleton ثم `ErrorState` عند غياب الإيصال؛ `OrderSuccess.tsx:98` يُركّب `<PaymentProofForm />` فقط عندما تكون `receipt.paymentMethod === "ONLINE_TRANSFER"`.
+- الإيصال يُقرأ من `sessionStorage` بالمفتاح `oe.order.receipt` (`lib/orderReceipt.ts:4,18-34`) ويُتحقق منه بـ`orderReceiptSchema` (`validation/orderReceipt.ts:6-14`). لذلك لا يظهر النموذج لـCOD، ولا عند فتح success مباشرة، ولا في جلسة/متصفح جديد، ولا إذا تعذّر حفظ الإيصال.
+- الخلاصة المصدرية لسبب عدم ظهور النموذج أثناء تصفّح المتجر: النموذج ليس عنصرًا عامًا في المتجر أو صفحة checkout؛ هو جزء من شاشة نجاح الطلب فقط وبشرط تحويل بنكي ضمن نفس الجلسة. لم يُتحقق بصريًا من هذه الخلاصة.
+
+### 36.3 تتبّع المصدر — checkout/coupon/proof
+- الكوبون اختياري في المصدر ولا يتوقف عليه الطلب: `validation/checkout.ts:35` يجعل `couponCode` optional؛ `lib/checkoutForm.ts:33,63` يحذف القيمة الفارغة ولا يُرسلها؛ لا شرط كوبون في `hooks/useCheckoutSubmit.ts`. لم يُختبر runtime.
+- `IPaymentProofPayload` و`IPaymentProofResult` و`IUploadSignature` مربوطة بـRTK Query في `store/paymentApi.ts:16-40`: `POST /uploads/sign-proof` ثم `POST /store/payments/proof`، مع تحليل Zod للردود.
+- `hooks/useProofUpload.ts:63-118` يمنع غير `ONLINE_TRANSFER`، يمنع الطلبات المتزامنة، يستخدم `receipt.orderId` و`receipt.trackingToken`، يشتق المبلغ من `receipt.totals.grandTotal`، ويجعل النجاح مشروطًا بـ`PROOF_UPLOADED`.
+- `lib/proofUpload.ts:37-86` يتحقق من الامتداد/MIME والحجم (5MB) وعنوان الرفع، ويرسل حقول Cloudinary: `file`, `api_key`, `timestamp`, `signature`, `folder`, `allowed_formats`، ويقبل `secure_url` فقط تحت `https://res.cloudinary.com/`.
+- `components/ECommerce/Checkout/PaymentProofForm.tsx:12-82` هو النموذج الوحيد؛ لا توجد نسخة مكرّرة.
+
+### 36.4 تتبّع المصدر —Backend
+- `POST /api/uploads/sign-proof` public ومحدود 10/ساعة (`backend/src/modules/uploads/routes.ts:36-42`)؛ يتحقق من `trackingToken` مقابل الطلب ويرفض COD و`CONFIRMED` (`backend/src/modules/uploads/service.ts:76-113`). لا يرفض `PROOF_UPLOADED` قبل إصدار توقيع جديد؛ `submitProof` يمنعه لاحقًا.
+- التوقيع يغطي `{ folder, allowed_formats: "jpg,jpeg,png,webp", timestamp }` فقط عبر `CLOUDINARY_API_SECRET`، والمجلد `om-eman/proofs`، و`uploadUrl = https://api.cloudinary.com/v1_1/<cloud>/image/upload` (`backend/src/modules/uploads/service.ts:17-65`). لا `type: authenticated` ولا ربط `public_id` بالطلب.
+- `POST /api/store/payments/proof` محدود 10/ساعة مع `optionalCustomer` (`backend/src/modules/store/payments/routes.ts:11-24`). يطلب `method: "ONLINE_TRANSFER"` و`trackingToken` بنمط 43–64 (`backend/src/modules/store/payments/validation.ts:4-18`).
+- `backend/src/modules/store/payments/service.ts:36-100` يتحقق من الملكية بالـtoken أو الجلسة، يرفض `CONFIRMED` و`PROOF_UPLOADED` وCOD، يحدّث صف PENDING أو ينشئ صفًا جديدًا بعد الرفض، ثم يستدعي `refreshOrderPaymentStatus`.
+- `backend/src/services/order-payment-status.service.ts:30-76` يشتق حالة الطلب: `CONFIRMED` ثم `PROOF_UPLOADED` ثم `PENDING` ثم `REJECTED`، ويحفظ القيمة في `Order.paymentStatus`.
+- `backend/src/shared/cloudinary-url.ts:19-27` يقبل فقط HTTPS على `res.cloudinary.com`، وcloud name المطابق للإعداد، ومسار `/image/upload/...`؛ لا يتحقق من مجلد `om-eman/proofs` ولا من رابط الدفع الخاص. النتيجة المصدرية: صور الإثبات public-delivery ولا تُثبت خصوصيتها.
+
+### 36.5 الفحوص الآلية — G6
+| الأمر | النتيجة |
+| --- | --- |
+| `npm run lint` | `G6_LINT_EXIT=0`. |
+| `npm run check` | `G6_CHECK_EXIT=0` — `221 code files`, `344 message keys per locale`, `0 failure(s), 0 warning(s)`. |
+| `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` | `G6_TSC_EXIT=0`. |
+| `git diff --check -- .` | `G6_DIFF_CHECK_EXIT=0`؛ تحذيرات LF→CRLF اعتيادية فقط. |
+| `npm run build` | `G6_BUILD_EXIT=0` — Turbopack + TypeScript، 35 route entries، `/[locale]/checkout/success` Dynamic `ƒ`. |
+
+### 36.6 مراجعة Astra النهائية
+- `VERDICT: BLOCKED / NO-GO` — اكتملت مراجعة source/static فقط؛ لا يُوصى باعتماد الإنتاج أو الاعتماد النهائي.
+- `Blockers: B-G6-01` لا بيئة/بيانات مأذونة فكل checkout write وsign→upload→submit و`PROOF_UPLOADED` وbrowser/visual وnegative/security وretry `NOT TESTED`؛ `B-G6-02` فجوة سلامة/خصوصية الإثبات: `/image/upload` عام، وقبول URL داخل cloud دون ربط بالطلب/المجلد، وتوقيع يسمح `PROOF_UPLOADED`؛ `B-G6-03` كتابة الدفع وتحديث الحالة ليست transaction واحدًا ولا audit log في التدفق.
+- `Required changes (تُسجَّل ولا تُنفَّذ في G6):` نتائج runtime/browser/security مأذونة، وربط URL بالإثبات/الطلب، وقرار خصوصية Cloudinary، ورفض `PROOF_UPLOADED` عند التوقيع، وatomicity + audit، ومطابقة Swagger واسم endpoint في وثيقة الباك.
+- `Scope compliance: PASS`؛ `G6_CLEAR: NO`؛ 0 Critical، 3 Major، 2 Minor. الانحرافات موثّقة ولا تُصلَح داخل G6.
+
+### 36.7 الحالة النهائية
+- `Implemented in source`: نعم لـG1–G5؛ G6 لا implementation.
+- `Automated checks passed`: نعم — 36.5.
+- `Browser verified`: لا — `NOT TESTED`.
+- `Runtime verified`: لا — `NOT TESTED`.
+- `Security verified`: لا — مراجعة مصدر فقط، بلا رفع/تحقق خصوصية فعلي.
+- `Owner accepted`: لا — مطلوب اعتماد المالك، والاعتماد البصري لـG5 ما زال معلّقًا.
+- `ASTRA`: `BLOCKED / NO-GO`.
+- التصنيف: `DAY 6 GATE 6 VERIFICATION COMPLETE — SOURCE + AUTOMATED CHECKS PASS — RUNTIME/BROWSER/SECURITY NOT TESTED — TECHNICAL HANDOFF ONLY — PRODUCTION SEAL REFUSED — OWNER ACCEPTANCE NOT RECOMMENDED — G6_CLEAR: NO`.
+
+⛔ STOP — DAY 6 GATE 6 COMPLETE — WAITING FOR OWNER REVIEW
+
+---
+
+## 37) Day 6 — Payment Proof Security Remediation (Owner-authorized backend-only)
+
+### 37.1 الإذن والنطاق
+- إذن صريح من المالك بعد تقرير G6 لتحليل ثم إصلاح ثغرات إثبات الدفع داخل كود الباك فقط.
+- سُمح بقراءة/تعديل backend source عند اللزوم؛ سُمح بتحديث `docs/PROGRESS.md` و`docs/DAY6_TASKS.md` بالنتائج.
+- **لم يُلمس:** Frontend، Prisma schema/migration، DB أو SQL تنفيذي، Cloudinary dashboard/env، dependencies، cron، npm scripts، عقد API جديد، commit/push/deploy، أو إعادة ضبط working tree. الإضافات القديمة غير المتعلقة (مثل `frontend/lib/siteContact.ts` وملفات backend docs الموروثة) تُرِكت كما هي.
+- لا بيئة اختبار مأذونة ولا بيانات حقيقية؛ لذلك رفع Cloudinary الفعلي، المتصفح، الدفع الحقيقي، والـruntime ما زالوا `NOT TESTED`. كل اختبارات هذا القسم mocked/unit أو فحص مصدر/type-check/build فقط.
+
+### 37.2 الملفات المعدّلة ومسؤولية كل ملف
+| الملف | المسؤولية |
+| --- | --- |
+| `backend/src/shared/proof-image.ts` | مجلد إثبات مرتبط بـ`orderId + trackingToken` عبر `hashToken`، والتحقق الصارم من رابط Cloudinary بدون dev fallback. |
+| `backend/src/services/proof-audit.service.ts` | كتابة أحداث `AuditLog` بأسباب/code فقط، بلا token أو signature أو secret. |
+| `backend/src/modules/uploads/proof-sign-policy.ts` | قرار السماح/الرفض لتوقيع الرفع: COD، الطلب المفقود، token، حالة الطلب/الدفع، و`PROOF_UPLOADED`. |
+| `backend/src/modules/uploads/service.ts` | تنفيذ القرار داخل transaction، إصدار توقيع للمجلد المرتبط بالطلب، وتسجيل النجاح/الرفض. |
+| `backend/src/modules/uploads/controller.ts` / `routes.ts` | تمرير سياق التدقيق و`optionalCustomer` إلى `sign-proof` دون تغيير شكل الـresponse. |
+| `backend/src/modules/store/payments/proof-submit-policy.ts` | قرار قبول الإرسال: الملكية، حالة الطلب/الدفع، وربط صورة الإثبات بالطلب نفسه. |
+| `backend/src/modules/store/payments/service.ts` | `Serializable` transaction + `updateMany` شرطي، منع صفّين للإثبات، تحديث حالة الطلب داخل المعاملة، وتدقيق النجاح/الرفض. |
+| `backend/src/modules/payment/router.ts` | تقييد `GET /payments` و`GET /payments/:id` بـ`OWNER/ADMIN`؛ `STAFF` ممنوع. |
+| `backend/src/modules/payment/service.ts` | إزالة `proofImageUrl` من البحث النصي `q`. |
+| `backend/scripts/generate-modules.ts` | حفظ تقييد قراءة `Payment` واستبعاد `Payment.proofImageUrl` من `q` عند إعادة التوليد. |
+| `backend/tests/unit/payment-proof-policy.test.ts` | اختبارات decision functions وصلاحية الموظف على route الفعلي. |
+| `backend/tests/unit/payment-proof-service.test.ts` | اختبارات mocked للـconditional update، منع إنشاء إثبات ثانٍ، `P2034` retry، والـaudit. |
+
+### 37.3 ما انغلق من ملاحظات G6
+- `B-G6-02` (جزئيًا على مستوى المصدر): صار الـsign يرفض COD والطلب المفقود/high-risk states و`PROOF_UPLOADED`، ويستخدم مقارنة token ثابتة الوقت، ويصدر مجلدًا مرتبطًا بالطلب. صار الـsubmit يرفض رابطًا خارج Cloudinary أو رابطًا من طلب/token آخر، حتى مع غياب cloud name. لم يُغلق بند الخصوصية الفعلي: الرفع ما زال public `image/upload` لأن `type: authenticated` يحتاج Frontier change.
+- `B-G6-03`: انغلق على مستوى المصدر: الإرسال داخل `Serializable` transaction، تحديث حالة الدفع شرطي، إنشاء صف جديد فقط بعد `REJECTED`، تحديث `Order.paymentStatus` داخل نفس المعاملة، و`AuditLog` للنجاح والرفض برموز أخطاء فقط.
+- `B-G6-01`: لم يتغير؛ لا runtime/browser/API write/real upload مأذون. لا يجوز تحويل هذا الإصلاح المصدر إلى ادعاء تحقق حي.
+- **Private Proof Images:** ما زال `EXTERNALLY BLOCKED / NO-GO`. التنفيذ الآمن يحتاج تعديل `frontend/lib/proofUpload.ts` لإرسال `type=authenticated`، وإضافة endpoint موقّع لتسليم الصورة للموظف المصرّح له، ومراجعة إعداد/خطة Cloudinary. كل ذلك خارج الإذن الحالي؛ لم يُطبَّق بديل أضعف.
+
+### 37.4 الفحوص الآلية — Security Remediation
+| الأمر | النتيجة |
+| --- | --- |
+| `npm run typecheck` (backend) | exit 0، بلا أخطاء TypeScript. |
+| `npm run build` (backend) | exit 0. |
+| `npx prisma validate` | `The schema at prisma\schema.prisma is valid 🚀`؛ لا تغيير schema. |
+| `npm test` (backend) | `5 passed` test files، `47 passed` tests؛ تشمل الـ47 اختبارات الأصلية والمضافة. |
+| `git diff --check -- Om-Eman/backend` | exit 0؛ تحذيرات LF→CRLF اعتيادية فقط. |
+- لم يُشغَّل `npm run modules:generate` عمدًا لأنSchema لم يتغير وتشغيله قد يعيد كتابة ملفات مولّدة غير مرتبطة في working tree متسخ؛ المولّد نفسه معدَّل ومطابق للناتج المطلوب، وAstra أكّد المطابقة.
+
+### 37.5 مراجعة Astra المستقلة
+- `VERDICT: PASS` للإصلاح المأذون، بعد إعادة فحص الاختبارات الإضافية: `ASTRA-PPS-05 resolved`؛ لا blocker جديد.
+- تحقّق Astra من قواعد التوقيع، ربط الرابط، atomicity/conditional update، التدقيق، تقييد `STAFF`، مطابقة المولّد، وعدم تجاوز النطاق المأذون. `Scope compliance: PASS`.
+- ملاحظات منخفضة غير حاجزة سُجِّلت: فشل كتابة AuditLog عند الرفض يبقى best-effort حتى لا يُخفى خطأ الرفض الأصلي؛ مسار الإنشاء بعد `REJECTED` محمي بـ`SERIALIZABLE` مع retry وليس بقيد DB فريد (ممنوع تغيير Schema)؛ لا اختبار مزدوج المعاملات حقيقي؛ dev fallback ما زال في `cloudinary-url.ts` لكنه غير مستخدم في مسار الإثبات.
+- لا ادعاء بـCloudinary/browser/production verification.
+
+### 37.6 التصنيف النهائي لهذا الإصلاح
+- `Implemented in source`: نعم —Backend فقط.
+- `Automated checks passed`: نعم — 37.4.
+- `Runtime / browser / real upload / production verified`: لا — `NOT TESTED`.
+- `Private proof images`: `EXTERNALLY BLOCKED — FRONTEND + SIGNED DELIVERY + CLOUDINARY DECISION REQUIRED`.
+- `G6 overall`: ما زال `BLOCKED / NO-GO`؛ هذا الإصلاح يعالج ملاحظات المصدر ولا يمنح production seal.
+- `Astra remediation`: `PASS` مع ملاحظات منخفضة موثّقة.
+- `Owner acceptance`: **ممنوح 2026-11-23** (`تمم اعتمدته`) لإصلاح المصدر وتحديثات §37 وآخر القرارات؛ لا يمنح production seal ولا يفتح Gate.
+
+⛔ STOP — SECURITY REMEDIATION OWNER-ACCEPTED — NO IMPLEMENTATION AUTHORIZED
+
+---
+
+## 38) اعتماد المالك وخطة Day 7 (2026-11-23)
+
+- **اعتماد المالك:** اعتُمدت تحديثات إصلاح إثبات الدفع في §37 وآخر القرارات: بقاء G6 `BLOCKED / NO-GO` لأسباب runtime/browser/env؛ تثبيت قرار الإيصال (`sessionStorage` بلا `trackingToken` في page URL/canonical/logs)؛ وتجميد الاركتيكتشر الحالية (App Router، ترتيب `Providers/`، `store/baseApi.ts`، `interface/`، `components/Skelton/`، `hooks/`، `components/Animation/`).
+- **تصحيح قرار Cloudinary Proof Images:** آخر قرار صريح من المالك: **Public Cloudinary Delivery مقبول**؛ **Private Delivery ليس شرطًا لقبول Day 6**؛ **لا يوجد إذن لتنفيذ Private Delivery**. تُصحِّح هذه الصياغة أي إشارة أقدم في §37 أو `DAY6_TASKS.md` إلى private proof كشرط أو blocker خارجي، دون إعادة فتح النقاش أو أي تغيير تقني.
+- **الخط المتبع في الملف:** `FRONTEND_TASKS_10_DAYS.md:31-43` §0.3 «الجدول المعدّل»، مرحلة `C — Storefront`: checkout ← تتبع ← حساب العميل. لم تُتبع خطة `FRONTEND_TASKS_10_DAYS.md:215` القديمة «اليوم 7 — Dashboard»؛ فهي مرجع تاريخي فقط. محتوى `FRONTEND_TASKS_10_DAYS.md:247-251` مرجع للمحتوى لا للمسارات لأن قرار الإيصال يمنع token في route الصفحة.
+- **مكان الخطة الجديدة:** ملف مستقل [`DAY7_TASKS.md`](./DAY7_TASKS.md) — `اليوم 7 — Storefront: التتبع + حساب العميل + دمج السلة`، بنفس تقسيم الأيام: قواعد، هدف/نطاق، تدقيق، عقود، جرد ملفات، سجل مؤجلات، Gates بـ12 حقلًا، أوامر، مخاطر، قالب تقرير، ومراجعة Astra. طلب المالك: ملف لكل يوم، بلا إدماج في `DAY6_TASKS.md`.
+- **المؤجلات المُوزَّعة داخل `DAY7_TASKS.md` §6:** `D7-TRACK`, `D7-ACCOUNT`, `D7-MERGE`, `R-API-SEARCH`, `R-CART-WRITE`, `R-VIS`, `R-G4-MAJOR`, `D3-RM`, `B-PUB`, انحرافات Day 5, `B-Build`, `R-PRIVATE-PROOF`, `R-G6-SEAL`. لا بند يفتح تلقائيًا؛ كل Gate يحتاج إذن مالك باسمه.
+- **فجوة عقد مسجّلة:** لا يوجد endpoint لقراءة سلة العميل بعد `POST /api/store/cart/merge`؛ سلة الضيف تصبح `MERGED`. عرض «السلة بعد الدمج» محجوب حتى قرار باك منفصل؛ لا يُخترع endpoint ولا يُعاد استخدام توكن منتهي.
+- **حالة Day 7 الآن:** `PLANNING ONLY — OWNER UPDATE/DECISIONS ACCEPTED — NO GATE OPENED — NO IMPLEMENTATION AUTHORIZED`.
+- **تنظيم الملفات:** خطة Day 7 في ملف مستقل `frontend/docs/DAY7_TASKS.md`؛ `DAY6_TASKS.md` رجع Day 6 فقط بلا قسم Day 7؛ هذا الاعتماد موثّق هنا.
+- **لا تغييرات أخرى:** صفر تعديل للاركتيكتشر/العقود/الباك/DB/env/deps/tooling/commit؛ working tree الموروث محفوظ كما هو.
+
+⛔ STOP — DAY 7 TASK PLAN COMPLETE — OWNER UPDATE/DECISIONS ACCEPTED — NO IMPLEMENTATION AUTHORIZED

@@ -3,6 +3,7 @@ import rateLimit from "express-rate-limit";
 import { authenticate } from "../../middlewares/auth.middleware.js";
 import { authorize } from "../../middlewares/role.middleware.js";
 import { EEmployeeRole } from "@prisma/client";
+import { optionalCustomer } from "../../middlewares/customer-auth.middleware.js";
 import { validateBody } from "../../middlewares/validate.middleware.js";
 import { UploadsController } from "./controller.js";
 import { proofSignSchema, uploadSignSchema } from "./validation.js";
@@ -37,6 +38,7 @@ router.post(
 router.post(
   "/sign-proof",
   proofSignLimiter,
+  optionalCustomer,
   validateBody(proofSignSchema),
   controller.signProof,
 );

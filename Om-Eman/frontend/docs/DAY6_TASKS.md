@@ -1,8 +1,8 @@
 # اليوم 6 — Checkout الضيف + إثبات التحويل — تاسكات التخطيط والتفكيك
 
-> آخر تحديث: 2026-11-22. **حالة المستند: DAY 6 PLANNING COMPLETE — WAITING FOR ASTRA REVIEW & OWNER GATE PERMISSION.**
+> آخر تحديث: 2026-11-23. **حالة المستند: DAY 6 GATE 6 VERIFICATION COMPLETE + OWNER-ACCEPTED BACKEND SECURITY REMEDIATION + OWNER-ACCEPTED LATEST DECISIONS — PRIVATE PROOF IMAGE DELIVERY EXTERNALLY BLOCKED — RUNTIME/BROWSER/REAL UPLOAD NOT TESTED — G6 REMAINS BLOCKED / NO-GO — DAY 7 IMPLEMENTATION NOT AUTHORIZED.**
 > **المدير/المراجع:** Astra. **المنفّذ المقترح:** GLM. **المالك:** صاحب القرار في النطاق، العقود، نقل الإيصال، الشكل/الحركة، فتح كل Gate والانتقال للي بعدها.
-> المسارات نسبية إلى `Om-Eman/frontend/` إلا لو ذُكر الباك صراحة. هذا المستند سجل تخطيط ومراجعة Day 6؛ لم تُفتح أي Gate، ولم يُنفّذ كود checkout، ولا يمنح وحده إذنًا بالتنفيذ أو باعتماد بصري.
+> المسارات نسبية إلى `Om-Eman/frontend/` إلا لو ذُكر الباك صراحة. هذا المستند سجل تخطيط ومراجعة Day 6؛ خطة اليوم وG0 وG1 وG2 وG3 معتمدة من المالك، ونُفّذ كود العقود/الـvalidation/الـendpoints في G1 وواجهة checkout في G2 وإرسال الطلب والإيصال في G3 وإثبات التحويل في G4، ثم أذن المالك بـG5 ونُفّذ كود الشكل والحركة؛ نُفّذ G6 كمراجعة وتسليم فقط بلا implementation. الاعتماد البصري والنهائي ما زال مطلوبًا.
 
 ---
 
@@ -235,13 +235,13 @@
 ### Gate 0 — Pre-flight وتثبيت العقود (docs/baseline فقط)
 
 1. **ID/الهدف:** G0؛ فصل سلامة البيئة وتوزيع المؤجلات عن implementation.
-2. **الاعتماد/الإذن:** إذن مالك مستقل باسم G0؛ لا كود تطبيق.
+2. **الاعتماد/الإذن:** إذن مالك مستقل باسم G0، مُمنح 2026-11-22؛ لا كود تطبيق.
 3. **النطاق:** قراءة AGENTS/PROGRESS/هذا المستند/عقود الباك؛ `git status --short`؛ فحص `:3001/:3002`؛ آخر build/check؛ مراجعة الإضافات بعد G5 بصريًا.
 4. **خارج النطاق:** لا checkout UI، لا proof، لا إصلاح blockers، لا باك/DB.
 5. **الملفات المتوقعة:** `docs/PROGRESS.md` فقط لتسجيل الأدلة والقرارات.
 6. **المسؤولية:** وثيقة فقط؛ صفر تعديل مصدر.
 7. **العقود المطلوب تأكيدها:** shipping areas/quote، coupon validate، checkout result/totals، sign-proof، submit-proof، ودرجة تحقق كل واحد من المصدر أو runtime.
-8. **قرار المالك المطلوب:** نقل الإيصال عبر `sessionStorage` (الافتراضي) أم مسار آمن آخر؛ هل تُفتح G5 للـMotion في نفس اليوم أم بجلسة مراجعة منفصلة؟
+8. **قرار المالك المطلوب:** نُفّذ الافتراضي المذكور في الخطة المعتمدة: نقل الإيصال عبر `sessionStorage` دون token في الرابط/canonical/logs؛ G5 للـMotion يبقى جلسة مراجعة منفصلة بعد G1–G4.
 9. **الفحوص:** سجّل أوامر القراءة separately؛ لا tokens في التقارير؛ اذكر أن HTTP 200 ليس acceptance.
 10. **المتصفح:** لا شاشة Day 6 هنا؛ سجّل توفر المتصفح/قيوده فقط.
 11. **DoD:** baseline مؤرّخ + جدول مؤجلات موزّع + قرار إيصال + كل blockers مسجّلة.
@@ -262,6 +262,10 @@
 11. **DoD:** مدخلات غير صالحة لا تصل للباك؛ الفشل يبقى failure؛ لا أرقام/ضرائب مختلقة.
 12. **STOP:** `⛔ STOP — Gate 1`
 
+**الحالة الفعلية:** COMPLETE — SOURCE + CHECKS PASS — WAITING FOR OWNER REVIEW — G2 LOCKED.
+**الدليل:** `PROGRESS.md:1845+` §30 — 13 ملفًا جديدًا + 7 تعديلات؛ `G1_LINT_EXIT=0`, `G1_CHECK_EXIT=0`, `G1_TSC_EXIT=0`, `G1_DIFF_CHECK_EXIT=0`, `G1_BUILD_EXIT=0`؛ API قراءة فقط settings/areas/quote/coupon بلا checkout/proof write.
+**انحراف موثّق:** Zod قُسّم لملفات صغيرة حسب `AGENTS.md`؛ `lib/proofUpload.ts` أُجّل لـG4 لتفادي رفع ملف/تخمين FormData.
+
 ### Gate 2 — Checkout: العنوان والشحن والكوبون والبنود
 
 1. **ID/الهدف:** G2؛ تجربة تعبئة checkout بالكامل بدون تقديم طلب.
@@ -276,6 +280,12 @@
 10. **البيانات:** لا مدن وهمية، لا سعر شحن محلي، لا خصم محلي؛ لا guestToken في التقارير.
 11. **DoD:** المستخدم يكمل الخطوات ويرى ملخصًا صادقًا؛ لا طلب أُرسل؛ Astra review مطلوب.
 12. **STOP:** `⛔ STOP — Gate 2`
+
+**الحالة الفعلية:** COMPLETE — SOURCE + CHECKS PASS — API READ-ONLY VERIFIED — BROWSER NOT TESTED — WAITING FOR OWNER REVIEW — G3 LOCKED.
+**الدليل:** `PROGRESS.md:1926+` §31 — 21 ملفًا جديدًا + تعديل رسائل ar/en؛ `G2_LINT_EXIT=0`, `G2_CHECK_EXIT=0`, `G2_TSC_EXIT=0`, `G2_DIFF_CHECK_EXIT=0`, `G2_BUILD_EXIT=0`؛ Zod `BASE=true/BAD_PHONE=false/BAD_STREET=false/BAD_QTY=false`؛ API settings/areas 200، quote حقيقي 200، unconfigured 400، coupon validation 400، بدون أي order/proof write.
+**انحراف موثّق:** أُضيف `CheckoutPaymentMethod` كاختيار نموذج فقط؛ أُضيف `CheckoutContent` وفُصلت الحقول لحدود الملفات؛ حقل المدينة يستخدم `Input` + `datalist` من مدن الباك فقط لأن `/shipping/areas` يعيد `city: null` (تعريفة محافظة) بينما quote يشترط city نصيًا. لا Motion ولا إجمالي محلي ولا submit.
+
+⛔ STOP — DAY 6 GATE 2 COMPLETE — WAITING FOR OWNER REVIEW — G3 LOCKED
 
 ### Gate 3 — تقديم الطلب والإيصال
 
@@ -307,6 +317,10 @@
 11. **DoD:** لا يمكن رفع إثبات لطلب COD؛ أي فشل يترك الزر قابلًا لإعادة المحاولة؛ Astra review.
 12. **STOP:** `⛔ STOP — Gate 4`
 
+**الحالة الفعلية:** COMPLETE — SOURCE + CHECKS PASS — ASTRA APPROVED WITH WARNINGS — PROOF WRITE/BROWSER NOT TESTED — WAITING FOR OWNER REVIEW — G5 LOCKED.
+**الدليل:** `PROGRESS.md:2118+` §34 — 3 ملفات جديدة (`lib/proofUpload.ts`, `hooks/useProofUpload.ts`, `components/ECommerce/Checkout/PaymentProofForm.tsx`) + تعديل `OrderSuccess.tsx` ورسائل `payment.*`؛ `G4_LINT_EXIT=0`, `G4_CHECK_EXIT=0`, `G4_TSC_EXIT=0`, `G4_DIFF_CHECK_EXIT=0`, `G4_BUILD_EXIT=0`؛ `check` سجّل `221 code files`, `344 message keys per locale`, `0 failure(s), 0 warning(s)`.
+**انحراف موثّق:** لا تغيير في `store/paymentApi.ts` لأن endpoints المطلوبة كانت موجودة من G1؛ لا Cloudinary client ولا backend proxy ولا تعديل uploads config؛ لا إرسال proof إلى الباك قبل نجاح الرفع؛ لا إظهار `PROOF_UPLOADED` قبل رد الباك؛ 429 وstatus 0 يُترجمان إلى رسائل `payment.errors.*`؛ لا browser/write runtime مأذون ⇒ `NOT TESTED`.
+
 ### Gate 5 — الشكل والأنيميشن (بعد الهيكل، بإذن منفصل)
 
 1. **ID/الهدف:** G5؛ تحويل checkout المُبني إلى تجربة “حيّة” متسقة مع الهوية، بدون تغيير العقود/الاركتيكتشر.
@@ -322,6 +336,10 @@
 11. **DoD:** الحركة تحسّن الفهم ولا تبطّئ؛ لا تغيير منطق/عقود؛ انحرافات R-STYLE-ANIM الخاصة بـDay 6 موثّقة.
 12. **STOP:** `⛔ STOP — Gate 5`
 
+**الحالة الفعلية:** COMPLETE — SOURCE + CHECKS PASS — ASTRA APPROVED WITH WARNINGS — BROWSER/VISUAL NOT TESTED — WAITING FOR OWNER VISUAL REVIEW — G6 LOCKED.
+**الدليل:** `PROGRESS.md:2183+` §35 — تعديل 7 مكوّنات checkout + `styles/animations.css`؛ إذن صريح `G5 — CHECKOUT STYLE & MOTION`؛ `G5_LINT_EXIT=0`, `G5_CHECK_EXIT=0`, `G5_TSC_EXIT=0`, `G5_DIFF_CHECK_EXIT=0`, `G5_BUILD_EXIT=0`؛ `check` سجّل `221 code files`, `344 message keys per locale`, `0 failure(s), 0 warning(s)`.
+**انحراف موثّق:** لا runtime/visual browser matrix ولا اعتماد بصري نهائي؛ `styles/animations.css` موروث فوق 200 سطر قبل G5، فأُضيفت له حركات checkout وفق خطة Gate 5 بدل ملف CSS جديد؛ تحذير Astra بسيط بشأنSpinner الافتراضي خارج نطاق G5 لم يُلمس.
+
 ### Gate 6 — المراجعة والتسليم (Day 6 فقط)
 
 1. **ID/الهدف:** G6؛ تقرير كامل وتوصية Astra، لا implementation.
@@ -336,6 +354,11 @@
 10. **الاعتماد:** Astra يوصي؛ المالك وحده يعتمد الشكل والانتقال.
 11. **DoD:** تقرير صادق بالقيود؛ DAY6_TASKS يعكس الحالة الفعلية؛ STOP أخير.
 12. **STOP:** `⛔ STOP — DAY 6 GATE 6 COMPLETE — WAITING FOR OWNER REVIEW`
+
+**الحالة الفعلية:** VERIFICATION COMPLETE — SOURCE + AUTOMATED CHECKS PASS — RUNTIME/BROWSER/SECURITY NOT TESTED — ASTRA BLOCKED / NO-GO — TECHNICAL HANDOFF ONLY — PRODUCTION SEAL REFUSED — OWNER ACCEPTANCE PENDING.
+**الدليل:** `PROGRESS.md:2239+` §36 — لا كود جديد في G6؛ لا بيئة اختبار مأذونة ولا بيانات اختبار، لذلك كل فحوص المتصفح والكتابة والرفع/الخصوصية `NOT TESTED`. الأوامر الآلية: `npm run lint`, `npm run check`, `tsc --noEmit`, `git diff --check -- .`, `npm run build` — كلها exit 0؛ `check` سجّل `221 code files`, `344 message keys per locale`, `0 failure(s), 0 warning(s)`؛ build سجّل 35 route entries، success route `/{locale}/checkout/success` dynamic.
+**النتائج:** نموذج إثبات التحويل موجود في مصدر `components/ECommerce/Checkout/PaymentProofForm.tsx` ولا يظهر إلا على `/{locale}/checkout/success` بعد إيصال صالح في `oe.order.receipt` ولـ`ONLINE_TRANSFER` فقط؛ لا يظهر في صفحة checkout ولا لـCOD ولا عند غياب الإيصال (مثل فتح الرابط مباشرة/جلسة جديدة). الكوبون اختياري في المصدر ولا يعتمد عليه إرسال الطلب. تدفق sign→upload→submit وملكية الطلب وحالة `PROOF_UPLOADED` موجود في المصدر، لكن الرفع الفعلي وخصوصية Cloudinary لم يُختبرا.
+**انحرافات/blockers موثّقة:** لا runtime/browser/visual ولا acceptance؛ صورة الإثبات تُرفع إلى Cloudinary `/image/upload` العام ولا يوجد ربط URL بالطلب/المجلد أو تسليم خاص، وتوقيع الرفع يسمح `PROOF_UPLOADED` قبل منع submit، وكتابة الدفع وتحديث الحالة ليست في transaction واحد ولا audit log في التدفق؛ انحرافات Swagger واسم endpoint في وثيقة الباك موثّقة ولا تُصلَح في G6. طلب البحث داخل المحافظات خارج نطاق G6 ويحتاج إذنًا منفصلًا.
 
 ---
 
@@ -425,7 +448,26 @@ curl -i -X POST 'http://localhost:3002/api/store/payments/proof' -H 'Content-Typ
 - أن الملفات كلها «متوقعة» وليست إذن تنفيذ، وأن STOP موجود؛
 - أن G5 للشكل/الحركة فقط بعد الهيكل، بما يتوافق مع رغبة المالك في التصميم معًا.
 
-**قرار Astra:** PENDING — مراجعة التخطيط مطلوبة قبل أي Gate.
-**اعتماد المالك / إذن فتح Gate:** PENDING — لا اعتماد بصري أو انتقال تلقائي؛ المالك يقرر technical gates والبيئة ونقل الإيصال وموعد مراجعة الـMotion.
+**قرار Astra:** G2 `APPROVE_WITH_WARNINGS` — لا blockers ولا تغييرات مطلوبة قبل الاعتماد؛ G3 `APPROVE_WITH_WARNINGS` بعد مراجعة الإصلاحات — لا blockers ولا تغييرات مطلوبة؛ G4 `APPROVE_WITH_WARNINGS` بعد إصلاح ترجمة `payment.errors.methodNotOnline` — `Blockers: NONE`، `Required changes: NONE`، `Scope compliance: PASS`؛ G5 `APPROVE_WITH_WARNINGS` — `Blockers: NONE`، `Required changes: NONE`، `Scope compliance: PASS`؛ G6 `BLOCKED / NO-GO` — `Scope compliance: PASS`، `G6_CLEAR: NO`؛ Payment Proof Security Remediation `PASS` مع ملاحظات منخفضة غير حاجزة و`ASTRA-PPS-05 resolved`؛ لا توصية باعتماد الإنتاج أو الاعتماد النهائي.
+**اعتماد المالك / إذن فتح Gate:** APPROVED لـDay 6 Plan وGate 0 وGate 1 وGate 2 وGate 3 وGate 4 (2026-11-22) وGate 5 (`تمم اعتمنا واعمل G5`). G6 صَدَر بإذن `G6 VERIFICATION ONLY` للمراجعة والتسليم فقط؛ لا اعتماد بصري أو إنتاجي تلقائي.
+**سجل G3:** نُفّذ `useCheckoutSubmit` و`useOrderReceipt` و`CheckoutSubmit` و`OrderSuccess` وصفحة success مع `noindex`؛ lint/check/tsc/diff/build بـexit codes 0؛ لا checkout/proof write runtime؛ لا browser verification؛ Astra G3 acked بتحذيرات غير حاجزة واعتماد المالك معلّق.
+**سجل G4:** نُفّذ `proofUpload` و`useProofUpload` و`PaymentProofForm` وربط `OrderSuccess` ورسائل `payment.*`؛ lint/check/tsc/diff/build بـexit codes 0؛ لا sign/upload/proof write runtime؛ لا browser verification؛ Astra G4 acked بتحذيرات غير حاجزة بعد إصلاح الترجمة واعتماد المالك معلّق.
+**سجل G5:** نُفّذت حركات checkout داخل المكوّنات المصرّح بها و`styles/animations.css`؛ lint/check/tsc/diff/build بـexit codes 0؛ Astra G5 `APPROVE_WITH_WARNINGS`؛ لا browser/visual matrix ولا اعتماد بصري من المالك.
+**سجل G6:** مراجعة source/static وتسليم فقط؛ لا implementation ولا playwright/API write/real orders/proof uploads. lint/check/tsc/diff/build بـexit codes 0؛ Astra `BLOCKED / NO-GO` بسبب غياب بيئة مأذونة ونتائج runtime/browser/security، مع انحرافات proof integrity/privacy وatomicity/audit موثّقة في `PROGRESS.md` §36.
+**تحذيرات Astra G4 المقبولة:** لا runtime/browser؛ بعض أخطاء `checkout.errors.*` تظهر عبر namespace آخر مع بقائها مترجمة؛ كل الأخطاء تظهر تحت حقل الملف؛ `uploadUrl` مطابق حرفيًا لعقد الباك الحالي؛ تحديثات الحالة في الوثائق.
 
-⛔ STOP — DAY 6 PLANNING COMPLETE — WAITING FOR ASTRA REVIEW & OWNER GATE PERMISSION
+---
+
+## 12) Payment Proof Security Remediation — Backend Only
+
+- **الإذن:** المالك سمح صراحةً بإصلاح ملاحظات G6 الأمنية داخل backend source فقط بعد STOP السابق. هذا لا يفتح Gate جديدًا ولا يمنح production seal.
+- **النطاق المنفّذ:** توقيع إثبات مرتبط بالطلب، رفض الحالات غير المسموحة، تحقق صارم من رابط Cloudinary، `Serializable` transaction مع conditional update، تدقيق نجاح/رفض بلا أسرار، وتقييد قراءة Payment بـ`OWNER/ADMIN`. التفاصيل الكاملة في `PROGRESS.md` §37.
+- **خارج النطاق:** لا frontend، لا schema/migration/DB writes، لا Cloudinary dashboard/env، لا dependencies/cron، لا عقد API جديد، لا commit/push/deploy. المسارات القديمة غير المتعلقة تُرِكت.
+- **ما انغلق:** `PROOF_UPLOADED` لم يعد يحصل على توقيع جديد؛ ربط الصورة بالطلب/token؛ منع صفّين متزامنين للإثبات على مستوى المصدر؛ AuditLog؛ منع `STAFF` من قائمة/تفاصيل Payment؛ حفظ القواعد في المولّد.
+- **ما بقي محجوبًا:** الصورة نفسها ما زالت public `image/upload`. الخصوصية الحقيقية تحتاج frontend + endpoint توقيع تسليم + قرار Cloudinary؛ لم يُنفَّذ بديل أضعف. runtime/browser/real upload/production ما زالوا `NOT TESTED`.
+- **الفحوص:** backend `npm run typecheck` exit 0؛ `npm run build` exit 0؛ `npx prisma validate` valid؛ `npm test` `5 files / 47 tests passed`؛ `git diff --check` بلا أخطاء محتوى.
+- **Astra:** `PASS` للإصلاح المأذون؛ `ASTRA-PPS-05 resolved`؛ لا blocker جديد. ملاحظات منخفضة: denial audit best-effort، حماية الإنشاء بعد الرفض تعتمد على `SERIALIZABLE` لا قيد DB، ولا اختبار مزدوج المعاملات حقيقي.
+- **القرار:** المالك اعتمد إصلاح المصدر وتحديثات §37 في 2026-11-23 (`تمم اعتمدته`)؛ هذا الاعتماد للمصدر/Astra لا يمنح production seal. G6 الكلي ما زال `BLOCKED / NO-GO` لحين بيئة مأذونة.
+- **القرارات المُعتمدة معه:** بقاء private proof images محجوبة خارجيًا بلا workaround أضعف؛ بقاء G6 `NO-GO`؛ تثبيت قرار الإيصال (`sessionStorage` بلا `trackingToken` في URL/canonical/logs)؛ تجميد الاركتيكتشر الحالية (App Router، ترتيب `Providers/`، `store/baseApi.ts`، `interface/`، `components/Skelton/`، `hooks/`، `components/Animation/`)؛ لا تغيير decision أو ملف خارج نطاق التخطيط في هذه الجلسة.
+
+⛔ STOP — SECURITY REMEDIATION OWNER-ACCEPTED — NO IMPLEMENTATION AUTHORIZED

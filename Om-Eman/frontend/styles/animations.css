@@ -183,6 +183,79 @@
   }
 }
 
+@keyframes checkout-step-label-in {
+  from {
+    opacity: 0.55;
+    transform: translateY(0.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes checkout-check-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes checkout-submit-check-in {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.checkout-stepper-track {
+  position: relative;
+  height: 2px;
+  margin-block-start: 0.5rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-ink) 12%, transparent);
+}
+
+.checkout-stepper-fill {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 0;
+  border-radius: inherit;
+  background: var(--color-primary);
+  transition: width var(--dur-slow) var(--ease-out);
+}
+
+nav[data-progress="0"] .checkout-stepper-fill {
+  width: 0;
+}
+
+nav[data-progress="1"] .checkout-stepper-fill {
+  width: 50%;
+}
+
+nav[data-progress="2"] .checkout-stepper-fill {
+  width: 100%;
+}
+
+.checkout-step-label {
+  animation: checkout-step-label-in var(--dur-base) var(--ease-out) both;
+}
+
+.checkout-check-draw path {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: checkout-check-draw var(--dur-base) var(--ease-out) forwards;
+}
+
+.checkout-submit-check {
+  animation: checkout-submit-check-in var(--dur-base) var(--ease-out) both;
+}
+
 /* 7- button shine (C1) — a sheen sweep driven by transform on hover only
    (hover-capable devices). The sheen color mixes the fixed on-whatsapp token. */
 .btn-shine::after {
@@ -228,8 +301,19 @@
   .marquee-track,
   .jar-spice-fill,
   .spice-grain,
-  .cart-cta {
+  .cart-cta,
+  .checkout-step-label,
+  .checkout-submit-check {
     animation: none;
+  }
+
+  .checkout-stepper-fill {
+    transition: none;
+  }
+
+  .checkout-check-draw path {
+    animation: none;
+    stroke-dashoffset: 0;
   }
 }
 

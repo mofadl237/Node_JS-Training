@@ -1,13 +1,19 @@
 import { v2 as cloudinary } from "cloudinary";
 import { env } from "../../config/env.js";
-import { BadRequestError, ForbiddenError } from "../../shared/errors.js";
+import { AppError, BadRequestError, ForbiddenError } from "../../shared/errors.js";
 import { prisma } from "../../config/prisma.js";
-import { EPaymentMethod, EPaymentStatus } from "@prisma/client";
 import type {
   IProofSignInput,
   IUploadSignature,
   TUploadKind,
 } from "./validation.js";
+import type { IProofAuditContext } from "../../services/proof-audit.service.js";
+import { writeProofAudit } from "../../services/proof-audit.service.js";
+import type { IProofSignOrder } from "./proof-sign-policy.js";
+import {
+  evaluateProofSign,
+  proofSignMissingOrder,
+} from "./proof-sign-policy.js";
 
 // Signed direct uploads (Cloudinary, section 6.2 of the storefront tasks).
 // The browser uploads straight to Cloudinary; this backend only mints a
@@ -20,7 +26,6 @@ const FOLDERS: Record<TUploadKind, string> = {
   category: "om-eman/categories",
   banner: "om-eman/banners",
 };
-const PROOF_FOLDER = "om-eman/proofs";
 
 function requireConfiguration(): void {
   const missing = [
@@ -70,46 +75,80 @@ export class UploadsService {
     return buildSignature(signUpload(FOLDERS[kind]));
   }
 
-  // Payment-proof upload for a specific order. Ownership is proven with the
-  // tracking token (same rule as the proof endpoint); the order must be an
-  // online-transfer order that is not already confirmed.
   async signProof(
     input: IProofSignInput,
+    context: IProofAuditContext = {},
   ): Promise<IUploadSignature> {
-    const order = await prisma.order.findUnique({
-      where: { id: input.orderId },
-      select: {
-        id: true,
-        trackingToken: true,
-        payments: {
-          select: { method: true, status: true },
-          orderBy: { createdAt: "desc" },
-          take: 1,
-        },
-      },
-    });
+    let entityId: string | null = null;
 
-    if (!order || order.trackingToken !== input.trackingToken) {
-      throw new ForbiddenError(
-        "You do not have access to this order",
-        "ORDER_ACCESS_DENIED",
-      );
-    }
+    try {
+      const signed = await prisma.$transaction(async (tx) => {
+        const order = await tx.order.findUnique({
+          where: { id: input.orderId },
+          select: {
+            id: true,
+            status: true,
+            trackingToken: true,
+            payments: {
+              select: { id: true, method: true, status: true },
+              orderBy: { createdAt: "desc" },
+              take: 1,
+            },
+          },
+        }) as IProofSignOrder | null;
+        entityId = order?.id ?? null;
 
-    const lastPayment = order.payments[0];
-    if (lastPayment?.method === EPaymentMethod.COD) {
-      throw new BadRequestError(
-        "This order is cash on delivery; no transfer proof is needed",
-        "PAYMENT_METHOD_NOT_ONLINE",
-      );
-    }
-    if (lastPayment?.status === EPaymentStatus.CONFIRMED) {
-      throw new BadRequestError(
-        "This order is already paid",
-        "PAYMENT_ALREADY_CONFIRMED",
-      );
-    }
+        const decision = order
+          ? evaluateProofSign(input, order)
+          : proofSignMissingOrder();
+        if (!decision.ok) throw decision.denial.error;
+        if (!order) {
+          throw new ForbiddenError(
+            "You do not have access to this order",
+            "ORDER_ACCESS_DENIED",
+          );
+        }
 
-    return buildSignature(signUpload(PROOF_FOLDER));
+        const signature = signUpload(decision.folder);
+        await writeProofAudit(tx, {
+          action: "PROOF_SIGN_ISSUED",
+          result: "SUCCESS",
+          reason: "PROOF_SIGN_ISSUED",
+          entityType: "Order",
+          entityId: order.id,
+          newValues: { folder: decision.folder },
+          ...context,
+        });
+        return signature;
+      });
+
+      return buildSignature(signed);
+    } catch (error) {
+      if (error instanceof AppError) {
+        await this.writeDeniedAudit(context, error, entityId);
+      }
+      throw error;
+    }
+  }
+
+  private async writeDeniedAudit(
+    context: IProofAuditContext,
+    error: AppError,
+    entityId: string | null,
+  ): Promise<void> {
+    try {
+      await prisma.$transaction(async (tx) => {
+        await writeProofAudit(tx, {
+          action: "PROOF_SIGN_DENIED",
+          result: "DENIED",
+          reason: error.code,
+          entityType: "Order",
+          entityId,
+          ...context,
+        });
+      });
+    } catch {
+      return;
+    }
   }
 }

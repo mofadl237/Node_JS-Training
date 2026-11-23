@@ -7,6 +7,10 @@ export const productHref = (slug: string) => `/products/${slug}`;
 
 export const CART_HREF = "/cart";
 
+export const CHECKOUT_HREF = "/checkout";
+
+export const CHECKOUT_SUCCESS_HREF = "/checkout/success";
+
 export const SEARCH_PATH = "/search";
 
 export const searchHref = (q: string) => ({

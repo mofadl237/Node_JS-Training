@@ -1,0 +1,24 @@
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { routing } from "@/i18n/routing";
+import { isLocale } from "@/lib/locale";
+import { CHECKOUT_HREF } from "@/lib/routes";
+import { buildMetadata } from "@/lib/seo";
+
+interface IProps {
+  params: Promise<{ locale: string }>;
+}
+
+export async function generateMetadata({ params }: IProps): Promise<Metadata> {
+  const { locale } = await params;
+  const safeLocale = isLocale(locale) ? locale : routing.defaultLocale;
+  const t = await getTranslations({ locale: safeLocale, namespace: "checkout" });
+
+  return buildMetadata({
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    path: CHECKOUT_HREF,
+    locale: safeLocale,
+    isNoIndex: true,
+  });
+}

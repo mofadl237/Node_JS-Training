@@ -153,3 +153,10 @@ idempotent). النتيجة المتحقق منها بالاستعلام الم�
 **Not runtime-verified (no fabrication):** ineligible cases by each condition — product status != ACTIVE, `publishedAt` in future (outside publish window), inactive primary subcategory, inactive parent category, or product with no active+published sellable package — could not be exercised on current environment due to unavailable/unknown test data and read-only/no DB mutation constraint. Implementation routes these to the existing 404 `PRODUCT_NOT_FOUND` path (filtered out/null or empty packages) consistent with listing policy; requires controlled data/env evidence for full B-PUB closure.
 
 **Review status:** awaiting Astra review and Owner approval. G3 remains unauthorized until B-PUB closure is verified.
+
+## Future planning — Smart Egypt Address & Location System (2026-11-22)
+
+- Added `docs/FUTURE_SMART_EGYPT_ADDRESS_SYSTEM.md` as documentation-only planning for a future address/location feature.
+- No backend source, Prisma schema, migration, seed, endpoint, environment variable, provider account, or data was added or modified.
+- The plan records the existing `CustomerAddress`/`ShippingTariff` facts, the rule that administrative geography is not serviceability, candidate future architecture/APIs, data-source limitations, phases, and owner decisions.
+- Status: **planning only; implementation not authorized**.

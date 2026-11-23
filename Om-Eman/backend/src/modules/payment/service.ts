@@ -41,7 +41,6 @@ export class PaymentService {
       where.OR = [
       { id: { contains: query.q, mode: "insensitive" } },
       { orderId: { contains: query.q, mode: "insensitive" } },
-      { proofImageUrl: { contains: query.q, mode: "insensitive" } },
       { confirmedByEmployeeId: { contains: query.q, mode: "insensitive" } },
       { rejectionReason: { contains: query.q, mode: "insensitive" } },
       { transactionReference: { contains: query.q, mode: "insensitive" } },

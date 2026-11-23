@@ -221,3 +221,11 @@ business rules still need a dedicated layer.
 - No frontend.
 - No generated migration yet; the migration plan is documented in
   `docs/migration-plan.md`.
+
+## 9. Future cross-project planning reference
+
+- `backend/docs/FUTURE_SMART_EGYPT_ADDRESS_SYSTEM.md`: backend planning for a future Smart Egypt Address & Location System.
+- `../../frontend/docs/FRONTEND_TASKS_10_DAYS.md` §7: frontend UX/roadmap planning for the same future feature.
+- `../../frontend/docs/PROGRESS.md` §32: planning log.
+
+This section only links documentation. It does not change the archived-schema status note above and does not authorize implementation.
