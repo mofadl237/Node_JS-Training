@@ -4,9 +4,10 @@ import { useCallback, useRef, useState } from "react";
 import type { BaseSyntheticEvent } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import type { ICheckoutResult } from "@/interface";
-import type { IStoreCart } from "@/store/cartApi";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { cartApi, type IStoreCart } from "@/store/cartApi";
 import { isApiError } from "@/lib/cartError";
-import { readCartToken } from "@/lib/cartToken";
+import { clearCartToken, readCartToken } from "@/lib/cartToken";
 import { resolveCheckoutSubmitErrorKey } from "@/lib/checkoutError";
 import { cartLinesToCheckoutItems, toCheckoutPayload } from "@/lib/checkoutForm";
 import { saveOrderReceipt } from "@/lib/orderReceipt";
@@ -28,6 +29,7 @@ export const useCheckoutSubmit = ({
   hasInvalidItems,
   onSuccess,
 }: IProps) => {
+  const dispatch = useAppDispatch();
   const [placeOrder, { isLoading }] = usePlaceOrderMutation();
   const inFlight = useRef(false);
   const [isPending, setIsPending] = useState(false);
@@ -68,6 +70,8 @@ export const useCheckoutSubmit = ({
               readCartToken(),
             );
             const checkoutResult = await placeOrder(payload).unwrap();
+            clearCartToken();
+            dispatch(cartApi.util.resetApiState());
 
             try {
               saveOrderReceipt(checkoutResult);
@@ -93,7 +97,7 @@ export const useCheckoutSubmit = ({
         },
       )(event);
     },
-    [cart, couponCode, form, hasInvalidItems, onSuccess, placeOrder, release],
+    [cart, couponCode, dispatch, form, hasInvalidItems, onSuccess, placeOrder, release],
   );
 
   return {

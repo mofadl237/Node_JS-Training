@@ -1,5 +1,7 @@
 import { baseApi, unwrapEnvelope } from "./baseApi";
 import type { IApiSuccess } from "@/interface/api";
+import type { IMergeCartResult, IMergeCartPayload } from "@/interface";
+import { mergeCartResultSchema, mergeCartSchema } from "@/validation/cartMerge";
 
 export interface IStoreCartPackage {
   id: string;
@@ -80,6 +82,16 @@ export const cartApi = baseApi.injectEndpoints({
       transformResponse: (res: IApiSuccess<IStoreCart>) => unwrapEnvelope(res).data,
       invalidatesTags: [{ type: "Cart", id: "CURRENT" }],
     }),
+    mergeCart: build.mutation<IMergeCartResult, IMergeCartPayload>({
+      query: (payload) => ({
+        url: "/store/cart/merge",
+        method: "POST",
+        body: mergeCartSchema.parse(payload),
+      }),
+      transformResponse: (res: IApiSuccess<IMergeCartResult>) =>
+        mergeCartResultSchema.parse(unwrapEnvelope(res).data),
+      invalidatesTags: [{ type: "Cart", id: "CURRENT" }],
+    }),
   }),
   overrideExisting: false,
 });
@@ -91,4 +103,5 @@ export const {
   useGetCartByTokenQuery,
   useUpdateCartItemMutation,
   useRemoveCartItemMutation,
+  useMergeCartMutation,
 } = cartApi;

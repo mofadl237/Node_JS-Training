@@ -27,10 +27,11 @@ export const SOCIAL_LINKS: Record<TSocialPlatform, string | null> = {
   instagram: "https://www.instagram.com/om_eman.herbs/",
   facebook: "https://www.facebook.com/profile.php?id=61596692732641",
   tiktok: "https://www.tiktok.com/@om_eman.herbs",
-  youtube: null,
-  x: null,
+  youtube: "https://www.youtube.com/@om_eman_herbs",
+  x:null, //"https://x.com/omemanherbs"
   linkedin: null,
   telegram: null,
+
   snapchat: null,
   pinterest: null,
   threads: null,

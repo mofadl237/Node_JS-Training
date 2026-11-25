@@ -3,15 +3,22 @@
 import { memo } from "react";
 import { useTranslations } from "next-intl";
 import { CountUp } from "@/components/Animation/CountUp";
+import CartCheckoutLink from "@/components/ECommerce/Cart/CartCheckoutLink";
 import { formatPriceAmount } from "@/lib/price";
 
 interface IProps {
   subtotal: string;
   itemsCount: number;
   freeShippingThreshold: string | null;
+  showCheckout: boolean;
 }
 
-const CartSummary = ({ subtotal, itemsCount, freeShippingThreshold }: IProps) => {
+const CartSummary = ({
+  subtotal,
+  itemsCount,
+  freeShippingThreshold,
+  showCheckout,
+}: IProps) => {
   const t = useTranslations("cart");
   const tCommon = useTranslations("common");
   const numericSubtotal = Number(subtotal);
@@ -36,6 +43,11 @@ const CartSummary = ({ subtotal, itemsCount, freeShippingThreshold }: IProps) =>
             currency: tCommon("currencyEgp"),
           })}
         </p>
+      ) : null}
+      {showCheckout ? (
+        <div className="border-t border-ink/10 pt-3">
+          <CartCheckoutLink />
+        </div>
       ) : null}
     </section>
   );

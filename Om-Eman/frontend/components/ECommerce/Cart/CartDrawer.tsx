@@ -9,6 +9,7 @@ import { Button, buttonVariants } from "@/components/ui/Button";
 import { useCartActions } from "@/hooks/useCartActions";
 import { useCartToken } from "@/hooks/useCartToken";
 import { useDrawerFocus } from "@/hooks/useDrawerFocus";
+import { useStaleCartRecovery } from "@/hooks/useStaleCartRecovery";
 import { resolveCartErrorKey } from "@/lib/cartError";
 import { cn } from "@/lib/utils";
 import { useGetCartByTokenQuery } from "@/store/cartApi";
@@ -33,9 +34,9 @@ const CartDrawer = ({ freeShippingThreshold }: IProps) => {
   });
   const { isMutating, errorKey, updateQuantity, removeItem } = useCartActions(token);
   const { isOpen, open, close, panelRef, triggerRef } = useDrawerFocus();
+  useStaleCartRecovery(error, token);
   const titleId = useId();
   const panelId = useId();
-
   const browseAction = (
     <Link href="/products" className={buttonVariants({ size: "sm" })}>
       {t("continueShopping")}
@@ -82,6 +83,7 @@ const CartDrawer = ({ freeShippingThreshold }: IProps) => {
           subtotal={data.subtotal}
           itemsCount={data.itemsCount}
           freeShippingThreshold={freeShippingThreshold}
+          showCheckout={hasHydrated && token !== undefined && !isLoading && !error && data !== undefined && data.itemsCount > 0}
         />
       </div>
     );

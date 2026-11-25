@@ -1,14 +1,36 @@
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { FadeIn } from "@/components/Animation/FadeIn";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { ErrorState } from "@/components/shared/ErrorState";
 import { getStoreBanners } from "@/lib/server/storeQueries";
 import { pickLocalized } from "@/lib/localized";
 import { resolveBannerLink } from "@/lib/links";
 import { BannerSlider } from "./BannerSlider";
 
+const sectionClass = "mx-auto max-w-6xl px-4";
+
 export const BannerSection = async () => {
-  // 1- state
-  const [result, locale] = await Promise.all([getStoreBanners(), getLocale()]);
-  if (!result.ok || result.data.length === 0) return null;
+  const [result, locale, t] = await Promise.all([
+    getStoreBanners(),
+    getLocale(),
+    getTranslations("home.banners"),
+  ]);
+
+  if (!result.ok) {
+    return (
+      <section aria-label={t("label")} className={sectionClass}>
+        <ErrorState title={t("errorTitle")} body={t("errorBody")} />
+      </section>
+    );
+  }
+
+  if (result.data.length === 0) {
+    return (
+      <section aria-label={t("label")} className={sectionClass}>
+        <EmptyState title={t("emptyTitle")} body={t("emptyBody")} />
+      </section>
+    );
+  }
 
   const items = result.data.map((banner) => ({
     id: banner.id,
@@ -18,7 +40,6 @@ export const BannerSection = async () => {
     link: resolveBannerLink(banner.linkUrl),
   }));
 
-  // 3- render
   return (
     <FadeIn>
       <BannerSlider items={items} />

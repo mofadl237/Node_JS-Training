@@ -1,6 +1,8 @@
 import { setRequestLocale } from "next-intl/server";
 import { HomeSections } from "@/components/ECommerce/Home/HomeSections";
 
+export { generateMetadata } from "./metadata";
+
 interface IProps {
   params: Promise<{ locale: string }>;
 }

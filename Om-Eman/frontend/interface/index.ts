@@ -1,6 +1,19 @@
 // Shared contracts barrel — import types from "@/interface".
 export type { IApiError, IApiSuccess, IApiResponse, IEnvelopeFailure, IPaginationMeta, IUnwrapped } from "./api";
 export type {
+  ICustomerAuthResponse,
+  ICustomerLoginPayload,
+  ICustomerMessageResponse,
+  IForgotPasswordPayload,
+  IMergeCartPayload,
+  IMergeCartResult,
+  IRegisterCustomerPayload,
+  IResetPasswordPayload,
+  IStoreCustomer,
+  IVerifyEmailPayload,
+  TCustomerStatus,
+} from "./customerAuth";
+export type {
   ICheckoutAddress,
   ICheckoutCartLine,
   ICheckoutItem,
@@ -43,3 +56,8 @@ export type {
   IStorefrontProduct,
   TStoreSizeUnit,
 } from "./storeProduct";
+export type {
+  ITrackedOrder,
+  ITrackedOrderItem,
+  TOrderStatus,
+} from "./track";

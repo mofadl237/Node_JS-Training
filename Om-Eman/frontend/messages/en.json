@@ -14,7 +14,16 @@
     "cart": "Cart",
     "cartItems": "Cart items: {count}",
     "language": "Language",
-    "languageMenu": "Language menu"
+    "languageMenu": "Language menu",
+    "account": "My account",
+    "track": "Track order",
+    "quickNav": "Quick navigation",
+    "shop": "Shop",
+    "mainNav": "Main navigation",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "menuTitle": "Explore Om Eman",
+    "brandTagline": "Natural herbs and spices"
   },
   "locale": {
     "ar": "العربية",
@@ -34,6 +43,13 @@
   },
   "footer": {
     "tagline": "Natural spices and herbs with a homely Egyptian taste.",
+    "navTitle": "Quick links",
+    "nav": {
+      "shop": "Shop",
+      "track": "Track order",
+      "account": "My account",
+      "cart": "Cart"
+    },
     "contactTitle": "Contact us",
     "socialTitle": "Follow us",
     "phone": "Phone",
@@ -60,10 +76,14 @@
   "home": {
     "title": "Natural spices and herbs for your home",
     "body": "The main page is built during the storefront days — the final design is decided together.",
+    "metaTitle": "Om Eman | Natural Spices & Herbs for Your Home",
+    "metaDescription": "Om Eman store for natural spices and herbs — clear prices and delivery to your door.",
+    "ogImageAlt": "Om Eman identity on a wooden background",
     "hero": {
       "title": "Natural spices and herbs for your home",
       "subtitle": "Balanced picks, authentic flavor, and clear prices — all in one place.",
-      "cta": "Browse categories"
+      "cta": "Shop now",
+      "imageAlt": "Om Eman identity on a wooden background"
     },
     "trust": {
       "cod": "Cash on delivery",
@@ -73,7 +93,11 @@
     "banners": {
       "label": "Store offers",
       "prev": "Previous banner",
-      "next": "Next banner"
+      "next": "Next banner",
+      "errorTitle": "Offers are not available now",
+      "errorBody": "Please try again in a moment.",
+      "emptyTitle": "No offers yet",
+      "emptyBody": "Offers will appear here once they are added."
     },
     "categories": {
       "title": "Categories",
@@ -88,7 +112,9 @@
       "title": "Featured products",
       "subtitle": "Highlighted picks from Om Eman store.",
       "errorTitle": "Featured products are not available now",
-      "errorBody": "Please try again in a moment."
+      "errorBody": "Please try again in a moment.",
+      "emptyTitle": "No featured products yet",
+      "emptyBody": "Featured products will appear here once they are added."
     }
   },
   "product": {
@@ -190,6 +216,9 @@
     "emptyTitle": "Your cart is empty",
     "emptyBody": "Start by adding products from the store.",
     "continueShopping": "Browse products",
+    "checkout": {
+      "cta": "Continue to checkout"
+    },
     "errorTitle": "Cart could not be loaded",
     "loadFailed": "The cart is unavailable now. Please try again in a moment.",
     "retry": "Retry",
@@ -208,7 +237,20 @@
     "packageNotSaleable": "This package is not available for sale.",
     "validationError": "The quantity is invalid.",
     "metaTitle": "Cart | Om Eman",
-    "metaDescription": "Review your products and adjust quantities in the Om Eman store."
+    "metaDescription": "Review your products and adjust quantities in the Om Eman store.",
+    "merge": {
+      "title": "Cart merge",
+      "success": "Your cart was merged successfully.",
+      "notActive": "Your current cart is not active; there is nothing to merge.",
+      "errors": {
+        "cartNotFound": "The cart was not found.",
+        "validation": "The cart could not be merged. Check the cart state and try again.",
+        "unauthorized": "Sign in before merging your cart.",
+        "rateLimited": "Too many attempts. Please wait and try again.",
+        "network": "The connection failed. Please try again in a moment.",
+        "unexpected": "The cart could not be merged. Please try again."
+      }
+    }
   },
   "price": {
     "savedPercent": "You saved {percent}%"
@@ -361,6 +403,7 @@
       "grandTotal": "Grand total",
       "sessionNotice": "The receipt is available for this browser session only.",
       "continueShopping": "Continue shopping",
+      "trackOrder": "Track your order",
       "missingTitle": "Receipt unavailable",
       "missingBody": "The session ended or the receipt is missing. Check your cart or contact us.",
       "backToCart": "Back to cart"
@@ -393,6 +436,155 @@
       "uploadFailed": "The image upload failed. Try again; the payment proof was not submitted.",
       "unexpectedStatus": "The proof was submitted but the payment status was unexpected. Please contact us.",
       "unexpected": "Something went wrong while submitting the payment proof. Try again."
+    }
+  },
+  "track": {
+    "metaTitle": "Track order | Om Eman",
+    "metaDescription": "Follow your Om Eman order status using your order receipt.",
+    "title": "Track your order",
+    "subtitle": "Review order status, delivery, and items from the session receipt or by entering the tracking token.",
+    "lookup": {
+      "title": "Tracking token",
+      "label": "Tracking token",
+      "placeholder": "Paste the tracking token from your receipt",
+      "submit": "Track order",
+      "fromReceipt": "Use the session receipt",
+      "invalid": "The tracking token is invalid."
+    },
+    "summary": {
+      "orderNumber": "Order number",
+      "status": "Order status",
+      "paymentStatus": "Payment status",
+      "placedAt": "Placed at",
+      "deliveredAt": "Delivered at",
+      "notDelivered": "Not delivered yet"
+    },
+    "eta": {
+      "title": "Estimated delivery",
+      "range": "{min} to {max} days",
+      "single": "{days} days",
+      "pending": "The estimate is set after the order is prepared",
+      "unit": "days",
+      "to": "to"
+    },
+    "items": {
+      "title": "Order items",
+      "quantity": "Quantity: {quantity}",
+      "lineTotal": "Total: {amount} {currency}",
+      "empty": "There are no items to show."
+    },
+    "status": {
+      "RECEIVED": "Received",
+      "CONFIRMED": "Confirmed",
+      "PREPARING": "Preparing",
+      "SHIPPED": "Shipped",
+      "DELIVERED": "Delivered",
+      "CANCELED": "Canceled",
+      "FAILED_DELIVERY": "Delivery failed"
+    },
+    "paymentStatus": {
+      "PENDING": "Pending",
+      "PROOF_UPLOADED": "Payment proof under review",
+      "CONFIRMED": "Paid",
+      "REJECTED": "Rejected",
+      "CANCELED": "Canceled"
+    },
+    "errors": {
+      "validation": "The tracking token is invalid.",
+      "notFound": "The order was not found.",
+      "rateLimited": "Too many attempts. Please wait and try again.",
+      "unexpected": "Tracking details could not be loaded. Please try again.",
+      "network": "The connection failed. Please try again in a moment."
+    }
+  },
+  "account": {
+    "metaTitle": "Customer account | Om Eman",
+    "metaDescription": "Manage your Om Eman store account.",
+    "title": "My account",
+    "subtitle": "Sign in or create an account to follow your orders.",
+    "login": {
+      "title": "Sign in",
+      "submit": "Sign in",
+      "noAccount": "No account yet?",
+      "registerLink": "Create an account"
+    },
+    "google": {
+      "continue": "Continue with Google",
+      "divider": "or",
+      "unavailable": "Google sign-in is currently unavailable."
+    },
+    "quickLinksTitle": "Quick actions",
+    "register": {
+      "title": "Create an account",
+      "submit": "Create account",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Sign in"
+    },
+    "fields": {
+      "email": "Email address",
+      "password": "Password",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "phone": "Phone number",
+      "token": "Verification token",
+      "newPassword": "New password"
+    },
+    "verifyEmail": {
+      "title": "Verify your email",
+      "subtitle": "Enter the verification token sent to your email.",
+      "submit": "Confirm verification"
+    },
+    "forgotPassword": {
+      "title": "Forgot password",
+      "subtitle": "Enter your email and we will send a reset link if it exists.",
+      "submit": "Send reset link"
+    },
+    "resetPassword": {
+      "title": "Reset password",
+      "subtitle": "Enter the token and your new password.",
+      "submit": "Save password"
+    },
+    "profile": {
+      "title": "Account details",
+      "name": "Name",
+      "email": "Email address",
+      "phone": "Phone number",
+      "status": "Account status",
+      "verified": "Verified",
+      "notVerified": "Not verified"
+    },
+    "actions": {
+      "logout": "Sign out",
+      "backHome": "Back to home",
+      "backToLogin": "Back to sign in",
+      "trackOrder": "Track an order",
+      "continueShopping": "Continue shopping"
+    },
+    "status": {
+      "verificationSent": "The verification link was sent.",
+      "signedIn": "You have signed in.",
+      "emailVerified": "Your email address has been verified.",
+      "resetLinkSent": "If the email is registered, you will receive a reset link.",
+      "passwordReset": "Your password was reset.",
+      "loggedOut": "You have signed out.",
+      "devVerificationLink": "Development verification link"
+    },
+    "errors": {
+      "validation": "The account details are invalid. Please review your inputs.",
+      "requestFailed": "The request failed. Please try again shortly.",
+      "network": "The connection failed. Please try again in a moment.",
+      "emailAlreadyRegistered": "This email is already registered.",
+      "emailNotVerified": "Verify your email first.",
+      "invalidCredentials": "The email or password is incorrect.",
+      "customerUnavailable": "This account is unavailable right now.",
+      "tokenInvalid": "The token is invalid.",
+      "tokenAlreadyUsed": "The token was already used.",
+      "tokenExpired": "The token has expired.",
+      "tokenMissing": "No active session. Please sign in again.",
+      "sessionInvalid": "The session is invalid or expired. Please sign in again.",
+      "customerNotFound": "The account was not found.",
+      "rateLimited": "Too many attempts. Please wait and try again.",
+      "unexpected": "Something unexpected happened. Please try again."
     }
   },
   "errors": {

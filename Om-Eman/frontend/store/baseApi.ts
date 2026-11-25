@@ -1,10 +1,20 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { BaseQueryFn, FetchArgs } from "@reduxjs/toolkit/query";
 import { API_BASE_URL } from "@/lib/config";
+import { readCustomerToken } from "@/lib/customerSession";
 import { isEnvelopeFailure } from "@/lib/envelope";
 import type { IApiError, IApiSuccess, IUnwrapped } from "@/interface/api";
 
-const rawBaseQuery = fetchBaseQuery({ baseUrl: API_BASE_URL });
+const rawBaseQuery = fetchBaseQuery({
+  baseUrl: API_BASE_URL,
+  prepareHeaders: (headers) => {
+    const token = readCustomerToken();
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+    return headers;
+  },
+});
 
 export type TBaseQuery = BaseQueryFn<string | FetchArgs, unknown, IApiError>;
 

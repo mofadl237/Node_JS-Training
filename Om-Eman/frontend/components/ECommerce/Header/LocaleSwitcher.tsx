@@ -61,7 +61,7 @@ export const LocaleSwitcher = () => {
         aria-label={tHeader("language")}
         aria-expanded={isOpen}
         aria-haspopup="menu"
-        aria-controls={menuId}
+        aria-controls={isOpen ? menuId : undefined}
         className="inline-flex h-10 items-center gap-1.5 rounded-sm bg-surface px-2.5 text-sm font-semibold text-ink shadow-rest transition-transform duration-150 hover:scale-105"
       >
         <Globe aria-hidden="true" className="size-4 text-primary" />

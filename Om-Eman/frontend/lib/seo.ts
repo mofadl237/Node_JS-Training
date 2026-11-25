@@ -4,12 +4,20 @@ import type { TLocale } from "@/lib/locale";
 
 export const BRAND_NAME = "Om Eman";
 
+interface ISeoImage {
+  url: string;
+  width: number;
+  height: number;
+  alt: string;
+}
+
 interface IBuildMetadataProps {
   title: string;
   description: string;
   path?: string;
   locale: TLocale;
   isNoIndex?: boolean;
+  ogImage?: ISeoImage;
 }
 
 const OTHER_LOCALE: Record<TLocale, TLocale> = { ar: "en", en: "ar" };
@@ -22,6 +30,7 @@ export const buildMetadata = ({
   path = "",
   locale,
   isNoIndex = false,
+  ogImage,
 }: IBuildMetadataProps): Metadata => {
   const canonicalPath = `/${locale}${path}`;
   const otherLocale = OTHER_LOCALE[locale];
@@ -49,7 +58,13 @@ export const buildMetadata = ({
       locale: OG_LOCALE[locale],
       alternateLocale: [OG_LOCALE[otherLocale]],
       type: "website",
+      images: ogImage ? [ogImage] : undefined,
     },
-    twitter: { card: "summary_large_image", title, description },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ogImage ? [ogImage] : undefined,
+    },
   };
 };

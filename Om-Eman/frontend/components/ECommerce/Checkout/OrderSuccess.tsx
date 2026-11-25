@@ -10,7 +10,7 @@ import CheckoutSuccessSkeleton from "@/components/Skelton/CheckoutSuccessSkeleto
 import { ErrorState } from "@/components/shared/ErrorState";
 import { buttonVariants } from "@/components/ui/Button";
 import { useOrderReceipt } from "@/hooks/useOrderReceipt";
-import { CART_HREF } from "@/lib/routes";
+import { CART_HREF, TRACK_HREF } from "@/lib/routes";
 
 const OrderSuccess = () => {
   const t = useTranslations("orderSuccess");
@@ -96,9 +96,14 @@ const OrderSuccess = () => {
         {t("sessionNotice")}
       </div>
       {receipt.paymentMethod === "ONLINE_TRANSFER" ? <PaymentProofForm /> : null}
-      <Link href={CART_HREF} className={buttonVariants({ variant: "soft" })}>
-        {t("continueShopping")}
-      </Link>
+      <div className="flex flex-wrap gap-3">
+        <Link href={TRACK_HREF} className={buttonVariants()}>
+          {t("trackOrder")}
+        </Link>
+        <Link href={CART_HREF} className={buttonVariants({ variant: "soft" })}>
+          {t("continueShopping")}
+        </Link>
+      </div>
     </CheckoutFocusSection>
   );
 };

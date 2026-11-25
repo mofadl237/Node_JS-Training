@@ -1,6 +1,6 @@
 # اليوم 7 — Storefront: التتبع + حساب العميل + دمج السلة — تاسكات التخطيط والتفكيك
 
-> آخر تحديث: 2026-11-23. **حالة المستند: PLANNING ONLY — OWNER-ACCEPTED UPDATE/DECISIONS — NO GATE OPENED — NO IMPLEMENTATION AUTHORIZED.**
+> آخر تحديث: 2026-11-23. **حالة المستند: G6 — DAY 7 FINAL REVIEW & HANDOFF OPEN — DOCUMENTATION ONLY — DAY 7 — PARTIAL HANDOFF — WAITING FOR OWNER FINAL REVIEW.**
 > **المدير/المراجع:** Astra. **المنفّذ المقترح:** GLM. **المالك:** صاحب القرار في النطاق، العقود، حفظ توكن العميل، Google، فتح كل Gate والانتقال للي بعده.
 > **الخط المتبع في الملف:** `FRONTEND_TASKS_10_DAYS.md:31-43` §0.3 «الجدول المعدّل (14 يوم بدل 10، ومرن)» → مرحلة `C — Storefront`: هوم → كتالوج → منتج → سلة → checkout → **تتبع → حساب العميل**. خطة `FRONTEND_TASKS_10_DAYS.md:215` القديمة «اليوم 7 — Dashboard: التقارير + العملاء + الأمان» مرجع تاريخي فقط وليست المسار الحالي. محتوى `FRONTEND_TASKS_10_DAYS.md:247-251` مرجع للمحتوى لا للمسارات، لأن قرار الإيصال النهائي يمنع `trackingToken` في route صفحة المتصفح.
 > المسارات نسبية إلى `Om-Eman/frontend/` إلا لو ذُكر الباك صراحة. هذا ملف تخطيط ومراجعة Day 7 فقط؛ لا يفتح Gate ولا يسمح بكود/باك/DB/env/deps/commit. كل Gate محتاج إذن مالك صريح باسمه.
@@ -321,8 +321,27 @@
 
 يرجى من Astra مراجعة هذا الملف مقابل `AGENTS.md`، `PROGRESS.md §37/§38`، عقود `backend/src/modules/store/{auth,track,cart}/**` و`customer-claim.service.ts`، اكتمال الـ12 حقلًا لكل Gate، عدم فتح Day 8/لوحة/باك/DB/env، احترام قرار عدم token في route الصفحة، وتوزيع كل مؤجلات Day 6 دون حذف.
 
-**قرار Astra:** لم يُطلب بعد لهذا الملف.
+**قرار Astra:** النص التاريخي كان «لم يُطلب بعد لهذا الملف». تحديث G6: طُلبت مراجعة مستقلة نهائية للوثائق في §12، والنتيجة `PASS WITH NOTES` ثم `PASS` بعد تصحيح الملاحظات غير الحاجزة في `PROGRESS.md §47`.
 **اعتماد المالك:** اعتُمدت تحديثات `PROGRESS.md §37` وإصلاح المصدر (`تمم اعتمدته`) وآخر القرارات في 2026-11-23، ومنها: **Public Cloudinary Delivery لإثبات الدفع مقبول؛ Private Delivery ليس شرطًا لقبول Day 6 ولا يوجد إذن لتنفيذه**. تُصحَّح هذه الصياغة أي إشارة أقدم إلى private proof كشرط أو blocker خارجي، بلا إعادة فتح للنقاش وبلا تغيير تقني. واعتمد المالك فصل خطة Day 7 في هذا الملف المستقل. هذا **لا يعني** اعتماد Day 7 ولا فتح أي Gate.
-**الإذن الحالي:** DAY 7 PLANNING ONLY.
+**الإذن الحالي:** النص التاريخي كان `DAY 7 PLANNING ONLY`. تحديث G6: `G6 — DAY 7 FINAL REVIEW & HANDOFF OPEN — DOCUMENTATION ONLY`.
 
 ⛔ STOP — DAY 7 TASK PLAN COMPLETE — OWNER UPDATE/DECISIONS ACCEPTED — NO IMPLEMENTATION AUTHORIZED
+
+---
+
+## 12) G6 — DAY 7 FINAL REVIEW & HANDOFF (2026-11-23)
+
+1. **الإذن والنطاق:** المالك أذن بـ`G6 — DAY 7 FINAL REVIEW & HANDOFF` كمراجعة وثائق وأدلة وتسليم نهائي فقط. GLM منفّذ، Astra مراجع مستقل، والمالك صاحب الاعتماد النهائي. التعديل مقصور على `docs/PROGRESS.md` و`docs/DAY7_TASKS.md`; لا source/backend/API/DB/env/config/deps/deploy/commit، لا Google implementation، لا Production Seal، لا Day 8.
+2. **المرجع الكامل:** الجدول التفصيلي G0–G5، الأدلة، أوامر التحقق، الفصل بين API/Browser/Owner، والمخاطر موثّقة في `PROGRESS.md §47` — هذا القسم يلخّص ولا يكرر التأريخ.
+3. **حالة Gates المجمّعة:** G0 ACCEPTED (docs-only) · G1 ACCEPTED source/technical · G2 ACCEPTED source-wise مع API/Browser PENDING · G3 ACCEPTED source-wise مع API/Browser PENDING · G4 COMPLETE لكن `PENDING (conditional only)` مع guest API PASS وauthenticated merge NOT TESTED · G5 COMPLETE مع Astra PASS لكن visual OWNER PENDING.
+4. **Track (KS-6):** source COMPLETE بلا token في route/canonical/metadata؛ API NOT TESTED؛ Browser NOT TESTED؛ HTTP smoke غير بصري؛ Owner visual PENDING.
+5. **Email Account (KS-7):** source COMPLETE لمسار register/verify/login/forgot/reset/me/logout؛ API/Browser NOT TESTED؛ Owner source-wise ACCEPTED وvisual PENDING.
+6. **Cart Merge (KS-8) وremediation:** source COMPLETE؛ guest cart API PASS؛ authenticated merge NOT TESTED؛ Browser NOT TESTED؛ G4 acceptance مشروط؛ لا endpoint لقراءة سلة العميل بعد merge.
+7. **G5 visual:** source COMPLETE وAstra PASS بعد التصحيح؛ كل مصفوفة المتصفح/الاعتماد البصري PENDING؛ لا ترقية إلى visually accepted.
+8. **Automated evidence:** lint/check/tsc/build/package-diff/diff-check/HTTP smoke مُسجَّلة بأرقامها وexit codes في `PROGRESS.md §47.6`; لم تُعَد أوامر implementation داخل هذه الـGate لأنها documentation-only.
+9. **Deferred:** `DEFERRED — NOT PART OF G6 — NO IMPLEMENTATION AUTHORIZED` — Google Login. لا أسرار ولا بيانات دخول مطلوبة أو معروضة؛ أي عمل مستقبلي يحتاج scope وإذنًا منفصلين.
+10. **Production readiness:** `NOT READY / NOT SEALED`. لا ختم إنتاج، لا ترقية Day 7 إلى حالة `ACCEPTED`، لا فتح Day 8 أو Dashboard، لا تغيير قرارات المالك السابقة.
+11. **التوصية:** اعتماد `DAY 7 — PARTIAL HANDOFF` كما هو، ثم تحديد بيئة مأذونة لاحقًا للـbrowser matrix وauthenticated merge وOwner visual review. هذا لا يفتح Gate جديدة.
+12. **STOP نهائي:** `⛔ STOP — G6 COMPLETE / PARTIAL — DAY 7 HANDOFF READY — WAITING FOR OWNER FINAL REVIEW`.
+
+⛔ STOP — G6 COMPLETE / PARTIAL — DAY 7 HANDOFF READY — WAITING FOR OWNER FINAL REVIEW

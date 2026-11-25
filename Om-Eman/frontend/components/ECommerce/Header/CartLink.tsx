@@ -8,6 +8,8 @@ import { RollingNumber } from "@/components/Animation/RollingNumber";
 import { Badge } from "@/components/ui/Badge";
 import { useCartBadge } from "@/hooks/useCartBadge";
 import { CART_HREF } from "@/lib/routes";
+import { cn } from "@/lib/utils";
+import { headerControlClass } from "./headerStyles";
 
 export const CartLink = () => {
   // 1- state
@@ -20,7 +22,8 @@ export const CartLink = () => {
     <Link
       href={CART_HREF}
       aria-label={t("cart")}
-      className="relative grid size-10 place-items-center rounded-sm bg-surface text-ink shadow-rest transition-transform duration-150 hover:scale-105"
+      title={t("cart")}
+      className={cn(headerControlClass, "relative")}
     >
       <CartBounce pulseKey={itemsCount}>
         <ShoppingCart aria-hidden="true" className="size-5" />

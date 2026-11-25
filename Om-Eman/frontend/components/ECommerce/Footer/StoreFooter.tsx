@@ -6,6 +6,7 @@ import { normalizeWhatsAppNumber } from "@/lib/whatsapp";
 import { toSafeExternalUrl } from "@/lib/links";
 import { CONTACT_PHONES, SOCIAL_LINKS, WHATSAPP_CONTACT, type TSocialPlatform } from "@/lib/siteContact";
 import { BRAND_ASSETS } from "@/lib/brandAssets";
+import FooterNav from "./FooterNav";
 import { FooterContact } from "./FooterContact";
 import { FooterSocial } from "./FooterSocial";
 
@@ -39,7 +40,7 @@ export const StoreFooter = async () => {
   // 3- render
   return (
     <footer className="border-t border-ink/10 bg-surface">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-3">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-2 lg:grid-cols-4">
         <section className="space-y-4">
           <Image
             src={BRAND_ASSETS.fullLogo}
@@ -51,6 +52,7 @@ export const StoreFooter = async () => {
           />
           <p className="max-w-sm text-sm leading-6 text-ink-soft">{tFooter("tagline")}</p>
         </section>
+        <FooterNav />
         {hasContact ? (
           <FooterContact email={email} address={address} workingHours={workingHours} />
         ) : null}

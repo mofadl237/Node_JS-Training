@@ -11,22 +11,24 @@ interface IProps {
   category: IStoreCategoryNode;
   locale: string;
   accent: TGlowCardAccent;
+  fallbackImageUrl?: string | null;
 }
 
-export const CategoryCard = async ({ category, locale, accent }: IProps) => {
+export const CategoryCard = async ({ category, locale, accent, fallbackImageUrl }: IProps) => {
   // 1- state
   const t = await getTranslations("home.categories");
   const name = pickLocalized(locale, category.nameAr, category.nameEn) ?? category.nameAr;
   const description = pickLocalized(locale, category.descriptionAr, category.descriptionEn);
+  const imageUrl = category.imageUrl ?? fallbackImageUrl;
 
   // 3- render
   return (
     <GlowCard accent={accent} className="h-full overflow-hidden">
       <Link href={categoryHref(category.slug)} className="block h-full focus-visible:outline-2 focus-visible:outline-primary">
         <div className="relative aspect-[4/3] w-full">
-          {category.imageUrl ? (
+          {imageUrl ? (
             <StoreImage
-              src={category.imageUrl}
+              src={imageUrl}
               alt={name}
               sizes="(min-width:1024px) 25vw, (min-width:768px) 33vw, 50vw"
               className="object-cover"

@@ -8,6 +8,7 @@ import CheckoutState from "@/components/ECommerce/Checkout/CheckoutState";
 import CheckoutSkeleton from "@/components/Skelton/CheckoutSkeleton";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { useCartToken } from "@/hooks/useCartToken";
+import { useStaleCartRecovery } from "@/hooks/useStaleCartRecovery";
 import { isApiError } from "@/lib/cartError";
 import { resolveCheckoutErrorKey } from "@/lib/checkoutError";
 import { useGetCartByTokenQuery } from "@/store/cartApi";
@@ -30,6 +31,7 @@ const CheckoutSection = () => {
     isLoading: isCartLoading,
     refetch,
   } = useGetCartByTokenQuery(token ?? "", { skip: token === undefined });
+  useStaleCartRecovery(cartError, token);
 
   const isNetworkError = isApiError(cartError) && cartError.status === 0;
   const cartKey =

@@ -5,8 +5,10 @@ import type { RefObject } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { useFlyToCart } from "@/hooks/useFlyToCart";
+import { isStaleCartError } from "@/lib/cartError";
 import { bounceCartTarget } from "@/lib/cartFeedback";
-import { readCartToken, writeCartToken } from "@/lib/cartToken";
+import { clearCartToken, readCartToken, writeCartToken } from "@/lib/cartToken";
+import type { IStoreCart } from "@/store/cartApi";
 import { useAddCartItemMutation, useLazyGetOrCreateCartQuery } from "@/store/cartApi";
 
 interface IOptions {
@@ -50,7 +52,14 @@ export const useAddToCart = ({ productPackageId, sourceRef, canAdd }: IOptions):
 
     try {
       const token = readCartToken();
-      const cart = await getOrCreateCart(token).unwrap();
+      let cart: IStoreCart;
+      try {
+        cart = await getOrCreateCart(token).unwrap();
+      } catch (error) {
+        if (!token || !isStaleCartError(error)) throw error;
+        clearCartToken();
+        cart = await getOrCreateCart(undefined).unwrap();
+      }
       if (cart.guestToken) writeCartToken(cart.guestToken);
       await addCartItem({
         guestToken: cart.guestToken,

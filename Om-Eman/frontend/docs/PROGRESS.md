@@ -1,7 +1,7 @@
 # PROGRESS — سجل الشغل (محدَّث بعد كل جلسة)
 
 > ده ملف المتابعة الوحيد: أي AI يقراه يعرف اتعمل إيه بالظبط، وإيه اللي لسه.
-> آخر تسليم: [خطة Day 7](./DAY7_TASKS.md) — **ملف مستقل؛ تخطيط فقط؛ التحديثات وآخر القرارات اعتمدها المالك، ولا Gate مفتوح ولا تنفيذ مأذون**. مرجع اليوم السابق: `DAY6_TASKS.md` §12؛ الخطة الكاملة: `FRONTEND_TASKS_10_DAYS.md` §0.3.
+> آخر تسليم: `G6 — DAY 7 FINAL REVIEW & HANDOFF` — **مراجعة وثائق/أدلة وتسليم جزئي فقط؛ لا تعديل مصدر ولا Google implementation؛ DAY 7 = PARTIAL HANDOFF؛ G4 conditional وG5/G6 visual معلّقة؛ لا Production Seal**. مرجع الخطة: [DAY7_TASKS.md](./DAY7_TASKS.md)؛ اليوم السابق: `DAY6_TASKS.md` §12؛ الخطة الكاملة: `FRONTEND_TASKS_10_DAYS.md` §0.3.
 > **رموز الحالة:** ✅ متأكد بأوامر · 🟢 بصري اعتمده المالك · 🟡 بصري بانتظار المالك · ⛔ محجوب · ⚠️ جزئي.
 > أداة الفحص الموحدة للمراجعة: `npm run check` (`scripts/check-rules.mjs`) — حدود الأسطر، نصوص عربي hard-coded، ألوان خام، any/console.log/framer-motion، تطابق `ar.json`/`en.json`.
 > القاعدة: نحدّث الملف ده **قبل ما نقفل أي خطوة** (مش بعد).
@@ -2369,4 +2369,844 @@ SMART EGYPT ADDRESS SYSTEM — PLANNING COMPLETE — DOCUMENTATION ONLY — IMPL
 - **تنظيم الملفات:** خطة Day 7 في ملف مستقل `frontend/docs/DAY7_TASKS.md`؛ `DAY6_TASKS.md` رجع Day 6 فقط بلا قسم Day 7؛ هذا الاعتماد موثّق هنا.
 - **لا تغييرات أخرى:** صفر تعديل للاركتيكتشر/العقود/الباك/DB/env/deps/tooling/commit؛ working tree الموروث محفوظ كما هو.
 
-⛔ STOP — DAY 7 TASK PLAN COMPLETE — OWNER UPDATE/DECISIONS ACCEPTED — NO IMPLEMENTATION AUTHORIZED
+## 39) G0 — DAY 7 PRE-FLIGHT (2026-11-23)
+
+- **الإذن:** المالك قال: «عاوزين نبدا في اليوم السابع التنفيذ بنفس اسلوبنا gate وبعدها gate وتقف لحد اما اراجع كل واحده». فُهم كإذن صريح لتنفيذ `G0 — DAY 7 PRE-FLIGHT` فقط. **لا إذن لـG1** قبل مراجعة المالك لهذا الـGate واعتماده.
+- **النطاق المنفَّذ:** docs/baseline فقط. صفر تعديل لكود/باك/DB/schema/migration/seed/env/deps/config/tooling. لا track UI ولا account ولا merge ولا إصلاح blockers. `DAY7_TASKS.md` لم يُعدَّل في G0 لأن نطاق الـGate ينص على `PROGRESS.md` فقط؛ هذا الملف هو الحاكم الحالي لحالة الـGate.
+- **المقروء:** `frontend/AGENTS.md`، `PROGRESS.md` §37/§38، `DAY7_TASKS.md` §0/§3/§6/§7(G0)/§9/§11، وعقود `backend/src/modules/store/{track,auth,cart}/**` و`backend/src/services/customer-claim.service.ts`.
+
+### 39.1 baseline الموثّق
+
+| الفحص | النتيجة |
+| --- | --- |
+| `git status --short --untracked-files=all` | **clean tree** عند HEAD `36d1d96 End Day6`؛ `DAY7_TASKS.md` ملف متعقّب. تحذيرات `could not open directory .../.claude/skills/prisma-*/...` ضجيج موروث من روابط مفقودة، ليست تغييرات. هذا يلغي وصف «working tree dirty» في `DAY7_TASKS.md §0.12` كحالة تشغيل حالية. |
+| منافذ `:3001` / `:3002` | `Get-NetTCPConnection -LocalPort 3001,3002` لا يُرجع أي مستمع؛ لا frontend ولا backend شغّالين وقت الـbaseline. |
+| `npm run check` | `221 code files`، `344 message keys per locale`، `0 failure(s), 0 warning(s)`. |
+| `npm run lint` | المحاولة الأولى بالتوازي مع الـbuild انقتلت: `Unknown: ChildProcess.kill (npm run lint )`. أُعيد تشغيلها منفردة ⇒ exit 0 بلا output. |
+| `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` | exit 0 بلا أخطاء. |
+| `npm run build` | exit 0؛ Next 16.4.5 Turbopack، compile 77s، TypeScript 13.1s، `35/35` static pages. ظهرت `[store] ... NETWORK_ERROR` لـ`settings/products/banners/categories` لأن الباك غير شغّال؛ لم يفشل الـbuild. انحراف `B-Build` التاريخي لم يتكرر في هذا الـbaseline. |
+| المتصفح / API write | `NOT TESTED`؛ لا سcreenshots ولا tokens ولا طلبات register/login/merge/track. HTTP 200 ليس acceptance. |
+
+### 39.2 العقود المؤكَّدة قراءة فقط
+
+- Track: `GET /track/:trackingToken`، limiter `60/15د`، `ITrackedOrder` بلا هوية/عنوان/هاتف؛ `quantity/lineTotal` decimal strings؛ `placedAt/deliveredAt` تواريخ أو `null`.
+- Auth: 8 endpoints، `authLimiter 10/15د`، `{ customer, token, expiresInDays }`، `devVerificationLink?` في dev فقط؛ `me/logout` بـBearer؛ لا refresh endpoint.
+- Cart merge: `POST /cart/merge` بـ`authenticateCustomer` و`{ guestToken: 20..64 [A-Za-z0-9_-] }` ⇒ `{ mergedCartId: string | null }`؛ لا يعيد بيانات سلة جديدة.
+- فجوة عقد ما زالت مسجّلة: لا endpoint لقراءة سلة العميل بعد الدمج؛ سلة الضيف تصبح `MERGED`. عرض السلة بعد الدمج `BLOCKED` حتى قرار باك منفصل.
+- قرار Cloudinary المُصحَّح في §38 ساري: Public Delivery مقبول؛ Private Delivery غير مأذون وغير مطلوب لقبول Day 6.
+
+### 39.3 تصنيف المؤجلات (من `DAY7_TASKS.md §6`)
+
+| ID | الحالة بعد G0 |
+| --- | --- |
+| D7-TRACK / D7-ACCOUNT / D7-MERGE | مؤجلة إلى G2/G3/G4؛ لم تُفتح. |
+| R-API-SEARCH / R-CART-WRITE | G0 يسجّل القيد فقط؛ لا إصلاح implementation. الباك غير شغّال ⇒ `NOT TESTED`. |
+| R-VIS | 🟡 بانتظار مصفوفة Day 7 واعتماد المالك. |
+| R-G4-MAJOR / D3-RM / Day 5 deviations / B-PUB | سجل فقط؛ لا إصلاح تلقائي، لا إعادة فتح أيام سابقة. |
+| B-BUILD | مسجّل تاريخيًا؛ الـbuild نجح في هذا الـbaseline. |
+| R-PRIVATE-PROOF | `NOT AUTHORIZED — NOT REQUIRED FOR DAY 6`؛ Public Delivery مقبول بقرار §38. |
+| R-G6-SEAL | `BLOCKED / NO-GO`؛ لا production seal. |
+
+### 39.4 القرارات المطلوبة من المالك قبل فتح G1
+
+1. **تخزين توكن العميل:** (أ) memory فقط، (ب) `sessionStorage` بمفتاح واحد، (ج) route handler httpOnly جديد بطلب إذن منفصل. لا يُختار تلقائيًا؛ لا localStorage/cookie جديد بلا قرار.
+2. **Google:** (أ) تأجيل Google إلى ما بعد G3 (email-only أولًا)، أو (ب) توفير `GOOGLE_CLIENT_ID` + إذن env/backend وGIS script منفصل.
+3. **فجوة قراءة السلة بعد الدمج:** (أ) قبول القيد وإظهار رسالة محايدة عند `null`، أو (ب) فتح عمل باك منفصل بعقد قراءة سلة العميل.
+4. **مسار التتبع:** تأكيد الإبقاء على `/{locale}/track` بلا `trackingToken` في route/canonical/logs، وفقًا لقرار الإيصال؛ أي اتجاه آخر يحتاج قرار جديد صريح.
+
+> بدون إجابة واضحة على الأربعة، `G1 — DAY 7 CONTRACTS` يبقى مغلقًا. لا تخمين، لا اختيار افتراضي، لا كود.
+
+- **منفّذ في المصدر:** لا شيء في G0؛ الوثيقة فقط.
+- **فحص آلي:** انظر 39.1.
+- **شوهد في متصفح:** لا شيء.
+- **🟢 اعتمده المالك:** لا شيء بعد؛ G0 نفسه بانتظار المراجعة.
+- **⛔ محجوب / لم يُختبر:** runtime، browser، API write، real data/env، production seal.
+- **توصية Astra:** لم تُطلب بعد لهذا الـGate.
+- **حالة Day 7 الآن:** `G0 EXECUTED — AWAITING OWNER REVIEW — G1 NOT AUTHORIZED`.
+
+⛔ STOP — G0 EXECUTED — AWAITING OWNER REVIEW — G1 NOT AUTHORIZED
+
+## 40) G1 — DAY 7 CONTRACTS & VALIDATION (2026-11-23)
+
+> **الإذن:** المالك راجع G0 واعتمده، وأذن صراحة بتنفيذ `G1 — DAY 7 CONTRACTS & VALIDATION` بحدود `DAY7_TASKS.md §5.1/§5.2` ورسائل `track/account/cart.merge`. **لا إذن لـG2**، ولا انتقال تلقائي حتى مع توصية Astra.
+> **مراجعة ما قبل التنفيذ:** رُوجعت قرارات G0 مقابل `store/baseApi.ts`, `store/cartApi.ts`, `lib/orderReceipt.ts`, `lib/cartToken.ts`, `lib/routes.ts`, `messages/{ar,en}.json`, `interface/`, `validation/` وعقود الباك. لم يظهر تعارض يمنع G1. التعارض الوحيد بين `DAY7_TASKS.md §5.2` (google endpoint مذكور) وقرار المالك «Google مؤجل بالكامل / Email-only / لا SDK ولا client ID ولا env» حُسم لمصلحة قرار المالك؛ انظر 40.3.
+> **النطاق المنفَّذ:** عقود TypeScript، Zod، helpers، endpoints عبر `baseApi.injectEndpoints`، `prepareHeaders`، ورسائل ar/en فقط. صفر route/صفحة/Component/style/motion/backend/DB/migration/seed/env/env-config/deps/commit/push/deploy. لا طلب API write ولا track/me smoke لأن الباك غير شغّال وقت G0 ولم يُفتح runtime جديد.
+
+### 40.1 جدول الملفات (Task ID | الحالة | الملف | المسؤولية | الدليل)
+
+| Task ID | الحالة | الملف الفعلي | المسؤولية | الدليل |
+| --- | --- | --- | --- | --- |
+| D7-CON-01 | ✅ جديد | `interface/track.ts` | `ITrackedOrder`, `ITrackedOrderItem`, `TOrderStatus`؛ التواريخ ISO strings والكميات/المبالغ decimal strings. | tsc + build |
+| D7-CON-02 | ✅ جديد | `interface/customerAuth.ts` | `IStoreCustomer`, `ICustomerAuthResponse`, DTOs البريد، `IMergeCartPayload`, `IMergeCartResult`. | tsc + build |
+| D7-CON-03 | ✅ تعديل | `interface/index.ts` | تصدير عقود track/customerAuth من barrel واحد. | tsc + check |
+| D7-VAL-01 | ✅ جديد | `validation/track.ts` | token pattern `^[A-Za-z0-9_-]{43,64}$` + تحقق رد `ITrackedOrder` قبل الثقة به. | check + tsc |
+| D7-VAL-02 | ✅ جديد | `validation/customerAuth.ts` | Zod مطابق لعقود register/verify/login/forgot/reset وردود customer/me/token. | check + tsc |
+| D7-VAL-03 | ✅ جديد | `validation/cartMerge.ts` | Zod مطابق لـ`{ guestToken: 20..64 }` و`{ mergedCartId: string | null }`. | check + tsc |
+| D7-VAL-04 | ✅ تعديل | `validation/index.ts` | تصدير كل schemas الجديدة من barrel.validation. | check + tsc |
+| D7-HLP-01 | ✅ جديد | `lib/customerSession.ts` | helper واحد بـ`sessionStorage` (`oe.customer.session`) لحفظ/قراءة/مسح توكن العميل مع SSR guard وتحقق Zod. لا localStorage/cookie/route handler. | check + tsc |
+| D7-HLP-02 | ✅ جديد | `lib/accountError.ts` | خريطة `code/status` إلى `account.errors.*` بلا raw message. | check + tsc |
+| D7-HLP-03 | ✅ جديد | `lib/trackFormat.ts` | تنسيق التاريخ حسب locale ومفاتيح `track.status.*`/`track.paymentStatus.*` وETA من الرسائل فقط. | check + tsc |
+| D7-HLP-04 | ✅ تعديل | `lib/cartError.ts` | إضافة `resolveCartMergeErrorKey` إلى `cart.merge.errors.*` دون تغيير cart error القديم. | check + tsc |
+| D7-RTE-01 | ✅ تعديل | `lib/routes.ts` | `TRACK_HREF` و`ACCOUNT_HREF`/`ACCOUNT_*_HREF`؛ لا token في أي route. | check + tsc |
+| D7-API-01 | ✅ جديد | `store/trackApi.ts` | `useGetTrackedOrderQuery` عبر `baseApi.injectEndpoints`؛ token فقط في مسار طلب الـAPI، لا tag ولا reports. | check + tsc + build |
+| D7-API-02 | ✅ جديد | `store/authApi.ts` | register/verify/login/forgot/reset/logout/me (email-only) عبر baseApi؛ تحقق قبل الإرسال و parsing للردود. | check + tsc + build |
+| D7-API-03 | ✅ تعديل | `store/cartApi.ts` | إضافة `mergeCart` mutation فقط + `useMergeCartMutation`؛ لا slice جديد ولا طلب فعلي. | check + tsc + build |
+| D7-API-04 | ✅ تعديل | `store/baseApi.ts` | `prepareHeaders` يضيف `Authorization: Bearer <token>` عند وجوده؛ لا تغيير لـtagTypes/الـenvelope/الكاش. | check + tsc + build |
+| D7-MSG-01 | ✅ تعديل | `messages/ar.json` | namespaces `track.*`, `account.*`, `cart.merge.*` بالعربية وICU صحيح. | check (450 keys) |
+| D7-MSG-02 | ✅ تعديل | `messages/en.json` | نفس المفاتيح بالإنجليزية؛ `0 failure(s)` في تطابق ar/en. | check (450 keys) |
+| D7-DOC-01 | ✅ تعديل | `docs/PROGRESS.md` | هذا السجل + تحديث header إلى G1. | git diff |
+
+### 40.2 أدلة التحقق (أوامر منفصلة من `Om-Eman/frontend` إلا أوامر git)
+
+- `npm run check` → **EXIT 0** — `Scanned 231 code files, 450 message keys per locale.` و`0 failure(s), 0 warning(s).` (كانت 221/344 في G0؛ +10 ملفات كود و+106 مفتاح رسالة).
+- `npm run lint` → **EXIT 0** بلا output.
+- `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → **EXIT 0** بلا output.
+- `npm run build` → **EXIT 0**؛ Next 16.4.5 Turbopack، compile ≈74s، TypeScript ≈12.4s، `35/35` static pages. ظهرت `[store] ... NETWORK_ERROR` لـ`settings/categories/banners/products` لأن الباك غير شغّال؛ لم يفشل الـbuild، ولا routes جديدة لـtrack/account في هذه البنية لأن G2/G3 لم تُفتحا.
+- `git status --short --untracked-files=all` (من جذر الـworkspace) → Modified: `docs/PROGRESS.md`, `interface/index.ts`, `lib/cartError.ts`, `lib/routes.ts`, `messages/ar.json`, `messages/en.json`, `store/baseApi.ts`, `store/cartApi.ts`, `validation/index.ts`. Untracked G1: `interface/{customerAuth,track}.ts`, `lib/{accountError,customerSession,trackFormat}.ts`, `store/{authApi,trackApi}.ts`, `validation/{cartMerge,customerAuth,track}.ts`. تحذيرات `.claude/.windsurf` روابط مفقودة ضجيج موروث.
+- `git diff --check` → لا تعارضات whitespace؛ تحذيرات LF→CRLF اعتيادية على Windows للملفات المعدّلة.
+- `git diff --stat` → 9 ملفات متعقّبة، `+514/−5` (يشمل تعديلات G0/G1 على `PROGRESS.md`)؛ الملفات الجديدة غير المتعقّبة تظهر في `git status` فقط.
+- `git diff -- package.json package-lock.json` → فارغ؛ لا تبعيات جديدة. لا diff للباك/DB/env/config/tooling.
+
+### 40.3 الانحرافات/القيود الصادقة
+
+- **Google مقصودًا غير منفَّذ:** لا `googleCredentialSchema`، لا `googleLogin` mutation، لا GoogleButton messages، لا `GOOGLE_*` error keys. قرار المالك «Email-only» يتقدم على ذكر google endpoint في خطة G1. هذا انحراف موثّق يحتاج تأكيد Astra/المالك؛ لا GIS script ولا `GOOGLE_CLIENT_ID`
+ ولا env changes.
+- `lib/customerSession.ts` يوفّر الحفظ/القراءة/المسح فقط؛ **لا استدعاء حفظ في authApi**، لذلك لا توكن يُخزَّن فعليًا قبل G3. `prepareHeaders` يقرأ التوكن فقط عند وجوده.
+- `trackingToken` يظهر فقط كوسيط query ضروري لمسار `/store/track/:trackingToken`. لا يوجد في `TRACK_HREF`، canonical/metadata، messages، tagTypes، التقارير أو المتصفح (لا صفحة بعد).
+- فجوة قراءة السلة بعد الدمج ما زالت `BLOCKED`: `mergeCart` يعيد `mergedCartId` أو `null` فقط؛ لا بنود/إجمالي ولا عرض سلة مختلقة. لا merge request أُرسل.
+- SMTP/dev verification link/timezone لم تُختبر؛ `devVerificationLink` يبقى اختياريًا في العقد ولا يُعرض في G1.
+- لا API smoke (track بتوكن محلي / `me` بدون توكن) لأن الباك غير شغّال وقت G0 ولم يُفتح runtime write أو بيئة اختبار جديدة. HTTP 200 ليس acceptance.
+- Cloudinary Public Delivery كما هو؛ لا Private/Signed Delivery ولا تعديل uploads/proof.
+
+### 40.4 الحالة والتوصيات
+
+- **منفّذ في المصدر:** ملفات 40.1 فقط.
+- **فحص آلي بنتيجة:** 40.2 — كل الفحوص خضراء؛ build ناجح مع رسائل NETWORK_ERROR بيئية موثّقة.
+- **شوهد في متصفح:** لا شيء؛ G2/G3 لم تُفتحا.
+- **🟢 اعتمده المالك:** G0 فقط. G1 نفسه بانتظار المراجعة؛ لا اعتماد تقني/بصري له بعد.
+- **⛔ محجوب / لم يُختبر:** runtime/API write، المتصفح، Google، قراءة السلة بعد الدمج، dev link/بريد حقيقي، production seal.
+
+**مراجعة Astra (مطلوبة — ملاحظات مقترحة من الأدلة):**
+- **النطاق:** G1 التزم بالعقود/validation/endpoints/helpers/الرسائل؛ لا صفحات/UI/حركة/باك/env/deps/commit.
+- **نقاط قوة:** Zod يطابق عقود الباك ويمنع وصول مدخلات خاطئة؛ decimal strings وISO dates لم تُحوَّل؛ `prepareHeaders` هو التعديل الوحيد في `baseApi`؛ sessionStorage معزول في helper واحد؛ لا توكن في route/canonical/tag/reports.
+- **تحفظات:** (1) حذف Google من G1 انحراف عن جدول الملفات ويحتاج تأكيدًا صريحًا؛ (2) لا دليل runtime على track/auth/me؛ (3) RTK Query يحتفظ بوسيط الـquery داخليًا في cache key لتتبع الطلب — مقبول لأنه لا يُعرض في TAG/تقرير/URL، لكنه يبقى نقطة مراجعة خصوصية؛ (4) `devVerificationLink` يجب ألا يُعرض في production عند G3.
+- **توصية:** **قبول تقني مشروط لمخرجات G1 كما هي**، مع عرض انحراف Google على المالك للعلم/التأكيد. **لا توصية بفتح G2** قبل موافقة المالك المنفصلة.
+
+- **حالة Day 7 الآن:** `G1 EXECUTED — TECHNICALLY GREEN — AWAITING ASTRA/OWNER REVIEW — G2 NOT AUTHORIZED`.
+
+⛔ STOP — G1 COMPLETE / PARTIAL — WAITING FOR OWNER APPROVA
+
+## 41) G2 — DAY 7 TRACK (2026-11-23)
+
+> **الإذن:** المالك راجع G1 واعتمده، وأذن صراحة بـ`G2 — DAY 7 TRACK` لصفحة `/{locale}/track` فقط. **لا إذن لـG3/G4/G5**، ولا فتح تلقائي لأي Gate أخرى.
+> **Pre-flight:** قُرئ `AGENTS.md`؛ رُوجعت §39–§40 و`DAY7_TASKS.md §1.1/§3.1/§5.3/Gate 2`؛ فُحص تنفيذ G1 الفعلي (`trackApi.ts`, `interface/track.ts`, `validation/track.ts`, `lib/trackFormat.ts`)؛ حُفظت حالة الـworking tree بـ`git status --short --untracked-files=all`؛ رُوجع `useOrderReceipt` و`orderReceipt.ts`. لا تعارض بين العقد الفعلي والتوثيق، ولا Blocker في G1 يمنع G2. ملاحظة RTK Query الداخلية الخاصة بـcache key المسجّلة في §40.3 موروثة ومقبولة، وليست مانعًا.
+> **النطاق المنفَّذ:** صفحة Track رقيقة + skeleton + hook واحد + 6 مكوّنات عرض. لا تعديل على أي ملف مصدر من ملفات G1؛ `PROGRESS.md` فقط هو الملف المعدّل من G1 (هذا القسم + الـheader). لا account/merge/google/cart/auth UI، لا motion جديد، لا providers/app router/gateway/slice/fetch/backend/DB/env/deps/commit/push/deploy.
+
+### 41.1 الملفات والمسؤوليات (Task IDs)
+
+| Task ID | الحالة | الملف | المسؤولية |
+| --- | --- | --- | --- |
+| D7-TRK-01 | ✅ جديد | `app/[locale]/(Store)/track/page.tsx` | صفحة Server رقيقة: `setRequestLocale`, `Suspense`, تركيب `TrackSection`. بلا token في المسار أو الصفحة. |
+| D7-TRK-02 | ✅ جديد | `app/[locale]/(Store)/track/metadata.ts` | `buildMetadata()` بـ`TRACK_HREF` و`isNoIndex: true`؛ لا token في canonical/OG/title. |
+| D7-TRK-03 | ✅ جديد | `app/[locale]/(Store)/track/loading.tsx` | غلاف `TrackSkeleton` مطابق للصفحة. |
+| D7-TRK-04 | ✅ جديد | `components/ECommerce/Track/TrackSection.tsx` | منسّق الواجهة: يستدعي `useTrackLookup` ويمرّر البيانات للمكوّنات فقط. لا API مباشر ولا token للمكوّنات. |
+| D7-TRK-05 | ✅ جديد | `components/ECommerce/Track/TrackLookupForm.tsx` | حقل إدخال يدوي محمي: submit واحد، تحقق عبر hook، مسح الحقل بعد الإرسال، زر العودة للإيصال عند وجوده. |
+| D7-TRK-06 | ✅ جديد | `components/ECommerce/Track/TrackSummary.tsx` | رقم الطلب/الحالتان/التواريخ/ETA من `ITrackedOrder` فقط عبر `trackFormat.ts` والرسائل. |
+| D7-TRK-07 | ✅ جديد | `components/ECommerce/Track/TrackTimeline.tsx` | خط زمني factual من `placedAt` والحالة الحالية و`deliveredAt` فقط؛ لا مراحل مختلقة. |
+| D7-TRK-08 | ✅ جديد | `components/ECommerce/Track/TrackItems.tsx` | عرض البنود كنصوص decimal أصلية + `EmptyState` عند عدم وجود بنود؛ بلا `Number()`. |
+| D7-TRK-09 | ✅ جديد | `components/ECommerce/Track/TrackState.tsx` | حالات initial/loading/error/empty برسائل مترجمة؛ لا raw backend/stack/SQL. |
+| D7-TRK-10 | ✅ جديد | `components/Skelton/TrackSkeleton.tsx` | skeleton هيكلي بtokens المشروع فقط. |
+| D7-TRK-11 | ✅ جديد | `hooks/useTrackLookup.ts` | يقرأ الإيصال عبر `useOrderReceipt`، يتحقق من token، يستدعي `trackApi`، يعيّن الأخطاء إلى مفاتيح `track.errors.*`، يمنع refetch التلقائي ويدعم retry الصريح لنفس token. |
+| D7-DOC-02 | ✅ تعديل | `docs/PROGRESS.md` | هذا القسم + تحديث header إلى G2. |
+
+### 41.2 أمر تنفيذ/logic مهم
+
+- `useTrackLookup` يشتقّ الـtoken من `receipt.trackingToken` أو من الإدخال اليدوي بعد `trackingTokenSchema.safeParse`. لا storage key جديد، لا تعديل `oe.order.receipt`.
+- `useGetTrackedOrderQuery` مُستدعَ بـ`refetchOnMountOrArgChange: false`, `refetchOnFocus: false`, `refetchOnReconnect: false` ⇒ لا إعادة طلب تلقائية عند 429/focus/reconnect. إعادة نفس الـtoken بعد فشل هي retry صريح من submit واحد.
+- الحقل يُمسح فور submit؛ قيمة الـtoken لا تُعرض في DOM بعد الإدخال، ولا تُرسل كـprop لأي مكوّن عرض.
+- خريطة الأخطاء: `status 0` → network؛ `429`/`TOO_MANY_REQUESTS` → rateLimited؛ `404`/`ORDER_NOT_FOUND` → notFound؛ `400`/`VALIDATION_ERROR` → validation؛ الباقي unexpected. `SerializedError` → unexpected. لا استخدام لـ`error.message` الخام.
+
+### 41.3 أدلة التحقق (أوامر منفصلة، EXIT_CODE مسجَّل)
+
+| الأمر | EXIT_CODE | النتيجة |
+| --- | --- | --- |
+| `npm run lint` | `0` | بلا output. |
+| `npm run check` | `0` | `Scanned 242 code files, 450 message keys per locale.` + `0 failure(s), 0 warning(s).` (كانت 231/450 في G1؛ +11 ملف كود G2، بلا تغيير رسائل). |
+| `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` | `0` | بلا أخطاء. مُعيد تشغيله بعد إصلاح type widening لـ`SerializedError` في `useTrackLookup.ts`. |
+| `git diff --check` | `0` | بلا whitespace errors؛ تحذيرات LF→CRLF اعتيادية على Windows. |
+| `git diff --stat` | `0` | 9 ملفات متعقّبة، `+606/−5` (يشمل G0/G1/G2 على `PROGRESS.md`)؛ ملفات G2 تظهر كـuntracked في `git status`. |
+| `git status --short --untracked-files=all` | `0` | G2 الجديدة: `track/{page,metadata,loading}.tsx`, `components/ECommerce/Track/{TrackSection,TrackLookupForm,TrackSummary,TrackTimeline,TrackItems,TrackState}.tsx`, `components/Skelton/TrackSkeleton.tsx`, `hooks/useTrackLookup.ts`. موروث G1 كما هو. تحذيرات `.claude/.windsurf` ضجيج روابط مفقودة. |
+| `npm run build` | `0` | Next 16.4.5 Turbopack؛ compile 7.7s، TypeScript 10.1s، `38/38` static pages؛ `/[locale]/track`, `/ar/track`, `/en/track` ظهروا في جدول المسارات بلا token. `[store] ... NETWORK_ERROR` بيئي لأن الباك غير شغّال. |
+| `powershell ... Get-NetTCPConnection -LocalPort 3001,3002 -State Listen` | `0` | `NO_LISTENERS_3001_3002` ⇒ لا frontend ولا backend متاحين/browser verification. |
+
+**فحص ثابت إضافي للأمان:** grep على `app/[locale]/(Store)/track` ⇒ لا `trackingToken` في page/metadata/loading. grep على `components/ECommerce/Track` ⇒ تطابق واحد فقط `name="trackingToken"` (اسم حقل DOM، ليس قيمة التوكن). grep على `useTrackLookup.ts` ⇒ ثلاثة استخدامات فقط: استيراد الـschema، قراءة `receipt.trackingToken`، و`safeParse`. لا `console.*`, `analytics`, `localStorage`, `document.cookie`, `Number(`, `framer-motion` أو `motion/react` في ملفات G2.
+
+### 41.4 الحالات المغطَّاة في المصدر
+
+1. Initial: `TrackState` → `EmptyState` بـ`track.lookup.title` و`track.subtitle`.
+2. Loading: `TrackState` → `TrackSkeleton` + `role="status"`/`common.loading`.
+3. Success: `TrackSummary` + `TrackTimeline` + `TrackItems` من الرد فقط.
+4. Invalid/Validation: `safeParse` يمنع الطلب ويعرض `track.lookup.invalid`.
+5. Not Found: `ORDER_NOT_FOUND`/404 → `track.errors.notFound`.
+6. Rate Limit: `TOO_MANY_REQUESTS`/429 → `track.errors.rateLimited` بلا refetch تلقائي.
+7. Network: `status 0` → `track.errors.network`.
+8. Empty: `items: []` → `track.items.empty` داخل `TrackItems`.
+9. Manual Lookup: إدخال/تحقق/submit واحد + مسح الحقل + زر الرجوع للإيصال إن وُجد.
+
+### 41.5 ما لم يتم اختباره وسببه
+
+- **API Runtime Verification: NOT TESTED** — لا مستمع على `:3002`، لا توكن تتبّع حقيقي/محلي مأذون، وممنوع البيانات/Writes الوهمية. لم تُرسل أي طلب track فعلي؛ 404/429/network mappings مؤكدة من المصدر فقط.
+- **Browser Verification: NOT TESTED** — لا مستمع على `:3001` أيضاً، ولم يُفتح متصفح. لم تُختبر مصفوفة no receipt/receipt/manual valid/invalid/404/429/network، ولا ar/en/RTL/LTR/360px/desktop/4 themes/keyboard، ولا فحص Console/Analytics/URL فعليًا. الفحص الثابت المذكور في 41.3 هو البديل Source-only.
+- **Owner Visual Approval: PENDING** — لا 🟢 بصري لـG2.
+
+### 41.6 مراجعة Astra (مطلوبة — G2 فقط)
+
+- **Contract correctness:** يستهلك `trackApi`/`trackedOrderSchema` من G1 دون تعديل؛ لا أسماء حالات مختلقة؛ `deliveredAt=null` وETA `null` يعرضان رسائل `track.*`؛ `quantity/lineTotal` يبقيان strings؛ لا هوية/هاتف/عنوان في الواجهة.
+- **Tracking Token security:** لا token في route/canonical/OG/JSON-LD/console/analytics/error reports؛ لا storage key جديد؛ الحقل يُمسح بعد submit؛ لا token يُمرّر للمكوّنات. RTK Query يحتفظ بالوسيط داخليًا في cache key (موروث من G1، مقبول في §40.3) لكنه غير معروض في TAG/تقارير/واجهة.
+- **UI States:** الحالات التسع موجودة في المصدر (41.4)، معتمدة على coded keys فقط؛ runtime غير مختبر كما في 41.5.
+- **Error handling:** خريطة `status/code` صريحة، `SerializedError` fallback، لا raw message/stack/SQL.
+- **Accessibility:** `<label>` مرتبط، `aria-invalid`/`aria-describedby` للتحقق، `aria-live` للتحميل، focus-visible من primitives، native Enter/Tab. لم يُختبر بمتصفح.
+- **RTL/LTR:** classes منطقية (`ps-`, `border-s`, `text-ink`) وتنسيق تاريخ عبر `useLocale`؛ لم يُختبر بصريًا.
+- **Architecture compliance:** صفحة رقيقة، providers/app router/gateway/slice/fetch لم تُلمس، لا motion أو styling تجميلي جديد، لا G1 source edits، لا deps/config/backend/commit.
+- **Diff/untracked:** 11 ملف G2 جديدة + `PROGRESS.md` فقط؛ الباقي موروث G1 كما سُجّل في §40.
+- **توصية Astra:** **SOURCE-ACCEPT لـG2 كما هي، مع API/Browser Verification معلَّقة**. لا توصية بفتح G3 قبل موافقة المالك المنفصلة.
+
+### 41.7 الانحرافات/Blockers والمشاكل القديمة الظاهرة
+
+- لا انحراف عن نطاق G2؛ لا Blocker تقني.
+- لا تعديل على رسائل G1؛ أُعيد استخدام `track.*` و`common.currencyEgp` كما هما.
+- لم يُضف motion/styling تجميلي؛ Toast/Sonner لا يظهر في Track؛ لا component خارج القائمة.
+- مشاكل قديمة ظهرت دون إصلاح خارج النطاق: `NETWORK_ERROR` في build، تحذيرات symlinks مفقودة في `git status`، تحذيرات LF→CRLF، Google المؤجل في §40، R-VIS ما زال 🟡.
+- `trackingToken` لا يظهر في مسار المتصفح؛ لكنه يظل وسيطًا ضروريًا في مسار طلب API فقط وفق العقد.
+
+### 41.8 KS-6 وحالة التسليم
+
+- **KS-6:** `SOURCE COMPLETE` ✓ — صفحة `/{locale}/track` جاهزة وتقرأ الإيصال/الإدخال اليدوي بلا token في route/بيانات وصفية. `API VERIFIED: NOT TESTED` · `BROWSER VERIFIED: NOT TESTED` · `OWNER VISUAL APPROVAL: PENDING`.
+- **Separation:** `Source Complete = YES` · `API Verified = NO` · `Browser Verified = NO` · `Owner Visual Approval = NO`.
+- **حالة Day 7 الآن:** `G2 EXECUTED — SOURCE GREEN — API/BROWSER NOT TESTED — AWAITING ASTRA/OWNER REVIEW — G3 LOCKED`.
+
+### 41.9 قرار المالك بعد G2 وتفويض G3 (2026-11-23)
+| البند | الحالة المعتمدة |
+| --- | --- |
+| Source Implementation | `COMPLETE` |
+| Automated Checks | `PASS` |
+| API Runtime | `PENDING` |
+| Browser Verification | `PENDING` |
+| Owner Visual Approval | `PENDING` |
+| KS-6 | `SOURCE COMPLETE / API PENDING / BROWSER PENDING` |
+
+- **تفويض صريح:** المالك اعتمد G2 source-wise وأذن بتنفيذ `G3 — DAY 7 EMAIL AUTH` فقط.
+- **قيد الحالة:** لا تُرفع `API Runtime` أو `Browser Verification` أو `Owner Visual Approval` إلى COMPLETE دون دليل فعلي؛ لا يُختم KS-6 كتجربة كاملة.
+- **خارج G3:** Google، cart merge، تعديل G2، Dashboard، Backend/DB/env/deps/commit.
+
+⛔ STOP — G2 COMPLETE / PARTIAL — WAITING FOR OWNER APPROVAL
+
+## 42) G3 — DAY 7 EMAIL AUTH (2026-11-23)
+
+> **الإذن:** المالك راجع G2 source-wise واعتمده، وأذن صراحةً بتنفيذ `G3 — DAY 7 EMAIL AUTH` فقط بعد §41.9. **لا إذن لـG4 Google/Cart Merge، ولا G5 Style/Motion**، ولا فتح تلقائي لأي Gate أخرى.
+> **Pre-flight:** قُرئ `AGENTS.md`؛ رُوجعت §37–§41 و`DAY7_TASKS.md §3.2/§5.3/Gate 3`؛ فُحصت حالة working tree وملفات G1/G2 الفعلية (`authApi.ts`, `customerSession.ts`, `routes.ts`, `accountError.ts`, validation/messages)؛ لم يظهر تعارض مانع. قرار تخزين توكن العميل هو `sessionStorage` بمفتاح واحد كما في G1/G0؛ Google مؤجل بالكامل.
+> **النطاق المنفَّذ:** Routes الستة للحساب، forms، `useCustomerAuth`، `customerSession`، `me`، و3 مفاتيح رسائل `account.status.*` فقط. لا Google/GoogleButton/GIS/client ID، لا cart merge، لا تعديل G2 أو Track، لا Dashboard/باك/DB/migration/seed/env/deps/config/tooling/commit.
+
+### 42.1 الملفات والمسؤوليات (Task IDs)
+
+| Task ID | الحالة | الملف | المسؤولية |
+| --- | --- | --- | --- |
+| D7-AUT-01 | ✅ تعديل | `lib/customerSession.ts` | helper واحد لتخزين/قراءة/مسح توكن العميل في `sessionStorage`، مع تحقق Zod وSSR guard وإشعار `useSyncExternalStore` عند تغيير الجلسة. |
+| D7-AUT-02 | ✅ جديد | `hooks/useCustomerAuth.ts` | حالة الجلسة و`me` وكل mutations البريد؛ لا يُرجع التوكن؛ إعادة تعيين كاش RTK Query عند login/logout لمنع تسريب بيانات حساب سابق. |
+| D7-AUT-03 | ✅ جديد | `components/Skelton/AccountSkeleton.tsx` | skeleton مطابق لشاشات الحساب/Nested routes. |
+| D7-AUT-04 | ✅ جديد | `components/ECommerce/Account/AccountSection.tsx` | منسّق صفحة الحساب: logout/retry فقط، لا API مباشر. |
+| D7-AUT-05 | ✅ جديد | `components/ECommerce/Account/AccountState.tsx` | guest/loading/error/authenticated بـ`EmptyState`/`ErrorState`/`AccountProfile`. |
+| D7-AUT-06 | ✅ جديد | `components/ECommerce/Account/AccountProfile.tsx` | عرض بيانات `IStoreCustomer` المُتحقَّق منها من `me` فقط. |
+| D7-AUT-07 | ✅ جديد | `components/ECommerce/Account/AccountFormCard.tsx` | غلاف عرض مشترك لكل النماذج؛ أُضيف لتفادي تكرار class block. |
+| D7-AUT-08 | ✅ جديد | `components/ECommerce/Account/AccountFormField.tsx` | حقل تسمية/إدخال مشترك. |
+| D7-AUT-09 | ✅ جديد | `components/ECommerce/Account/AccountFormError.tsx` | عرض رسالة الخطأ المترجمة من coded key. |
+| D7-AUT-10 | ✅ جديد | `components/ECommerce/Account/LoginForm.tsx` | RHF + Zod + Toast بعد الرد + منع الإرسال قبل `isValid` + انتقال للحساب بعد النجاح. |
+| D7-AUT-11 | ✅ جديد | `components/ECommerce/Account/RegisterForm.tsx` | حقول اختيارية تُحوَّل إلى `undefined`، ورابط تحقق dev فقط عند وجوده. |
+| D7-AUT-12 | ✅ جديد | `components/ECommerce/Account/VerifyEmailForm.tsx` | قراءة `token` من query تحت `Suspense` + تحقق Zod. |
+| D7-AUT-13 | ✅ جديد | `components/ECommerce/Account/ForgotPasswordForm.tsx` | رسالة نجاح عامة مهما كانت نتيجة البريد. |
+| D7-AUT-14 | ✅ جديد | `components/ECommerce/Account/ResetPasswordForm.tsx` | قراءة `token` من query + كلمة مرور جديدة + انتقال للدخول. |
+| D7-AUT-15 | ✅ جديد | `app/[locale]/(Store)/account/{page,metadata,loading}.tsx` | حساب العميل: noindex، skeleton، `setRequestLocale`. |
+| D7-AUT-16 | ✅ جديد | `app/[locale]/(Store)/account/login/{page,metadata,loading}.tsx` | تسجيل الدخول: noindex + Suspense. |
+| D7-AUT-17 | ✅ جديد | `app/[locale]/(Store)/account/register/{page,metadata,loading}.tsx` | إنشاء الحساب: noindex + Suspense. |
+| D7-AUT-18 | ✅ جديد | `app/[locale]/(Store)/account/verify-email/{page,metadata,loading}.tsx` | تأكيد البريد: noindex + Suspense حول `useSearchParams`. |
+| D7-AUT-19 | ✅ جديد | `app/[locale]/(Store)/account/forgot-password/{page,metadata,loading}.tsx` | نسيان كلمة المرور: noindex + Suspense. |
+| D7-AUT-20 | ✅ جديد | `app/[locale]/(Store)/account/reset-password/{page,metadata,loading}.tsx` | إعادة التعيين: noindex + Suspense حول `useSearchParams`. |
+| D7-AUT-21 | ✅ تعديل | `messages/{ar,en}.json` | 3 مفاتيح متطابقة: `signedIn`, `emailVerified`, `resetLinkSent`. |
+| D7-DOC-03 | ✅ تعديل | `docs/PROGRESS.md` | هذا القسم + تحديث header إلى G3. |
+
+### 42.2 أمر تنفيذ/logic مهم
+
+- `useCustomerAuth` يقرأ الجلسة عبر `useSyncExternalStore` من helper واحد؛ `getServerSnapshot` يُرجع `null`، و`prepareHeaders` في `baseApi` هو من يضيف `Bearer` إلى `me/logout`. لا يوجد توكن في props/DOM/canonical/OG/JSON-LD/tag/تقرير.
+- `useGetCustomerProfileQuery` يعمل فقط عند وجود جلسة؛ `guest` لا يُرسل `me`. عند logout يُمسح التوكن محليًا حتى لو فشل طلب logout، وتُعاد تهيئة كاش RTK Query قبل/بعد تغيير الهوية لمنع عرض بيانات حساب سابق.
+- `login` يحفظ التوكن بعد `unwrap` الناجح فقط؛ `register` لا يسجّل دخولًا تلقائيًا ويعرض `devVerificationLink` فقط في غير production؛ `forgot` رد عام؛ `verify/reset` يقرآن token من query.
+- كل forms تستخدم `zodResolver` مع `mode: "onChange"`، وزر الإرسال معطّل حتى `isValid`، و`inFlight` داخل event handler يمنع الطلب المكرر، ولا يوجد toast نجاح قبل الرد. الأخطاء المُرمَّزة تُترجم إلى `account.errors.*`؛ لا raw message/stack/code.
+- `429/401/409/400` تقابل مفاتيح منفصلة في `lib/accountError.ts` و`messages/account.errors`؛ `status 0` ⇒ network.
+- semua صفحات الحساب رقيقة، noindex، تستخدم `setRequestLocale` و`buildMetadata` و`Suspense` مع `AccountSkeleton`؛ `useSearchParams` محاط بـSuspense.
+
+### 42.3 أدلة التحقق (أوامر منفصلة، EXIT_CODE مسجَّل)
+
+| الأمر | EXIT_CODE | النتيجة |
+| --- | --- | --- |
+| `npm run lint` | `0` | بلا output بعد إصلاح `react-hooks/refs` واعتماديات `useCallback` في النماذج الخمسة. |
+| `npm run check` | `0` | `Scanned 273 code files, 453 message keys per locale.` + `0 failure(s), 0 warning(s).` (كانت 242/450 في G2؛ +31 ملف كود G2+G3 و+3 مفاتيح G3). |
+| `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` | `0` | بلا أخطاء، مُعاد تشغيله بعد إعادة تعيين كاش الجلسة. |
+| `git diff --check -- .` | `0` | بلا whitespace errors؛ تحذيرات LF→CRLF اعتيادية على Windows. |
+| `git diff --exit-code -- package.json package-lock.json` | `0` | بلا output ⇒ لا تغيير في الحزم. |
+| `npm run build` | `0` | Next 16.4.5 Turbopack؛ compile 7.0s، TypeScript 8.8s، `56/56` static pages؛ ظهرت مسارات الستة للحساب في جدول المسارات بلا token. `[store] ... NETWORK_ERROR` بيئي لأن الباك غير شغّال؛ لا يفشل الـbuild. |
+| `netstat -ano` على 3001/3002 | `0` | بلا مستمعين ⇒ لا frontend/backend، وبالتالي لا API runtime ولا browser verification. |
+
+### 42.4 الحالات المغطَّاة في المصدر
+
+1. Guest: `/account` ⇒ `EmptyState` برابطَي login/register.
+2. Loading: توكن موجود و`me` لم يرد ⇒ `AccountSkeleton` + `role="status"`.
+3. Authenticated: بيانات `me` من الباك فقط ⇒ `AccountProfile` مع زر logout.
+4. Error: فشل `me` ⇒ coded key + retry؛ لا فتح للحساب عند أي فشل تسجيل دخول/تحقق/تعيين كلمة مرور.
+5. Validation: الحقول المفقودة/غير الصالحة تمنع الطلب عبر `isValid` + Zod؛ رسالة تحقق عامة.
+6. Mutation feedback: Toast نجاح/خطأ فقط بعد الرد؛ registration dev link في dev فقط.
+7. Rate limit/credentials/conflict/token/session errors: مفاتيح منفصلة ومتطابقة ar/en.
+8. RTL/LTR: مسارات داخلية عبر `@/i18n/navigation` و`lib/routes.ts`، بلا `/ar/` أو `/en/` hard-coded.
+
+### 42.5 ما لم يتم اختباره وسببه
+
+- **API Runtime Verification: NOT TESTED** — لا مستمع على `:3002`، لا بريد/token حقيقي مأذون، وممنوع البيانات/Writes الوهمية. لم تُرسل طلبات register/verify/login/forgot/reset/me/logout فعلية؛ الخرائط مؤكدة من المصدر فقط.
+- **Browser Verification: NOT TESTED** — لا مستمع على `:3001` أيضاً، لم يُفتح متصفح. لم تُختبر مصفوفة reload/back-forward/360px/desktop/RTL/LTR/4 themes/focus-visible.
+- **Owner Visual Approval: PENDING** — لا 🟢 بصري لـG3.
+
+### 42.6 مراجعة Astra (مطلوبة — G3 فقط)
+
+- **Contract correctness:** كل endpoints من `authApi.ts` المُعتمد في G1؛ لا Google endpoint ولا cart merge؛ login/register/verify/forgot/reset/logout/me فقط؛ لا حقول مختلقة.
+- **Token security:** `oe.customer.session` في `sessionStorage` فقط عبر helper واحد؛ SSR guard؛ Zod pattern؛ لا token في route/canonical/OG/JSON-LD/analytics/console/تقارير؛ `Bearer` في `prepareHeaders` فقط؛ لا localStorage/cookie جديد.
+- **Failure isolation:** أي `errorKey` من mutation يبقي المستخدم خارج الحساب؛ logout يمسح التوكن محليًا حتى عند خطأ الشبكة؛ إعادة تعيين الكاش تمنع عرض profile قديم بعد تبديل الهوية.
+- **Validation/i18n:** Zod لكل نموذج؛ رسائلcoded متطابقة ar/en؛ 3 مفاتيح جديدة فقط؛ لا نص عربي hard-coded في الكود؛ لا raw backend message.
+- **UI states/a11y:** skeleton/guest/error/authenticated موجودة؛ labels مرتبطة؛ `aria-invalid`/`aria-describedby` و`role="alert"`؛ focus-visible من primitives. لم يُختبر بصريًا.
+- **Architecture compliance:** صفحات رقيقة، hooks منفصلة، مكوّنات عرض صغيرة، لا motion/styling تجميلي جديد، لا تعديل G2 source، لا باك/deps/env/commit.
+- **Diff/untracked:** 31 ملف G3 جديدًا (18 ملف route + 11 مكوّنًا + `AccountSkeleton` + `useCustomerAuth`) + تعديلات G3 على `customerSession.ts`, `validation/customerAuth.ts`, messages وPROGRESS؛ بقية التعديلات/الملفات غير المتتبعة موروثة G0/G1/G2 كما سُجّلت.
+- **توصية Astra:** **SOURCE-ACCEPT لـG3 كما هي، مع API/Browser Verification معلَّقة**. لا توصية بفتح G4 أو G5 قبل موافقة المالك المنفصلة.
+
+### 42.7 الانحرافات/Blockers والمشاكل القديمة الظاهرة
+
+- **انحراف صغير موثّق:** أُضيف `AccountFormCard.tsx` و`AccountFormField.tsx` و`AccountFormError.tsx` خارج جدول §5.3 لتفادي تكرار class block وتطبيق قاعدة «القطع الصغيرة/إعادة الاستخدام»؛ لا سلوك إضافي ولا Gate لاحق.
+- **تعديل G1 محدود:** أُضيفت هذه المرة أنواع `TVerifyEmailForm` و`TForgotPasswordForm` إلى `validation/customerAuth.ts` نتيجة استخدام forms؛ لا تغيير للـschemas ولا للعقود. لا تعديل على `authApi.ts` أو `interface/customerAuth.ts` في G3، ونُقّح `baseApi.ts` من G1 فقط (prepareHeaders المصرَّح به).
+- لم يُضف Google أو cart merge أو motion أو styling تجميلي؛ KS-8 ما زال مفتوحًا.
+- مشاكل قديمة ظهرت دون إصلاح خارج النطاق: `NETWORK_ERROR` في build، تحذيرات symlinks في `git status`، تحذيرات LF→CRLF، R-VIS 🟡، Google المؤجل.
+- لا يوجد دليل runtime على `devVerificationLink` نفسه؛ التنفيذ يمنعه في production ويخفيه في absence الرد.
+
+### 42.8 KS-7 وحالة التسليم
+
+- **KS-7:** `SOURCE COMPLETE` ✓ — المسار البريدي من register/verify/login/me/logout جاهز. `API VERIFIED: NOT TESTED` · `BROWSER VERIFIED: NOT TESTED` · `OWNER VISUAL APPROVAL: PENDING`.
+- **Separation:** `Source Complete = YES` · `API Verified = NO` · `Browser Verified = NO` · `Owner Visual Approval = NO`.
+- **حالة Day 7 وقت G3:** `G3 EXECUTED — SOURCE GREEN — API/BROWSER NOT TESTED — AWAITING ASTRA/OWNER REVIEW — G4/G5 LOCKED` (اعتمدها المالك لاحقًا source-wise؛ الحالة الحالية في §43).
+
+✅ G3 اعتمده المالك source-wise: `Source Implementation = COMPLETE` · `Automated Checks = PASS` · `API Runtime = NOT TESTED` · `Browser Verification = NOT TESTED` · `Owner Visual Approval = PENDING`. نجاح `build`/TypeScript ليس دليلًا على نجاح login فعلي.
+
+### 43. G4 — DAY 7 CART MERGE ONLY
+
+- **الإذن:** المالك راجع G3 source-wise وأذن صراحةً بتنفيذ جزء **Cart Merge Only** من `G4 — DAY 7 GOOGLE & CART MERGE`. Google Authentication خارج النطاق تمامًا.
+- **قبل التنفيذ:** رُوجعت `AGENTS.md`، `PROGRESS.md` §39–§42، `DAY7_TASKS.md` §3.3/§4/§5/§Gate 4، وملفات `G1/G2/G3`، وحالة Git. عُرضت قائمة الملفات المتوقع تعديلها ومسؤوليتها قبل أي تعديل مصدر.
+- **الملفات المنفَّذة:**
+  - `hooks/useCartMerge.ts` جديد: hook واحد يقرأ Guest Token عبر `useCartToken` وCustomer Token عبر `readCustomerToken`، يرسل `useMergeCartMutation`، يمنع التكرار، ويرجع `status` و`errorKey` مترجمًا.
+  - `components/ECommerce/Account/LoginForm.tsx` تعديل: يستدعي `merge()` بعد نجاح Email Login فقط، يضيف `isMerging` إلى حالة التحميل، ويعرض `cart.merge.success` أو `cart.merge.notActive` أو coded error عبر `toast`.
+  - `docs/PROGRESS.md` تعديل: هذا القسم وتحديث Header.
+  - لا تعديل: `messages/ar.json`, `messages/en.json`, `store/cartApi.ts`, `store/baseApi.ts`, `lib/cartToken.ts`, `hooks/useCartToken.ts`, `lib/customerSession.ts`, `validation/cartMerge.ts`؛ العقد الحالي ومفاتيح الرسائل كافية.
+- **العقد والترتيب:** Login ناجح → `saveCustomerToken` داخل `useCustomerAuth` → قراءة Guest Token الحالي → `POST /store/cart/merge` بـ`Authorization: Bearer` وbody `{ guestToken }` → تحليل الرد عبر `mergeCartResultSchema`. لا Merge قبل نجاح Login، ولا من Register/Forgot/Reset/Verify/Account load.
+- **منع التكرار/الأمان:** `inFlight ref` يمنع double-submit داخل نفس العملية، و`CONSUMED_GUEST_TOKENS Set` يمنع إعادة إرسال نفس Guest Token بعد رد ناجح أو `null` داخل نفس JS runtime. لا Automatic Retry، لا Merge بدون كلا التوكنين الصالحين، لا token في Logs، لا تخزين `mergedCartId` ولا Storage Key جديد.
+- **النتيجة:** `mergedCartId: string` ⇒ `cart.merge.success`؛ `null` ⇒ `cart.merge.notActive` رسالة محايدة؛ `401/session` ⇒ unauthorized؛ `status 0` ⇒ network؛ لا Automatic Retry؛ لا عرض بنود/إجمالي/كمية لأن العقد لا يوفرها.
+- **تحققات آلية منفصلة:**
+  - `npm run lint` ⇒ Exit `0` بلا output.
+  - `npm run check` ⇒ `Scanned 274 code files, 453 message keys per locale.` + `0 failure(s), 0 warning(s).` + Exit `0`.
+  - `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` ⇒ no output / Exit `0`.
+  - `git diff --check` ⇒ Exit `0` مع تحذيرات LF→CRLF اعتيادية.
+  - `git diff --exit-code -- package.json package-lock.json` ⇒ no output / Exit `0`.
+  - `git diff --stat` ⇒ Exit `0`; tracked diff: `9 files changed, 753 insertions(+), 5 deletions(-)`؛ الملفات الجديدة غير المتتبعة لا تظهر في stat بل في status.
+  - `git status --short --untracked-files=all` ⇒ Exit `0`; الملف الجديد `hooks/useCartMerge.ts` ظاهر، وتعديل `LoginForm` داخل untracked G3 file؛ بقية التعديلات/الملفات غير المتتبعة موروثة من G0–G3 ولم يُعد ضبطها.
+  - `npm run build` ⇒ Exit `0`; Next `16.4.5` Turbopack; compile `13.2s`; TypeScript `39.5s`; `56/56` static pages; لا أخطاء NETWORK_ERROR في هذه المرة.
+- **Runtime/Browser:** `API Runtime Verification = NOT TESTED` — رُصد مستمع على `:3002` أثناء التحقق، لكن لا Customer Token ولا Guest Token حقيقي مأذون بهما؛ لم يُرسل أي `POST /cart/merge` فعلي. `:3001` لا مستمع عليه؛ لم تُفتح متصفح. `Browser Verification = NOT TESTED`; `Owner Visual Approval = PENDING`.
+- **مراجعة Astra (مطلوبة — G4 فقط):** فُحص Contract Compliance (`POST /store/cart/merge`، Bearer، `{ guestToken }`، `mergedCartId|null`)، Token Handling (sessionStorage/localStorage الحاليان فقط، بلا تخزين جديد أو logs)، Merge Timing (بعد Login فقط)، Duplicate Prevention، Error Mapping، Cart State Consistency، Architecture (hook صغير + تعديل form واحد)، Security، وDiff/Untracked Files. **التوصية:** `SOURCE-ACCEPT لـG4 Cart Merge كما هي، مع API/Browser Verification معلَّقة`; لا توصية بفتح Google أو G5 قبل إذن مالك جديد.
+- **KS-8:** `SOURCE COMPLETE` ✓ — الدمج مرتبط بنجاح Email Login، مرة واحدة لكل guestToken صالح، والنتيجة مترجمة بلا سلة مختلقة. `API VERIFIED: NO` · `BROWSER VERIFIED: NO` · `OWNER VISUAL APPROVAL: NO`. لا يُختم KS-8 كتجربة كاملة بسبب فجوة قراءة سلة العميل.
+- **انحراف/قيود موثّقة:** لا يوجد endpoint لقراءة سلة العميل بعد الدمج؛ سلة الضيف تصبح `MERGED` حسب العقد. لا يُمسح Guest Token ولا تُغيَّر آليته لأن تعديل الـstorage mechanism محظور؛ حماية `CONSUMED_GUEST_TOKENS` تعمل داخل JS runtime الحالي فقط، وأي reuse بعد reload يحتاج قرارًا منفصلًا. Google مؤجل بالكامل؛ G5 مقفل؛ لا Styling/Motion/Backend/Deps/Env/Commit.
+- **حالة التسليم:** `G4 CART MERGE EXECUTED — SOURCE GREEN — API/BROWSER NOT TESTED — AWAITING ASTRA/OWNER REVIEW — GOOGLE/G5 LOCKED`.
+
+✅ G4 Cart Merge source كانت موقوفة على الاعتماد؛ المالك أذن بـ`G4 REMEDIATION EXTENSION — CART LOAD & ADD TO CART` قبل الاعتماد النهائي.
+
+### 44. G4 REMEDIATION — CART LOAD & ADD TO CART
+
+- **الأعراض المبلَّغة:** صفحة السلة لا تحمّل/لا تعرض المحتويات، ولا يمكن إضافة منتجات للسلة.
+- **الإذن:** تمديد G4 فقط؛ لا Google، لا G5، لا backend/DB/migration/seed/config/deps، لا commit/push/deploy.
+- **الملفات المفحوصة:**
+  - Frontend: `ProductCard.tsx`, `ProductDetails.tsx`, `ProductPackageSelector.tsx`, `ProductAddToCart.tsx`, `hooks/useAddToCart.ts`, `hooks/useCartActions.ts`, `hooks/useCartBadge.ts`, `hooks/useCheckoutSubmit.ts`, `hooks/useFloatingCartCta.ts`, `lib/cartToken.ts`, `hooks/useCartToken.ts`, `store/cartApi.ts`, `store/baseApi.ts`, `store/authApi.ts`, `cart/page.tsx`, `CartSection.tsx`, `CartDrawer.tsx`, `CartLine.tsx`, `CartSummary.tsx`, `CartState.tsx`, `CheckoutSection.tsx`, `hooks/useCustomerAuth.ts`, `hooks/useCartMerge.ts`, `LoginForm.tsx`, `lib/customerSession.ts`، وتعديلات G1–G4 في `interface/index.ts`, `lib/cartError.ts`, `lib/routes.ts`, `messages/*.json`, `validation/index.ts`.
+  - Backend read-only: `src/modules/store/cart/{routes,controller,validation,service,types}.ts`, `src/modules/store/checkout/{routes,validation}.ts`, `src/services/{guest-checkout,customer-claim}.service.ts`, `src/middlewares/{customer-auth,validate,error}.middleware.ts`, `src/shared/response.ts`, `src/utils/secure-token.ts`, `prisma/schema.prisma`, `logs/app.log`.
+- **Root cause:** frontend guest token لا يُمسح ولا يُدوَّر بعد checkout ولا بعد merge ناجح. الباك يحوّل السلة إلى `CHECKED_OUT` أو `MERGED` ويرفض أي استخدام لاحق بنفس التوكن بـ`400 CART_NOT_ACTIVE`. الواجهة استمرت ترسل `GET /cart?guestToken=...` و`GET /cart/:token` و`POST /cart/:token/items` بنفس التوكن، فيفشل تحميل السلة والإضافة معًا. سبب ثانوي: `useAddToCart`/`useCheckoutSubmit` كانا يقرآن التوكن الخام بينما `useCartToken` يفلتره، فأي قيمة تالفة تعطي واجهة فارغة وطلبًا مرفوضًا `VALIDATION_ERROR`.
+- **التصنيف:** عيب frontend في دورة حياة guest token وتوحيد قراءته؛ ليس backend contract mismatch للطلبات الحالية. الباك يعمل وفق عقده. المشكلة أقدم من G4 (سجل checkout في 2026-11-22 يُظهر نفس النمط)، لكن G4 merge جعلها تظهر فور login لأن السلة تصبح `MERGED`.
+- **الملفات المعدلة وسببها:**
+  - `lib/cartToken.ts`: `readCartToken` صار يتحقق من الصيغة ويتعامل مع تعطيل storage؛ أُضيف `clearCartToken()` على نفس المفتاح `om_cart_token` ونفس event، بلا مفتاح جديد.
+  - `lib/cartError.ts`: `isStaleCartError()` موحّد لـ`CART_NOT_ACTIVE`/`CART_NOT_FOUND`.
+  - `hooks/useCartToken.ts`: يستخدم القارئ المحقَّق بدل تكرار regex.
+  - `hooks/useAddToCart.ts`: عند stale token يمسحه وينشئ سلة ضيف جديدة ثم يضيف المنتج؛ لا إعادة محاولة على أخطاء الشبكة أو أخطاء أخرى.
+  - `hooks/useCheckoutSubmit.ts`: يمسح guest token بعد نجاح الطلب فقط.
+  - `hooks/useCartMerge.ts`: يمسح guest token بعد رد merge ناجح (`string` أو `null`) مع الإبقاء على تفسير الاستجابة و`CONSUMED_GUEST_TOKENS`.
+  - `hooks/useStaleCartRecovery.ts` جديد + ربطه في `CartDrawer.tsx` و`CheckoutSection.tsx`: يعالج التوكنات القديمة المخزنة قبل الإصلاح، فيمسحها عند خطأ stale وتظهر حالة سلة فارغة صادقة بدل خطأ دائم.
+- **لم يتغير:** `store/cartApi.ts`, `store/baseApi.ts`, مسارات الباك، العقود، الرسائل، config/package files، Google، G5، Working Tree الموروث.
+- **فحوص آلية منفصلة:** `npm run lint` Exit `0`؛ `npm run check` Exit `0` (`275 code files`, `453 message keys per locale`, `0 failure(s), 0 warning(s)`)؛ `tsc --noEmit` Exit `0`؛ `git diff --check` Exit `0` مع تحذيرات LF→CRLF؛ `npm run build` Exit `0` (`56/56` pages, compile `16.0s`, TypeScript `25.0s`)؛ `git diff --exit-code -- package.json package-lock.json` Exit `0`.
+- **API Verification: YES — guest flow only.** باستخدام سيرفر محلي `:3002` وبتوكن ضيف مؤقت تم إنشاؤه عبر API: التوكن القديم أعاد `400 CART_NOT_ACTIVE`؛ `GET /store/cart` بلا توكن أعاد `200`؛ `POST /store/cart/:token/items` بـ`productPackageId` أعاد `200` مع `lines=1`, `itemsCount=1`؛ `GET /store/cart/:token` أعاد `200` بنفس العدد. التوكن المكوّن `short` أعاد `400 VALIDATION_ERROR`، وهو ما يتجنبه القارئ الجديد. لم يُستخدم أي customer token أو بيانات حقيقية.
+- **Browser Verification: NO.** لا توجد أداة متصفح/Playwright في البيئة؛ شغّلنا `npm run dev` وHTTP smoke فقط: `/ar`, `/ar/cart`, `/ar/account/login` أعادت `200` لكل منها. هذا ليس دليلًا على نجاح التفاعل في DOM أو hydration أو toast/retry فعلي.
+- **قيود متبقية:** لا يوجد endpoint لقراءة سلة العميل بعد merge؛ لذلك بعد merge تظهر سلة ضيف فارغة حتى يُنشئ المستخدم سلة جديدة، ولا يُدعى أن سلة العميل معروضة. Swagger backend ما زال فيه انحراف وثائقي (`packageId` مقابل `productPackageId`, `items` مقابل `lines`) لم يُلمس لأنه خارج الإذن. global `Cart` tag ما زال قد يسبب refetch/lazy orphan carts؛ لم يظهر كسبب للعطل المبلَّغ ولم يُغيَّر.
+- **تأثير G4 merge:** التنفيذ الأصلي محفوظ؛ أضفنا فقط تنظيف توكن الضيف بعد رد ناجح. لم يتغير ترتيب login/merge، ولا رسائل النتيجة، ولا تفسير `mergedCartId`. merge نفسه لم يُختبر API لأنه يحتاج customer token مأذونًا.
+- **مراجعة Astra المستقلة:** `PASS WITH NOTES` — root cause متسق مع سجلات الباك ومنطق الواجهة؛ الإصلاح frontend-only، بلا عقد جديد ولا parallel state، ويحافظ على G4. الملاحظات غير الحاجزة: التوكن التالف لا يُحذف فورًا بل يُستبدل عند أول إضافة ناجحة؛ `useCartBadge` لا يحتوي recovery مستقلًا ويتعافى عند زيارة cart/checkout أو الإضافة؛ وجود قفل submit عند فشل حفظ الإيصال مشكلة قديمة خارج النطاق. **التوصية:** `SOURCE-ACCEPT` مع `API VERIFIED (guest cart)` و`BROWSER BLOCKED`; لا توصية بفتح Google أو G5 أو اعتماد G4 النهائي قبل مراجعة المالك.
+- **فصل الحالة:** `SOURCE COMPLETE = YES` · `AUTOMATED CHECKS PASSED = YES` · `API VERIFIED = YES (guest cart only)` · `BROWSER VERIFIED = NO`.
+
+⛔ STOP — G4 REMEDIATION BLOCKED — TEST ENVIRONMENT REQUIRED
+
+### 45. G5 — DAY 7 STYLE & MOTION
+
+- **الإذن والنطاق:** المالك أذن بتنفيذ G5 فقط بعد القبول المشروط لـG4. شغل frontend-only على Track وAccount/Home المرتبط بهما؛ لا backend/DB/API/contracts، لا Cart/Checkout/Header/Footer، لا Google auth، لا تعديل customer session/token handling، لا dependencies/config/env/deploy، لا commit/push، لا فتح G6. لا ادعاء بقبول G4 runtime كامل لأن Browser Verification وauthenticated merge ما زالا `NOT TESTED`.
+- **قبل التنفيذ:** رُوجعت `AGENTS.md`، `PROGRESS.md` §43–§44، `DAY7_TASKS.md` Gate 5، حالة Git، كل ملفات Track/Account، animation wrappers، design tokens، reduced-motion kill switches، ثم سُلّمت خطة ملفات صريحة قبل أول تعديل مصدر.
+- **الملفات الجديدة:** `components/ECommerce/Track/trackStyles.ts` (ثوابت كروت/فوكس)، `lib/trackStatusTone.ts` (tone للحالة)، `components/ECommerce/Track/TrackStatusBadge.tsx` (شارة حالة دلالية)، `components/ECommerce/Account/AccountFieldError.tsx` (رسالة حقل + `role="alert"`), `lib/accountFormA11y.ts` (`accountDescribedBy`)، `components/ECommerce/Account/accountStyles.ts` (ثوابت كروت الحساب)، `components/ECommerce/Account/RegisterFields.tsx` (فصل حقول Register لإبقاء الملفات صغيرة).
+- **Track:** `TrackSection` / `TrackLookupForm` / `TrackState` / `TrackSummary` / `TrackTimeline` / `TrackItems` + `TrackSkeleton` اتنقلوا لتسلسل بصري أوضح: CSS `animate-fade-up` فوق الطية، `Spotlight` للبحث والكارت، `Shake` للأخطاء، `FadeIn` لنتائج البحث، `m.span` لخط التimeline بـ`scaleY` فقط، `<time>` للتواريخ، `aria-current="step"`، عدم اختراع مراحل أو تواريخ، وإبقاء نص البحث غير الصالح للتصحيح. الـETA يستخدم `CountUp` للرقم مع `sr-only` للنص الكامل.
+- **Account:** `AccountFormCard` / `AccountFormError` / `AccountProfile` / `AccountSection` / `AccountState` + `AccountSkeleton` اتحدّثوا للـSpotlight/Beam المقيد/تسلسل الحقول والكروت. نماذج `LoginForm`, `RegisterForm`, `ForgotPasswordForm`, `ResetPasswordForm`, `VerifyEmailForm` بقت تعرض أخطاء الحقول بعد اللمس/الإرسال مع `aria-invalid` و`aria-describedby` و`role="alert"` ورسائل مترجمة عامة، مع حفظ منطق المصادقة/الـmerge كما هو.
+- **الرسائل:** أُضيف `track.eta.unit` و`track.eta.to` في `messages/ar.json` و`messages/en.json`؛ المفاتيح متطابقة. لا نصوص مستخدم hard-coded جديدة، ولا ألوان hex/rgb، ولا مكتبات حركة جديدة، ولا keyframes جديدة.
+- **الموسومة/الإتاحة:** `MotionConfig reducedMotion="user"` وCSS media queries موجودة بالفعل؛ الحركة الجديدة transform/opacity فقط أو CountUp مع احترام تقليل الحركة. RTL/LTR-safe عبر utilities منطقية و`break-words/break-all`؛ أُضيف `role="status"` للتحميل و`role="alert"` للأخطاء.
+- **تحقق آلي نهائي منفصل:** `npm run lint` Exit `0`; `npm run check` Exit `0` (`282 code files`, `455 message keys per locale`, `0 failure(s), 0 warning(s)`); `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` Exit `0`; `npm run build` Exit `0` (Next `16.4.5`, compile `16.2s`, TypeScript `30.0s`, `56/56` pages); `git diff --check` Exit `0` مع تحذيرات LF→CRLF اعتيادية؛ `git diff --exit-code -- package.json package-lock.json` Exit `0`; `git status --short --untracked-files=all` Exit `0` مع الإبقاء على Working Tree الموروث.
+- **HTTP smoke فقط:** `npm run start` على `:3001`; `/ar`, `/en`, `/ar/track`, `/en/track`, `/ar/account`, `/en/account/login`, `/ar/account/register`, `/en/account/forgot-password`, `/ar/account/reset-password?token=smoke`, `/en/account/verify-email?token=smoke` أعادت `200`. **هذا ليس Browser Verification**.
+- **Browser Verification: NO.** لا أداة متصفح/Playwright في البيئة؛ لم يُتحقق بصريًا من 4 ثيمات، RTL/LTR، موبايل 360px/ديسكتوب، reduced motion ON/OFF، hydration flicker، layout shift، focus states أو منطق DOM التفاعلي.
+- **مراجعة Astra المستقلة:** أول تقرير `PASS WITH NOTES`؛ نُفّذت كل الملاحظات (`role="alert"` للحقول والبحث وحاويات الأخطاء، حفظ نص البحث الخاطئ، ربط global error بـ`aria-describedby` في Reset/Register، `cn()` وتوحيد ثوابت كروت الحساب). إعادة المراجعة: `PASS` — لا business/API logic changes، لا ملفات >150، lint/check/tsc خضرا، لا browser visual claim.
+- **فصل الحالة:** `SOURCE IMPLEMENTATION = COMPLETE` · `AUTOMATED CHECKS = PASS` · `HTTP SMOKE = PASS (non-visual)` · `BROWSER VERIFICATION = NOT TESTED` · `ASTRA REVIEW = PASS` · `OWNER VISUAL APPROVAL = PENDING`. لا يُفتح G6.
+
+⛔ STOP — G5 IMPLEMENTATION COMPLETE / PARTIAL — WAITING FOR OWNER VISUAL APPROVAL
+
+### 46. G6 FRONTEND — PREMIUM ACCOUNT MOTION & NAVIGATION
+
+- **الإذن:** المالك اختار `Frontend أولاً` واختار `لا شيء جاهز لتسجيل Google`؛ لذلك نُفّذ G6 frontend-only؛ زر Google معطّل وظيفيًا وظاهر كـplaceholder، بلا SDK/credentials/fetch/endpoint/منطق OAuth. الباك وDB والـcontracts والدependencies والconfig لم تُلمس.
+- **قبل التنفيذ:** رُوجعت خريطة مداخل/مخارج الحساب، صفحات Account/Track وloading/metadata، `template.tsx` للـpage transition، الـanimation wrappers، الرسائل، ثم سُلّمت خطة الملفات قبل أول تعديل.
+- **ملفات جديدة:** `GoogleSignInButton.tsx` (معطّل + `title`/`aria-label`/`sr-only`)، `AuthDivider.tsx`، `LoginFields.tsx` (فصل حقول الدخول)، `AccountStatusPill.tsx` (PulseRing + check draw)، `AccountQuickLinks.tsx` (تتبع/تسوق/رئيسية)، `AccountProfileDetails.tsx`، `HeaderNavLinks.tsx`، `FooterNav.tsx`.
+- **حركة Account:** `AccountSection` أخد مقدمة متدرجة وخط accent RTL-aware؛ `AccountFormCard` و`AccountProfile` بقتا تستخدم `GlowCard` (Spotlight + Beam + hover lift) مع تأخيرات CSS موجودة؛ حالة التوثيق بقت نابضة/check بدلspan ثابت؛ كروت البيانات والquick links/logout ليها ترتيب دخول؛ الأخطاء لسه Shake + role=alert؛ الحركةكلها transform/opacity أو primitives موجودة، بدون keyframes أو مكتبات جديدة.
+- **التنقل المتهندل:** روابط Account/Track في الهيدر، روابط داخلية في الفوتر، Track CTA بعد نجاح الطلب، روابط رجوع لتسجيل الدخول في Reset/Verify، إجراءات سريعة داخل بروفايل العميل، وتوجيه بعد logout إلى `ACCOUNT_LOGIN_HREF`. أُضيف `PRODUCTS_HREF` لتقليل المسارات المبعثرة. `template.tsx` ما زال مسؤول عن entry page transition العام.
+- **الرسائل:** أُضيفت مفاتيح `header.{account,track,quickNav}`، `footer.navTitle/nav.*`، `orderSuccess.trackOrder`، `account.google.*`، `account.quickLinksTitle`، `account.actions.{backToLogin,trackOrder,continueShopping}` في `ar.json` و`en.json` بطابق تام.
+- **تحقق آلي:** `npm run lint` Exit `0`; `npm run check` Exit `0` (`290 code files`, `471 message keys per locale`, `0 failure(s), 0 warning(s)`); `tsc --noEmit` Exit `0`; `npm run build` Exit `0` (`56/56` pages, compile `8.5s`, TypeScript `16.4s`); `git diff --check` Exit `0` مع تحذيرات LF→CRLF؛ `git diff --exit-code -- package.json package-lock.json` Exit `0`.
+- **HTTP smoke فقط:** 11 مسارًا أعادت `200`: `/ar`, `/en`, `/ar/account`, `/en/account/login`, `/ar/account/register`, `/en/account/forgot-password`, `/ar/account/reset-password?token=smoke`, `/en/account/verify-email?token=smoke`, `/ar/track`, `/en/products`, `/ar/checkout/success`. ليس دليلًا بصريًا.
+- **مراجعة مستقلة:** أول تقرير `PASS WITH NOTES`؛ نُفّذت الملاحظات (`rtl:bg-gradient-to-l`، إظهار فاصل "أو" لتقنية المساعدة، label محايد لـquick nav). إعادة المراجعة `PASS`. **Browser Verification: NO** — لا أداة متصفح/Playwright؛ لم تُختبر الثيمات الأربعة، RTL/LTR، موبايل/ديسكتوب، reduced motion، focus/hydration/layout shift.
+- **فصل الحالة:** `FRONTEND SOURCE = COMPLETE` · `AUTOMATED CHECKS = PASS` · `HTTP SMOKE = PASS (non-visual)` · `GOOGLE AUTH = BLOCKED (backend not configured)` · `BROWSER VERIFICATION = NOT TESTED` · `ASTRA REVIEW = PASS` · `OWNER VISUAL APPROVAL = PENDING`.
+
+#### مطلوب من الباك/Google قبل تفعيل زر Google فعليًا
+
+1. **Google Cloud Console:** أنشئ OAuth consent screen (داخلي/خارجي + test users لوexternal في وضع testing)، ثم OAuth client ID من نوع `Web application`. سجّل origins المسموحة (`http://localhost:3001` للتطوير + origin الإنتاج) وredirect URI الحقيقي لمسار callback الباك الذي نتفق عليه. استخدم scopes `openid email profile` واشترط `email_verified=true`.
+2. **أسرار/إعدادات الباك فقط:** `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL`, و`FRONTEND_SUCCESS_URL` (أو ما يعادلها) في `.env` الباك. الـClient Secret **لا** يذهب للفرونت ولا يُعرض في logs.
+3. **تدفق موصى به:** Authorization Code + PKCE؛ الباك يولّد `state`، يتحقق منه في callback، يستبدل Code، يتحقق من issuer/audience/expiry/Signature في ID token، ثم يرفض الحسابات غير الموثّقة.
+4. **ربط الحساب:** ابحث/أنشئ Customer بالبريد الموثّق فقط؛ عند تعارض بريد موجود غير موثّق لا يحدث ربط تلقائي؛ أصدر نفس توكن العميل المعتمد `token + expiresInDays` بنفس شكل استجابة login البريدية ليعمل `saveCustomerToken` الحالي.
+5. **السلة:** بعد نجاح Google login نفّذ نفس `useCartMerge` / `POST /store/cart/merge` بـguest token الحالي؛ لا منطق دمج جديد.
+6. **حماية وتوثيق:** CORS/redirect allowlist، rate limit، audit without tokens، تحديث Swagger، واختبارات: مستخدم جديد، مستخدم موجود، بريد غير موثّق، state خاطئ، code منتهي، إلغاء consent، وتعارض بريد.
+7. **ثم الفرونت:** تُفعّل الزر وتُربط بالنتيجة، تُضاف رسائل أخطاء google مترجمة وحالات loading/error، يُعاد Astra + build + browser verification قبل أي اعتماد نهائي.
+
+⛔ STOP — G6 FRONTEND MOTION/NAV COMPLETE — GOOGLE AUTH BACKEND REQUIRED — WAITING FOR OWNER VISUAL APPROVAL
+
+## 47) G6 — DAY 7 FINAL REVIEW & HANDOFF (2026-11-23)
+
+- **الإذن الصريح:** `G6 — DAY 7 FINAL REVIEW & HANDOFF` — documentation, evidence audit, and final handoff task only. GLM منفّذ، Astra مراجع مستقل، والمالك صاحب القرار النهائي. G6 الآن `OPEN`.
+- **النطاق المنفَّذ في هذه الـGate:** قراءة `AGENTS.md`، `PROGRESS.md` §37–§46، `DAY7_TASKS.md` §0–§11، تقارير G0–G5، وفحص `git status --short --untracked-files=all` + diffs/untracked. التعديل المسموح انحصر في `docs/PROGRESS.md` و`docs/DAY7_TASKS.md`; صفر تعديل لمصدر Frontend/Backend، عقود، DB، env، config، dependencies، package files، أو نشر.
+- **الهدف الفعلي مقابل المُسلَّم:** هدف Day 7 كان Track + Email Account + Cart Merge على مسار Storefront. الذي تسلّم فعليًا في المصدر: G0 baseline، G1 contracts/validation/endpoints، G2 track route/UI، G3 email auth/account routes، G4 cart merge + remediation، G5 style/motion، ثم G6 frontend motion/navigation بصفحة Google معطّلة. الذي لم يتحول إلى قبول نهائي: API runtime، browser/visual matrix، authenticated merge، Owner visual approval، وإذن production.
+- **قاعدة القراءة:** لم تُترجم تقارير الماضي تلقائيًا إلى دليل حالي؛ كل حالة أدناه مقروءة بأقرب دليل موجود في §39–§46 أو بأمر فحص فعلي. HTTP 200 لا يعني visual acceptance، ونجاح build لا يعني runtime correctness، وموافقة Astra لا تُغني عن موافقة المالك.
+
+### 47.1 Gate-by-Gate audit
+
+| Gate | Owner authorization | Source status | Automated checks | API verification | Browser verification | Astra review | Owner acceptance | Evidence | Remaining work |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| G0 | «عاوزين نبدا في اليوم السابع التنفيذ بنفس اسلوبنا gate وبعدها gate وتقف لحد اما اراجع كل واحده» | COMPLETE (docs-only baseline; لا source مطلوب) | PASS | NOT APPLICABLE | NOT TESTED | NOT TESTED | ACCEPTED | §39.1: `npm run check` 221 files / 344 keys exit `0`; `npm run lint` exit `0` بعد إعادة تشغيل منفردة; `tsc` exit `0`; `npm run build` exit `0` / 35 pages مع `NETWORK_ERROR` بيئي. G1 §40 اعتبر G0 مقبولًا. | لا عمل متبقٍ داخل النطاق؛ القرارات المؤجلة سُجّلت ولا تُفتح تلقائيًا. |
+| G1 | «المالك راجع G0 واعتمده، وأذن صراحةً بتنفيذ `G1 — DAY 7 CONTRACTS & VALIDATION`» | COMPLETE | PASS | NOT TESTED | NOT TESTED | PASS WITH NOTES | ACCEPTED | §40.1–§40.3: `npm run check` 231 files / 450 keys exit `0`; `npm run lint`, `tsc`, `build` exit `0`; `git diff --exit-code -- package.json package-lock.json` exit `0`. Astra: قبول تقني مشروط مع انحراف Google المؤجل. §40 سجّل التنفيذ، و§41 pre-flight عند `PROGRESS.md:2501` سجّل اعتماد المالك وفتح G2. | API runtime وbrowser وترجمة انحراف Google؛ لا reopen تلقائي. |
+| G2 | «المالك راجع G1 واعتمده، وأذن صراحةً بـ`G2 — DAY 7 TRACK` لصفحة `/{locale}/track` فقط» | COMPLETE | PASS | NOT TESTED | NOT TESTED | PASS | ACCEPTED | §41.1–§41.9: `npm run check` 242 files / 450 keys exit `0`; lint/tsc/build exit `0` / 38 pages; لا مستمعين 3001/3002; فحص ثابت: لا token في route/canonical/metadata. §41.9 اعتماد source-wise. | API runtime بتوكن مأذون، browser matrix، Owner visual approval؛ KS-6 لا يُختم تجربة كاملة. |
+| G3 | «المالك راجع G2 source-wise واعتمده، وأذن صراحةً بتنفيذ `G3 — DAY 7 EMAIL AUTH` فقط» | COMPLETE | PASS | NOT TESTED | NOT TESTED | PASS | ACCEPTED | §42.1–§42.8: `npm run check` 273 files / 453 keys exit `0`; lint/tsc/build exit `0` / 56 pages; لا مستمعين 3001/3002; §42.8 و`PROGRESS.md:2700` اعتماد source-wise. | API runtime حقيقي، browser matrix، Owner visual approval؛ لا ادعاء بأن login فعلي مُختبَر. |
+| G4 | «المالك راجع G3 source-wise وأذن صراحةً بتنفيذ جزء **Cart Merge Only** من `G4 — DAY 7 GOOGLE & CART MERGE`» + «`G4 REMEDIATION EXTENSION — CART LOAD & ADD TO CART`» | COMPLETE | PASS | PASS (guest cart only); authenticated merge NOT TESTED | NOT TESTED | PASS WITH NOTES | PENDING (conditional only) | §43–§44: lint/check/tsc/build exit `0`; check 275 files / 453 keys; guest cart API: stale `400 CART_NOT_ACTIVE`، `GET /cart` بلا توكن `200`، إضافة صنف `200`، قراءة سلة الضيف `200`، token قصير `400 VALIDATION_ERROR`. Astra `PASS WITH NOTES`. | Authenticated `POST /cart/merge`، browser/DOM، Owner final acceptance، فجوة قراءة سلة العميل بعد merge، Swagger drift، global Cart tag. لا ترقية القبول المشروط. |
+| G5 | «المالك أذن بتنفيذ G5 فقط بعد القبول المشروط لـG4» | COMPLETE | PASS | NOT APPLICABLE (لا تغيير API) | NOT TESTED | PASS | PENDING | §45: lint exit `0`; check 282 files / 455 keys exit `0`; tsc exit `0`; build exit `0` / 56 pages; HTTP smoke 10 مسارات `200` غير بصري؛ Astra بعد التصحيح `PASS`. | Browser/theme/RTL/LTR/mobile/reduced-motion/focus/hydration matrix وOwner visual approval. لا يُصنَّف G5 كـvisually accepted. |
+
+> ملاحظة مصطلحية: `ACCEPTED` في الجدول يعني source/technical acceptance موثّقًا في الأقسام المشار إليها، وليس visual acceptance ولا production readiness. `PENDING` في G4 وG5 يعني ما زال هناك شرط أو اعتماد نهائي غائب.
+
+### 47.2 Track implementation and outstanding verification
+
+- **Source:** KS-6 جاهز من §41: `/{locale}/track`، `useOrderReceipt` أو إدخال يدوي، `useTrackLookup`، `trackApi`، الحالات التسع، skeleton، noindex metadata، بلا `trackingToken` في route/canonical/OG/JSON-LD/analytics. G5 أضاف timeline/status badge/ETA CountUp/Spotlight/Shake دون تغيير العقد.
+- **Automated:** lint/check/tsc/build خضرا في §41 و§45؛ أحدث رقم رسائل مسجّل في §46 هو 471 مفتاحًا لكل locale بعد G6.
+- **API:** NOT TESTED. لا طلب track فعلي مأذون ولا توكن حقيقي؛ mappings 404/429/network مؤكدة من المصدر فقط.
+- **Browser/Visual:** NOT TESTED؛ لا أداة متصفح/Playwright. HTTP smoke في §45 و§46 أعاد `200` لصفحات track لكنه non-visual.
+- **Owner:** visual approval PENDING؛ KS-6 يبقى `SOURCE COMPLETE / API PENDING / BROWSER PENDING`.
+
+### 47.3 Email Account implementation and outstanding verification
+
+- **Source:** KS-7 جاهز من §42: register/verify/login/forgot/reset/me/logout، `oe.customer.session` في `sessionStorage` بقرار G1، `prepareHeaders` يضيف Bearer، staff/employee cookie لا علاقة له، تطابق ar/en، noindex+Suspense، Zod، coded errors، logout ينظف الكاش والتوكن محليًا. G5/G6 أضافا تحسين وصولية رسائل الأخطاء وحركة وروابط تنقل دون تغيير منطق المصادقة.
+- **Automated:** lint/check/tsc/build خضرا في §42 و§45 و§46.
+- **API/Browser:** NOT TESTED؛ لا register/verify/login/me/logout فعلي ولا browser matrix.
+- **Owner:** G3 accept source-wise موثّق؛ visual approval ما زال PENDING.
+
+### 47.4 Cart Merge implementation, remediation, and verification limits
+
+- **Source:** KS-8 مرتبط بنجاح email login فقط عبر `useCartMerge` و`POST /store/cart/merge`، بلا merge تلقائي من register/forgot/reset/me، بلا إعادة محاولة، وبلا عرض بنود أو إجمالي من الرد.
+- **Remediation:** §44 أصلح دورة حياة guest token: قارئ محقق، `clearCartToken()` على نفس المفتاح، `isStaleCartError()`، recovery عند الإضافة وبعد checkout/merge، وحالة سلة فارغة صادقة للتوكنات القديمة.
+- **API:** PASS للـguest cart فقط. authenticated merge NOT TESTED لغياب customer token مأذون؛ لذلك acceptance G4 ما زال conditional.
+- **Browser/Visual:** NOT TESTED. لا DOM/hydration/toast/retry فعلي.
+- **قيود متبقية:** لا endpoint لقراءة سلة العميل بعد merge؛ سلة الضيف تصبح `MERGED`؛ Swagger drift وglobal Cart tag لم يُلمسا؛ لا يُدعى أن تجربة السلة بعد الدمج مكتملة.
+
+### 47.5 G5 visual implementation and pending Owner approval
+
+- G5 نفّذ source-wise: Track وAccount بحركة مبنية على primitives موجودة، `animate-fade-up` SSR-visible، Spotlight/Beam مقيد، Shake للأخطاء، CountUp للـETA، PulseRing/check للحالة، reduced-motion محترم، بلا keyframes أو مكتبات جديدة.
+- Astra: PASS بعد تصحيح الملاحظات. Automated وHTTP smoke أخضر/غير بصري. Browser matrix وOwner visual approval لم يحدثا؛ لذلك `DAY 7 — PARTIAL HANDOFF`.
+
+### 47.6 Automated check evidence
+
+- `npm run lint` → `EXIT 0` (§45 و§46؛ آخر تشغيل سابق للتسليم هذا).
+- `npm run check` → `EXIT 0`؛ أحدث رقم مسجّل §46: `290 code files`, `471 message keys per locale`, `0 failure(s), 0 warning(s)`.
+- `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → `EXIT 0`.
+- `npm run build` → `EXIT 0`؛ أحدث رقم مسجّل §46: Next `16.4.5` Turbopack، compile `8.5s`، TypeScript `16.4s`، `56/56` pages.
+- `git diff --exit-code -- package.json package-lock.json` → `EXIT 0` (لا تغيير حزم).
+- `git diff --check` → `EXIT 0` مع تحذيرات LF→CRLF اعتيادية على Windows.
+- HTTP smoke (§46، non-visual): 11 مسارًا أعادت `200`: `/ar`, `/en`, `/ar/account`, `/en/account/login`, `/ar/account/register`, `/en/account/forgot-password`, `/ar/account/reset-password?token=smoke`, `/en/account/verify-email?token=smoke`, `/ar/track`, `/en/products`, `/ar/checkout/success`.
+- لم تُعَد أوامر lint/check/tsc/build داخل G6 لأن هذه الـGate documentation-only؛ الأرقام أعلاه أدلة موروثة صريحة من §45–§46 وليست ادعاءً بتشغيل جديد هنا.
+
+### 47.7 API and browser verification — separated
+
+- **API PASS:** guest cart flow فقط في §44.
+- **API NOT TESTED:** track query، كل customer auth mutations، authenticated cart merge، Google. لا بيانات حقيقية أو writes مأذونة.
+- **HTTP smoke PASS:** 10 مسارات في §45 و11 مسارًا في §46؛ هذا يثبت استجابة صفحة فقط، لا سلوك DOM ولا بصريات.
+- **Browser Verification NOT TESTED:** لا أداة متصفح/Playwright؛ لم تُختبر 4 ثيمات، RTL/LTR، 360px/desktop، focus-visible، reduced motion ON/OFF، hydration flicker، layout shift، ولا Network tab.
+
+### 47.8 Astra review results
+
+- G0: NOT TESTED.
+- G1: PASS WITH NOTES — قبول تقني مشروط، انحراف Google موثّق، لا runtime.
+- G2: PASS — source-accept مع API/browser معلّقة.
+- G3: PASS — source-accept مع API/browser معلّقة.
+- G4: PASS WITH NOTES — root cause/remediation متسقان؛ ملاحظات غير حاجزة؛ browser blocked وauthenticated merge لم يُختبر.
+- G5: PASS بعد تصحيح role/alert، نص البحث، aria-describedby، وcn/ثوابت الكروت.
+- G6 frontend (§46): PASS بعد تصحيح RTL gradient، إظهار فاصل "أو"، وlabel محايد للتنقل السريع.
+- G6 final handoff: مراجعة مستقلة للوثائق `PASS WITH NOTES` ثم `PASS` بعد تصحيح الإشارات والصياغات غير الحاجزة داخل هذا القسم؛ لا تُترجم مراجعة Astra إلى Owner acceptance.
+
+### 47.9 Outstanding issues and blockers
+
+- Browser/visual matrix لكامل Day 7 غير مختبرة؛ لا أداة متصفح في البيئة.
+- Authenticated cart merge وقراءة سلة العميل بعد merge غير متاحين/مختبرين.
+- Owner visual approval لـG2/G3/G5/G6 ما زال PENDING؛ G4 acceptance مشروط.
+- Google Login مؤجل ولا implementation مأذون به.
+- لا Production Seal؛ لا نشر ولا Day 8 ولا gate implementation جديدة بهذه الـGate.
+- تحذيرات LF→CRLF، symlink noise، build `NETWORK_ERROR` التاريخية، Swagger drift، global Cart tag: سجلت ولم تُصلح خارج النطاق.
+
+### 47.10 Deferred work
+
+- `DEFERRED — NOT PART OF G6 — NO IMPLEMENTATION AUTHORIZED` — Google Login.
+- لا طلب ولا عرض لأي OAuth credentials أو قيم حساسة؛ أي عمل Google مستقبلي يحتاج scope وإذنًا صريحًا منفصلين. §46 يحتوي ملاحظات تحضير معلوماتية فقط، وليست تنفيذًا ولا تفويضًا.
+- Public Cloudinary Delivery لإثبات الدفع مقبول بقرار §38 ولا يُعاد فتحه؛ Cloudinary Private/Signed Delivery، Dashboard، Day 8، production ops، وأي backend/env/deps work تبقى خارج Day 7 الحالي.
+
+### 47.11 Production readiness and recommendation
+
+- **PRODUCTION READINESS: NOT READY / NOT SEALED.** يوجد browser verification ناقص، API runtime ناقص، G4 conditional، وOwner visual approval معلّق.
+- **DAY 7 FINAL HANDOFF STATUS: `DAY 7 — PARTIAL HANDOFF`.**
+- **التوصية بلا فتح جديد:** يعتمد المالك هذا التسليم الجزئي كما هو، ويحدد لاحقًا بيئة اختبار مأذونة للـbrowser matrix وauthenticated merge وOwner visual review. لا يُفتح Day 8 ولا أي Gate implementation من هذا التقرير.
+
+### 47.12 G6 final documentation validation
+
+- `git diff --check` → `EXIT 0`؛ تحذيرات LF→CRLF فقط على Windows، بلا whitespace errors.
+- `git diff --stat` → `EXIT 0`؛ التغيير المتعقّب يشمل الـdirty tree الموروث + الملفين المسموحين `docs/PROGRESS.md` و`docs/DAY7_TASKS.md` فقط من أعمال هذه الـGate.
+- `git status --short --untracked-files=all` → `EXIT 0`؛ نفس قائمة الملفات الموروثة قبل الدخول في G6، مع إضافة تعديل `docs/DAY7_TASKS.md` إلى جانب `docs/PROGRESS.md` المعدَّل سلفًا.
+- `git diff --exit-code -- package.json package-lock.json` → `EXIT 0`؛ لا dependencies أو lock changes.
+- مقارنة baseline قبل/بعد تحرير الوثائق: tracked source diff hash `cc1cf848931d89e231349e5b0673c203604688ba` لم يتغير، untracked list hash `aeed0c4534779c0ef11d57659d29e845aa18d82a` لم يتغير، وعدد untracked files بقي `69`.
+- `git diff -- docs/PROGRESS.md docs/DAY7_TASKS.md` → `EXIT 0`؛ التغيير وثائقي فقط: header + قسم G6 الختامي في كلا الملفين، بلا إعادة كتابة تقارير G0–G5 السابقة.
+- لم تُنفَّذ أوامر lint/build/API/browser داخل G6 لأن نطاقها documentation-only؛ لا ادعاء بتحديد الدليل البصري أو runtime بهذه الأوامر.
+
+⛔ STOP — G6 COMPLETE / PARTIAL — DAY 7 HANDOFF READY — WAITING FOR OWNER FINAL REVIEW
+
+## 48) OM EMAN — PREMIUM STOREFRONT NAVBAR REDESIGN (2026-11-23)
+
+- **الإذن الصريح:** `OM EMAN — PREMIUM STOREFRONT NAVBAR REDESIGN` — مهمة Frontend-only مستقلة للهيدر فقط. G6 مغلق، ولا إذن هنا بتنفيذ Google Login ولا إعادة تصميم صفحة Login. لا backend/API/DB/env/config/dependencies/providers/stores/checkout/cart logic. الدirty tree الموروث محفوظ؛ لا `reset` ولا `checkout` ولا `clean` ولا `stash`.
+- **ملفات جديدة:** `components/ECommerce/Header/headerStyles.ts` (وصفات classes مشتركة)، `HeaderActions.tsx` (_cluster الإجراءات + حالة القائمة)، `MobileNavMenu.tsx` (غلاف الـdialog)، `MobileNavItems.tsx` (قائمة الروابط)، `hooks/useBodyScrollLock.ts` (قفل scroll متجاوب مع breakpoint)، `hooks/useDialogFocus.ts` (initial focus + focus trap)، `lib/navActive.ts` (مساعد active موحّد).
+- **ملفات معدَّلة:** `StoreHeader.tsx`، `HeaderBrand.tsx`، `HeaderNavLinks.tsx`، `CartLink.tsx`، `SearchForm.tsx`، `LocaleSwitcher.tsx`، `components/shared/ThemeSwitcher.tsx`، `messages/ar.json`، `messages/en.json`. تعديل الـswitchers انحصر في `aria-controls` الشرطي و Escape أثناء فتح قائمة الإعدادات.
+- **قرارات التصميم:** هيدر موبايل من صفّين مع لوحة تنقل تبدأ من `top-28` حتى لا تغطي صف البحث؛ هيدر ديسكتوب صف واحد؛ شريط علوي رفيع؛ Brand وSearch وأزرار اللغة/الثيم/السلة/القائمة موزّعة حسب الحجم. كل الألوان من semantic tokens، كل النصوص من `next-intl`، كل الروابط من `@/i18n/navigation` + `lib/routes.ts`، والحركة عبر `m.*` داخل `MotionProvider` مع احترام reduced motion.
+- **الوصولية والسلوك:** `role="dialog"` + `aria-modal` + تسمية محلية + initial focus على زر الإغلاق + Tab trap؛ `aria-expanded` و`aria-controls` الشرطي؛ Escape يغلق القائمة فقط، ويُبقي القائمة مفتوحة إذا كانت قائمة لغة/ثيم متداخلة فرعًا؛ `data-cart-target` وحيد عبر `CartLink` → `CartBounce`؛ خريطة RTL/logical utilities و4 ثيمات محفوظة source-wise.
+- **الفحص الآلي النهائي:** `npm run lint` → `EXIT 0`; `npm run check` → `EXIT 0` (`297 code files`, `477 message keys per locale`, `0 failure(s), 0 warning(s)`); `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → `EXIT 0`; `git diff --check` → `EXIT 0` مع تحذيرات LF→CRLF اعتيادية؛ `git diff --exit-code -- package.json package-lock.json` → `EXIT 0`; `npm run build` → `EXIT 0` (Next `16.4.5` Turbopack، compile `12.8s`، TypeScript `11.9s`، `56/56` pages).
+- **مراجعة Astra:** `ses_df59b8e81ffepYjB1jpicAbOAV`: `PASS WITH NOTES`. أُصلحت ملاحظات الـtop offset، والـdialog focus، وقفل الـscroll عند تكبير الشاشة، وتوحيد `isNavPathActive`، و`aria-controls`، وتداخل Escape مع قوائم اللغة/الثيم. ملاحظة منخفضة متبقية: يمكن فتح قائمتي الإعدادات معًا، فـEscape واحد يغلقهما معًا؛ لم يُوسَّع النطاق لحلها منفردة.
+- **Google/Login:** لا تعديل في `GoogleSignInButton` ولا صفحات الحساب؛ أي Google work يحتاج إذنًا صريحًا منفصلًا. **Browser/Visual:** NOT TESTED؛ لا أداة متصفح/Playwright ولا screenshots؛ مصفوفة Arabic RTL وEnglish LTR وديسكتوب/360px والثيمات الأربعة وfocus-visible وreduced motion ما زالت بانتظار مراجعة المالك البصرية.
+
+⛔ STOP — PREMIUM NAVBAR IMPLEMENTATION COMPLETE / PARTIAL — WAITING FOR OWNER VISUAL APPROVAL
+
+## 49) تخطيط اليوم 8 — تصحيح النطاق الكامل + توضيحات المالك (2026-11-24)
+
+- **تصحيح المالك:** النسخة الأولى من هذه الخطة حصرت اليوم 8 في Google UI/UX وCart → Checkout. المالك قرر أن هاتين إضافتان مطلوبتان قبل إعداد اليوم، وليستا نطاق اليوم البديل. `FRONTEND_TASKS_10_DAYS.md:225-234` هو الآن مصدر الحقيقة للنطاق الأساسي؛ أي صياغة قديمة تقول إنه «مرجع تاريخي فقط» تُقرأ مستبدَلةً بهذا القرار الصريح. G0 القديمة ملغاة ولا تُعتبر إذن تنفيذ.
+- **النطاق الكامل المثبّت:** Home SSR (Hero بصورة منتج/براند حقيقية ومعتمدة + CTA + COD/ثقة + Banners + Featured + Categories + States) + SEO ثقيل (Organization/WebSite/SearchAction/BreadcrumbList حيث ينطبق، `generateMetadata`, canonical, OG/Twitter, hreflang, صورة OG من أصل براند معتمد) + تدقيق Header/Footer الموجودين دون إعادة بناء أو تعديل تلقائي + Google UI-only + CTA السلة إلى checkout + FAQ page + Wishlist UI preparation.
+- **قرارات الأصول:** Hero وOG يستخدمان أصول Om Eman حقيقية ومعتمدة فقط؛ ممنوع packaging/label/ادعاءات منتج وهمية. الأسماء المقترحة سُجّلت في `docs/DAY8_TASKS.md §1.3`: `om-eman-home-hero.webp`, `om-eman-og-cover.webp`, `om-eman-banner-main.webp`, `category-herbs.webp`, `category-spices.webp`, `category-blends.webp`, `category-natural-products.webp`, `om-eman-faq-cover.webp`, `wishlist-empty.webp`. التوفر الفعلي وموافقة المالك يُسجَّلان منفصلًا في `D8-ASSET-REGISTER` قبل أي ربط مصدر.
+- **FAQ داخل اليوم 8:** صفحة `/[locale]/faq` محلية بهيكل ar/en متطابق، روابط Footer صحيحة، metadata/breadcrumb مناسب، ومحتوى موثّق فقط؛ لا وعود شحن/دفع/إرجاع/توصيل متخيلة. سُجّل كـKS-15 وGate 4A.
+- **Wishlist داخل اليوم 8 كـUI preparation فقط:** صفحة `/[locale]/wishlist` مع empty state ورسالة صادقة ومدخل تنقل مناسب؛ لا endpoints متخيلة، لا persistence، لا add/remove mutations، ولا ادعاء وظيفة فعلية حتى عقد باك معتمد. سُجّل كـKS-16 وGate 4A؛ الوظيفة الحقيقية DEFERRED.
+- **Sitemap:** توسيع sitemap مُؤجَّل صراحةً إلى `D15-SEO-SITEMAP`؛ لا تعديل `app/sitemap.ts` في اليوم 8. اليوم 15 يشمل sitemap ديناميكيًا من بيانات حقيقية منشورة/indexable، استبعاد غير المنشور/الخاص/غير القابل للفهرسة، caching/revalidation، مراجعة robots/canonical/hreflang/metadata، ثم المراجعة النهائية للمؤجلات والاركتيكتشر وجاهزية الإنتاج.
+- **الملف المحدَّث:** `docs/DAY8_TASKS.md` أُعيد بناؤه بنمط `DAY7_TASKS.md`، ثم حصل على Gate 4A وKS-15/KS-16 و`D15-SEO-SITEMAP`؛ Gate 4A مكوّن من 12 حقلًا مثل بقية الـGates. مقارنة الخطة الأصلية بالحالة الحالية والفجوات والبلوكات ما زالت محفوظة.
+- **بلوكات مسجلة:** توفر/اعتماد أصول Hero/OG/Banners/Categories/FAQ/Wishlist؛ wishlist الفعلية بلا عقد باك؛ static-pages أخرى؛ browser/Lighthouse environment؛ فجوة سلة العميل بعد merge؛ production seal. لا mock ولا endpoint متخيل ولا تعديل Header/Footer تلقائي.
+- **مراجعة Astra:** مراجعة النسخة الضيقة السابقة `ses_df5807c99ffeYWKtDtpt5FMcbn` مُلغاة كمرجع نطاق؛ النسخة المُوضَّحة طُلبت مراجعتها في `docs/DAY8_TASKS.md §11`. لا تُترجم أي مراجعة إلى إذن implementation.
+- **الحالة:** `DAY 8 SCOPE CLARIFICATIONS RECORDED — FULL SCOPE LOCKED — NO GATE OPENED — NO IMPLEMENTATION AUTHORIZED`. لا source/backend/DB/env/deps/commit؛ لا فتح Day 7 أو Navbar أو Dashboard أو Day 15؛ لا ترقية 🟡/NOT TESTED تلقائيًا.
+
+⛔ STOP — DAY 8 SCOPE CLARIFICATIONS RECORDED — FULL SCOPE LOCKED — NO GATE OPENED — NO IMPLEMENTATION AUTHORIZED
+
+## 50) OM EMAN — DAY 8 GATE 0: PRE-FLIGHT / BASELINE / SCOPE LOCK (2026-11-24)
+
+- **الإذن الصريح:** `G0 — DAY 8 PRE-FLIGHT / SCOPE LOCK`؛ موافقة مستقلة للقراءة والتوثيق فقط. صفر تعديل مصدر، صفر backend/DB/env/deps/config/deploy، صفر commit/push، صفر reset/clean/checkout/stash. الملف الوحيد المسموح تحديثه هو `docs/PROGRESS.md`.
+- **المرجعية:** `AGENTS.md`، `FRONTEND_TASKS §0.3/يوم8/يوم9/يوم10`، `PROGRESS §47-§49`، `DAY7_TASKS §6/§7/§12`، `DAY8_TASKS` كامل. النطاق الكامل المثبّت في §49 هو الحاكم؛ G0 القديمة ملغاة ولا تُعتبر إذن تنفيذ. لا فتح G1/G2/G3/G4/G4A/G5/G6 تلقائيًا.
+- **Baseline مؤرّخ:** repo root `E:/NODE_JS/Udemy/Training`؛ frontend cwd `Om-Eman/frontend`؛ branch `main`؛ HEAD `36d1d96 End Day6`. `git status --porcelain=v1 --untracked-files=all | sort | sha256sum` = `287e5be2e36f81680fa8ac2f199606078b7b759151addb21c8231642942e00ea` قبل وبعد G0؛ `101` إجمالي مدخلات، منها `24` tracked modified و`77` untracked. الشجرة المتسخة موروثة من Days 1–7/Navbar/Day8 docs ولم يُلمس شيء منها سوى إضافة هذا القسم إلى `docs/PROGRESS.md`.
+- **تحذيرات Git دون أخطاء محتوى:** `warning: could not open directory 'Day7-caching/backend/.claude/skills/prisma-cli/': No such file or directory` وأمثالها لمسارات `.claude/skills/prisma-*` و`.windsurf/skills/prisma-*`؛ `warning: in the working copy of 'Om-Eman/frontend/components/ECommerce/Cart/CartDrawer.tsx', LF will be replaced by CRLF the next time Git touches it` وأمثالها لملفات الـdirty tree. هذه تحذيرات Windows LF→CRLF/symlink noise، لا whitespace errors ولا تعديلات G0.
+- **فحوص القراءة/الbaseline المنفذة:** `git status --short --untracked-files=all`؛ `git rev-parse`؛ `git log -5 --oneline`؛ `git diff --check` → `EXIT 0`؛ `git diff --stat -- package.json package-lock.json` → بلا diff؛ `npm run lint` → `EXIT 0`؛ `npm run check` → `EXIT 0` (`297 code files`, `477 message keys per locale`, `0 failure(s), 0 warning(s)`)؛ `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → `EXIT 0`؛ فحص وجود أصول؛ فحص وجود أدوات متصفح. لم يُعاد `npm run build` داخل G0 لأنه يكتب مخرجات `.next`؛ الدليل الموروث من §48: `npm run build` → `EXIT 0`، Next `16.4.5`، `56/56` pages. لا ادعاء باختبار runtime أو بصري بهذه الأوامر.
+- **البيئة:** `package.json` scripts: `dev`, `build`, `start`, `lint`, `check`. `.env.example` موجود و`.env` غير موجود؛ لم تُقرأ قيم Biئة أو tokens أو أسرار. `playwright` و`@playwright/test` و`puppeteer` غير موجودين في `node_modules`؛ لا أداة browser/visual/Lighthouse مأذونة أو مثبتة هنا ⇒ `D8-BROWSER: NOT TESTED`.
+- **العقود والبنية:** `lib/server/storeFetch.ts` يستخدم `TStoreResult` ولا يرمي استثناء؛ `lib/server/storeQueries.ts` يستخدم `"use cache"` + `cacheTag` + `cacheLife("minutes"/"seconds")`؛ `store/baseApi.ts` هو gateway الوحيد لطلبات RTK Query مع envelope errors و`Bearer` من `customerSession`؛ `cartApi.ts` يستخدم `/store/cart*` الحقيقية؛ guest token في `om_cart_token`، customer token في `oe.customer.session`. Provider order في `app/[locale]/layout.tsx:86-95` مطابق: `NextIntlClientProvider > ReduxProvider > ThemeProvider > MotionProvider` مع `ThemeScript` في `<head>`. لا endpoint جديد ولا using قبل مراجعة عقده.
+- **حالة مصدر Day 8 كما وُجدت:** Home SSR موجودة عبر `app/[locale]/(Store)/page.tsx` + `HomeSections`؛ Hero/Trust/Banners/Categories/Featured موجودة. SEO عام عبر `buildMetadata` و`StoreJsonLd` موجود، مع `Organization/WebSite/SearchAction` وبناء `BreadcrumbList` متاح في `lib/jsonld.ts` لكنه غير موصول بالهوم؛ لا `metadata.ts` للهوم ولا صور OG/Twitter. Shell موجود ويخضع للتدقيق فقط. States جزئية: Categories/Featured أخطاء واضحة، لكن Banner/Featured يرجعان `null` عند empty/error. Google button لا يزال `disabled` برسالة notConfigured؛ لا `CartCheckoutLink` ولا مفاتيح `cart.checkout.*`؛ لا صفحات/مكوّنات/روابط FAQ أو Wishlist ولا مصادر محتوى FAQ موثقة. G5 خارج هذا الـGate تمامًا.
+- **سجل الأصول/الاعتماد (`D8-ASSET-REGISTER`):** الفحص الصريح أعطى `MISSING` لكل الأسماء المقترحة التسعة: `om-eman-home-hero.webp`, `om-eman-og-cover.webp`, `om-eman-banner-main.webp`, `category-herbs.webp`, `category-spices.webp`, `category-blends.webp`, `category-natural-products.webp`, `om-eman-faq-cover.webp`, `wishlist-empty.webp`. `public/assets/**/*` لا يُظهر سوى `public/assets/README.md` و`public/assets/brand/jar-mark.png`. موافقة المالك على الأصول غير مسجلة ⇒ `D8-HERO-ASSET`, `D8-OG-ASSET`, `D8-BANNER-ASSETS` BLOCKED؛ لا ربط ولا صور متخيلة.
+- **تين المحتوى/القرارات:** FAQ محتواه يحتاج مصادر أعمال موثقة قبل أي صياغة؛ لا وعود شحن/دفع/إرجاع/توصيل متخيلة. Wishlist يبقى UI preparation فقط بلا endpoint/persistence/mutations. توسيع sitemap مؤجل إلى `D15-SEO-SITEMAP`؛ `app/sitemap.ts` لا يُعدَّل. Day 7 blockers (`D7-TRACK`, `D7-ACCOUNT`, `D7-MERGE`, `R-API-SEARCH`, `R-CART-WRITE`, `R-VIS`, `R-G4-MAJOR/D3-RM`, `B-PUB`, Day 5 deviations, `B-BUILD`, `R-PRIVATE-PROOF`, `R-G6-SEAL`) مجمدة كما هي.
+- **API/runtime:** لا مكالمات endpoint في G0؛ HTTP 200 ليس acceptance. سلة الضيوف لها دليل موروث؛ `R-API-SEARCH` و`R-CART-WRITE` ما زالان مفتوحين؛ authenticated cart merge وقراءة سلة العميل بعد merge `NOT TESTED`؛ لا بيئة API/browser مؤكدة لهذا الـGate.
+- **مراجعة Astra:** مراجعة التخطيط المُوضَّح `ses_df57010f8ffeo6p6XIy2icolT5` = `PASS WITH NOTES`، ومراجعة audit `ses_df55cd322ffeFJZ6hRnd76VAPi` = `PASS WITH NOTES`؛ المراجعة الضيقة القديمة `ses_df5807c99ffeYWKtDtpt5FMcbn` ملغاة كمرجع. تقرير G0 نفسه لم يُراجَع بعد ولا يُترجم أي رأي إلى إذن implementation.
+- **قبول المالك/jاهزية الإنتاج:** `D8-OWNER-VIS PENDING`؛ `D8-SEAL NOT READY / NOT SEALED`. لا نشر ولا ترقية 🟡/NOT TESTED تلقائيًا. القرارات المطلوبة من المالك: توفير/اعتماد الأصول، مصادر FAQ، بيئة browser/Lighthouse، إثبات API runtime، وتأكيد إبقاء wishlist/sitemap/OAuth/merge مؤجلة.
+- **النتيجة:** `G0 COMPLETE — SCOPE LOCKED — BASELINE RECORDED — NO IMPLEMENTATION AUTHORIZED`. لا شيء من Gates التنفيذية مفتوح؛ أي عمل لاحق يحتاج إذنًا مستقلًا باسم الـGate نفسه.
+
+⛔ STOP — G0 COMPLETE — WAITING FOR OWNER REVIEW
+
+## 51) DAY 8 G1 PHASE 0 — NEW PUBLIC IMAGE COLLECTION RECONCILIATION (2026-11-24)
+
+- **Owner reconciliation:** المالك قبل G0 وأضاف ثلاثة مجلدات صور جديدة تحت `frontend/public/` بعد تدقيق G0. المجموعات الثلاث معتمدة كـ`Om Eman visual-reference collections` فقط، وليس كل صورة معتمدة تلقائيًا لكل موضع. المالك اختار اتجاه `wooden Om Eman brand hero` وطلب استخدام `Set_03_Campaign_And_Product_Collection` بشكل خاص في G1. لا حذف، لا إعادة تسمية، لا نقل، لا تحويل، لا dependencies جديدة، ولا تعديل على الصور الأصلية.
+- **Baseline بعد إضافة الصور:** `git status --porcelain=v1 --untracked-files=all | sort | sha256sum` = `19593018664b0c58a5a19b155e2d68b243bd79acd09dbf49363b77591a10c89a`؛ `130` إجمالي مدخلات. أُضيفت `29` صورة PNG جديدة ضمن ثلاثة مجلدات؛ الشجرة المتسخة الموروثة محفوظة.
+- **حدود المراجعة البصرية:** النموذج الحالي لا يقبل إدخال الصور؛ لذلك لا يمكن تأكيد تشوه النص العربي، دقة اللوجو، تغليف متخيل، أو عرض منتج مضلل من البكسلات. توصيف الملفات وأسماؤها ونسب الأبعاد موثقة أدناه فقط؛ أي استخدام نهائي يبقى خاضعًا لمراجعة المالك البصرية. لا يُدعى أن صورة معتمدة لموضع لم يعتمده المالك صراحةً.
+- **قواعد الاختيار:** Hero: `Set_03_Campaign_And_Product_Collection/01_wooden_logo_hero.png` هو المرشح العملي الوحيد وفق اسم الملف واتجاه المالك؛ الأبعاد `881x432`، النسبة `881:432` ≈ `2.0394`، الحجم `763599` bytes. Banners من بيانات المتجر تبقى مصدر البانر الحقيقي؛ صور `fast_delivery`, `quality`, `special_offers`, `natural_drinks` تحمل ادعاءات محتملة ولا تُستخدم كبانر متجر قبل تحقق المحتوى. Categories تُستخدم فقط عند وجود mapping صالح بين slug المتجر والصورة؛ لا رابط عشوائي.
+- **ملاحظة الترتيب/الأسماء:** أرقام الملفات ليست متسقة عبر المجموعات من حيث الغرض بعد `02`؛ لذلك سيُضاف مصدر مركزي للصور يعتمد على `collection folder + semantic role + exact filename per collection`، بحيث تغيير مسار المجلد في مكان واحد يبدّل مجموعة الصور كاملة بدون تعديل مكوّنات الهوم.
+
+| # | Exact relative path | Filename | Extension | Dimensions | Aspect ratio | File size | Intended usage from filename | Review status |
+|---:|---|---|---|---|---|---:|---|---|
+| 1 | `public/Set_01_Brand_Collection/01_wooden_logo_hero.png` | `01_wooden_logo_hero.png` | `.png` | `870x442` | `435:221` ≈ `1.9683` | `760766` bytes | Hero / wooden logo direction | visual-ref approved; placement unverified |
+| 2 | `public/Set_01_Brand_Collection/02_round_logo_spice_banner.png` | `02_round_logo_spice_banner.png` | `.png` | `796x442` | `398:221` ≈ `1.8009` | `592921` bytes | Banner / round logo spice | claim/use unverified |
+| 3 | `public/Set_01_Brand_Collection/03_herbs_category.png` | `03_herbs_category.png` | `.png` | `334x241` | `334:241` ≈ `1.3859` | `159063` bytes | Herbs category | slug-map required |
+| 4 | `public/Set_01_Brand_Collection/04_spices_category.png` | `04_spices_category.png` | `.png` | `323x241` | `323:241` ≈ `1.3402` | `140748` bytes | Spices category | slug-map required |
+| 5 | `public/Set_01_Brand_Collection/05_blends_category.png` | `05_blends_category.png` | `.png` | `322x241` | `322:241` ≈ `1.3361` | `147091` bytes | Blends category | slug-map required |
+| 6 | `public/Set_01_Brand_Collection/06_natural_products_category.png` | `06_natural_products_category.png` | `.png` | `322x241` | `322:241` ≈ `1.3361` | `140214` bytes | Natural products category | slug-map required |
+| 7 | `public/Set_01_Brand_Collection/07_bay_leaves_category.png` | `07_bay_leaves_category.png` | `.png` | `347x241` | `347:241` ≈ `1.4398` | `144018` bytes | Bay leaves category | not selected for G1 homepage mapping |
+| 8 | `public/Set_01_Brand_Collection/08_herbal_recipes_banner.png` | `08_herbal_recipes_banner.png` | `.png` | `560x211` | `560:211` ≈ `2.6540` | `191129` bytes | Banner / herbal recipes | claim/use unverified |
+| 9 | `public/Set_01_Brand_Collection/09_faq_banner.png` | `09_faq_banner.png` | `.png` | `563x211` | `563:211` ≈ `2.6682` | `182457` bytes | FAQ banner | G4A only / not G1 |
+| 10 | `public/Set_01_Brand_Collection/10_wishlist_empty_banner.png` | `10_wishlist_empty_banner.png` | `.png` | `536x211` | `536:211` ≈ `2.5403` | `175484` bytes | Wishlist empty banner | G4A only / not G1 |
+| 11 | `public/Set_02_Modern_Organic_Collection/01_wooden_logo_hero.png` | `01_wooden_logo_hero.png` | `.png` | `977x403` | `977:403` ≈ `2.4243` | `763879` bytes | Hero / wooden logo direction | visual-ref approved; not owner-selected set |
+| 12 | `public/Set_02_Modern_Organic_Collection/02_herbal_tea_banner.png` | `02_herbal_tea_banner.png` | `.png` | `684x403` | `684:403` ≈ `1.6973` | `438199` bytes | Banner / herbal tea | not owner-selected set |
+| 13 | `public/Set_02_Modern_Organic_Collection/03_herbs_category.png` | `03_herbs_category.png` | `.png` | `332x251` | `332:251` ≈ `1.3227` | `145884` bytes | Herbs category | slug-map required |
+| 14 | `public/Set_02_Modern_Organic_Collection/04_spices_category.png` | `04_spices_category.png` | `.png` | `317x251` | `317:251` ≈ `1.2629` | `137928` bytes | Spices category | slug-map required |
+| 15 | `public/Set_02_Modern_Organic_Collection/05_blends_category.png` | `05_blends_category.png` | `.png` | `316x251` | `316:251` ≈ `1.2590` | `142634` bytes | Blends category | slug-map required |
+| 16 | `public/Set_02_Modern_Organic_Collection/06_natural_products_category.png` | `06_natural_products_category.png` | `.png` | `319x251` | `319:251` ≈ `1.2709` | `124211` bytes | Natural products category | slug-map required |
+| 17 | `public/Set_02_Modern_Organic_Collection/07_natural_oils_category.png` | `07_natural_oils_category.png` | `.png` | `313x251` | `313:251` ≈ `1.2470` | `120792` bytes | Natural oils category | not selected for G1 homepage mapping |
+| 18 | `public/Set_02_Modern_Organic_Collection/08_faq_banner.png` | `08_faq_banner.png` | `.png` | `672x238` | `48:17` ≈ `2.8235` | `246949` bytes | FAQ banner | G4A only / not G1 |
+| 19 | `public/Set_02_Modern_Organic_Collection/09_wishlist_empty_banner.png` | `09_wishlist_empty_banner.png` | `.png` | `369x238` | `369:238` ≈ `1.5504` | `123071` bytes | Wishlist empty banner | G4A only / not G1 |
+| 20 | `public/Set_02_Modern_Organic_Collection/10_brand_footer_banner.png` | `10_brand_footer_banner.png` | `.png` | `580x238` | `290:119` ≈ `2.4370` | `251798` bytes | Footer/brand banner | Header/Footer forbidden in G1 |
+| 21 | `public/Set_03_Campaign_And_Product_Collection/01_wooden_logo_hero.png` | `01_wooden_logo_hero.png` | `.png` | `881x432` | `881:432` ≈ `2.0394` | `763599` bytes | Hero / wooden logo direction | **SELECTED HERO CANDIDATE**; visual text/logo unverified |
+| 22 | `public/Set_03_Campaign_And_Product_Collection/02_natural_drinks_banner.png` | `02_natural_drinks_banner.png` | `.png` | `780x432` | `65:36` ≈ `1.8056` | `567090` bytes | Banner / natural drinks | claim/use unverified; not used as store banner in G1 |
+| 23 | `public/Set_03_Campaign_And_Product_Collection/03_herbs_category.png` | `03_herbs_category.png` | `.png` | `405x259` | `405:259` ≈ `1.5637` | `195223` bytes | Herbs category | candidate; slug-map required |
+| 24 | `public/Set_03_Campaign_And_Product_Collection/04_spices_category.png` | `04_spices_category.png` | `.png` | `395x259` | `395:259` ≈ `1.5251` | `188195` bytes | Spices category | candidate; slug-map required |
+| 25 | `public/Set_03_Campaign_And_Product_Collection/05_blends_category.png` | `05_blends_category.png` | `.png` | `391x259` | `391:259` ≈ `1.5097` | `190084` bytes | Blends category | candidate; slug-map required |
+| 26 | `public/Set_03_Campaign_And_Product_Collection/06_natural_products_category.png` | `06_natural_products_category.png` | `.png` | `409x259` | `409:259` ≈ `1.5792` | `188334` bytes | Natural products category | candidate; slug-map required |
+| 27 | `public/Set_03_Campaign_And_Product_Collection/07_fast_delivery_banner.png` | `07_fast_delivery_banner.png` | `.png` | `557x205` | `557:205` ≈ `2.7171` | `166079` bytes | Banner / fast delivery | unverified business claim; not used |
+| 28 | `public/Set_03_Campaign_And_Product_Collection/08_quality_banner.png` | `08_quality_banner.png` | `.png` | `540x205` | `108:41` ≈ `2.6341` | `147440` bytes | Banner / quality | unverified business claim; not used |
+| 29 | `public/Set_03_Campaign_And_Product_Collection/09_special_offers_banner.png` | `09_special_offers_banner.png` | `.png` | `516x205` | `516:205` ≈ `2.5171` | `139173` bytes | Banner / special offers | unverified offer claim; not used |
+
+- **D8-ASSET-REGISTER status:** collected paths discovered and recorded; `SET_03` is the active homepage reference collection; Hero candidate recorded above; category candidates exist but require real slug mapping; claim-bearing banner candidates are blocked from use in G1 store banners; visual text/logo/package fidelity remains Owner review pending because the current model cannot inspect image pixels.
+
+## 52) DAY 8 G1 — HOMEPAGE STRUCTURE & DATA IMPLEMENTATION (2026-11-24)
+
+- **تنفيذ مصرح به:** المالك فتح `G1 — DAY 8 HOMEPAGE STRUCTURE & DATA` فقط بعد قبول G0/sec51. لا فتح تلقائي لـG2/G3/G4/G4A/G5/G6/G7. لا SEO/metadata/JSON-LD/sitemap/robots/Google UI/Cart→Checkout/FAQ/Wishlist/Header/Footer/backend/API/DB/env/deps/commit/deploy. الشجرة المتسخة الموروثة محفوظة؛ ثلاثة مجلدات الصور الأصلية لم تُمس.
+- **مصدر الصور المركزي:** `lib/brandAssets.ts` الآن يحتوي `HOME_IMAGE_COLLECTIONS` و`HOME_IMAGE_COLLECTION` و`HOME_ASSETS` و`getHomeCategoryImage`. تغيير قيمة `HOME_IMAGE_COLLECTION` في هذا الملف فقط يبدّل Hero ومسارات الأقسام للمجموعة كاملة؛ الخريطة تعتمد على `semantic role + exact filename per collection` وليس على ترقيم الملفات. القيمة النشطة `/Set_03_Campaign_And_Product_Collection`. مسار Hero الفعلي `/Set_03_Campaign_And_Product_Collection/01_wooden_logo_hero.png`. صور الأقسام تُستخدم فقط كـfallback عند slug مطابق تمامًا (`herbs`, `spices`, `blends`, `natural-products`) وغياب `category.imageUrl` من API؛ لا رابط عشوائي ولا استبدال لبيانات المتجر.
+- **Hero:** `components/ECommerce/Home/Hero.tsx` يستخدم `StoreImage` بدل `next/image` المباشر، ويعرض مسار Hero المعتمد من المصدر المركزي، ويحافظ على طبقة الحماية/الغموض النصي، ويستخدم `PRODUCTS_HREF` عبر `Link` المحلي بدل رابط `#categories`. لا فيديو جديد؛ مسارات الفيديو/البوستر تبقى `null`، وال CV/CTA نصه مترجم.
+- **Banner/Featured states:** `BannerSection` لم يعد يرجع `null` عند الخطأ أو الفراغ؛ يعرض `ErrorState`/`EmptyState` بمفاتيح `home.banners.*`. `FeaturedSection` يعرض `EmptyState` عند غياب المنتجات ويحتفظ بـ`ErrorState` عند فشل API. بيانات البانر/المنتجات ما زالت من `lib/server/storeQueries.ts` و`TStoreResult` دون مكالمات مباشرة أو بيانات وهمية. صور البانر ذات الادعاءات غير المتحققة لم تُستخدم.
+- **Categories:** `CategoriesSection` يمرر `fallbackImageUrl` الناتج من `getHomeCategoryImage(category.slug)` إلى `CategoryCard`. `CategoryCard` يقبل special prop اختياري ويستخدم `category.imageUrl` أولًا ثم الـfallback ثم placeholder الحالي؛ لا تغيير في عقد API ولا في بنية البطاقة.
+- **الترجمات:** `messages/ar.json` و`messages/en.json` متطابقان الآن بـ`484` مفتاحًا لكل لغة. أُضيفت مفاتيح `home.hero.imageAlt`، `home.banners.errorTitle/errorBody/emptyTitle/emptyBody`، `home.featured.emptyTitle/emptyBody`، وتم تعديل `home.hero.cta` إلى «اتسوّق دلوقتي» / `Shop now`. لا نص مستخدم مكتوب داخل المكوّنات.
+- **الملفات المعدّلة في التنفيذ:** `lib/brandAssets.ts`، `components/ECommerce/Home/Hero.tsx`، `components/ECommerce/Home/BannerSection.tsx`، `components/ECommerce/Home/FeaturedSection.tsx`، `components/ECommerce/Home/CategoriesSection.tsx`، `components/Card/CategoryCard.tsx`، `messages/ar.json`، `messages/en.json`، وهذا القسم من `docs/PROGRESS.md`. لا ملفات جديدة، لا حذف، لا نقل، لا تحويل صور، لا تعديل على `package.json`/`package-lock.json`.
+- **VerificationCommandResults:** `npm run lint` → `EXIT 0`؛ `npm run check` → `EXIT 0` (`297 code files`, `484 message keys per locale`, `0 failure(s), 0 warning(s)`)؛ `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → `EXIT 0`؛ `npm run build` → `EXIT 0` (Next `16.4.5`، `56/56` pages، TypeScript نجح، سجل `store/* NETWORK_ERROR` أثناء prerender لأن API غير شغال؛ لا يغيّر exit code)؛ `git diff --check` → `EXIT 0` مع تحذيرات LF→CRLF موروثة؛ `git status --short --untracked-files=all` → رُوجع؛ `git diff --stat` → رُوجع؛ `git diff -- package.json package-lock.json` → `EXIT 0` وبدون diff.
+- **حدود التحقق:** لا API runtime، لا browser/visual/Lighthouse، لا Playwright/Puppeteer، لا ديسكتوب/360px RTL/LTR/theme matrix. مراجعة نص/لوجو/تغليف الصور والplacement النهائي تبقى `D8-OWNER-VIS PENDING`؛ لا ادعاء بجاهزية إنتاج. `D8-SEAL NOT READY / NOT SEALED`.
+- **النتيجة:** `G1 COMPLETE — HOMEPAGE STRUCTURE/DATA IMPLEMENTED — VERIFIED BY STATIC COMMANDS — AWAITING OWNER REVIEW`.
+
+⛔ STOP — G1 COMPLETE — WAITING FOR OWNER REVIEW
+
+## 53) DAY 8 G2 — SEO / METADATA / STRUCTURED DATA IMPLEMENTATION (2026-11-24)
+
+- **تنفيذ مصرح به:** المالك فتح `G2 — DAY 8 SEO & STRUCTURED DATA` فقط بعد تسليم G1 source-wise. G1 visual acceptance ما زال PENDING ولا يُعتبر مقبولًا بصريًا بهذا الإذن. لا فتح تلقائي لـG3/G4/G4A/G5/G6/G7. الشجرة المتسخة الموروثة محفوظة؛ لا reset/clean/checkout/stash، لا commit/push/deploy.
+- **نطاق منفّذ:** homepage `generateMetadata` عبر `buildMetadata`، canonical، hreflang/alternates، OpenGraph/Twitter مع صورة OG حقيقية، ومراجعة JSON-LD الحالي. خارج النطاق بالكامل: sitemap/robots، FAQ/Wishlist، Header/Footer، Google UI، Cart→Checkout، محتوى الهوم/Hero/Banner، API/DB/backend، env/config/dependencies/package files، ومكتبات SEO جديدة.
+- **خطة ملفات قُدّمت قبل التعديل:** `lib/seo.ts` لإضافة صورة OG اختيارية داخل `buildMetadata`؛ `lib/brandAssets.ts` لتسجيل المسار الحقيقي؛ `app/[locale]/(Store)/metadata.ts` جديد لمولّد metadata الهوم؛ `app/[locale]/(Store)/page.tsx` لإعادة التصدير فقط؛ `messages/{ar,en}.json` لمفاتيح متماثلة؛ `docs/PROGRESS.md` للتوثيق. `StoreJsonLd.tsx` و`lib/jsonld.ts` و`(Store)/layout.tsx` وsitemap/robots كانت للمراجعة فقط.
+- **قرار الأصل (`D8-ASSET-REGISTER`):** المالك اختار صراحةً المسار الحقيقي `public/Set_03_Campaign_And_Product_Collection/01_wooden_logo_hero.png` ليُستخدم كصورة OG للهوم. الأصل موجود فعليًا؛ الأبعاد `881x432`؛ النسبة `881:432 ≈ 2.0394`؛ الحجم `763599 bytes`؛ هدف النسبة `1200x630 ≈ 1.9048`. النموذج الحالي لا يستطيع فحص بكسلات الصورة؛ لذلك لا يُدعى تحقق مستقل من تشوه النص العربي أو دقة اللوجو أو التغليف. اعتماد الربط هو قرار المالك على المسار المحدد، والمراجعة البصرية النهائية لل cropped social preview تبقى `D8-OWNER-VIS PENDING`.
+- **قواعد الاستخدام:** لا صورة متخيلة، لا generic fallback، لا تغيير للصورة الأصلية، لا تحويل/إعادة تسمية/نقل، لا استنتاج ادعاءات منتج من أسماء الملفات، ولا ربط بانرات ذات ادعاءات غير متحققة. بقية الصور سُجّلت كمرشحات غير مختارة فقط.
+
+### 53.1 سجل مرشحات OG — inventories فعلية من PNG IHDR
+
+| # | Exact relative path | Dimensions | Aspect | Bytes | G2 decision |
+|---:|---|---|---:|---:|---|
+| 1 | `public/Set_01_Brand_Collection/01_wooden_logo_hero.png` | `870x442` | `1.9683` | `760766` | not selected; wooden-hero alternative |
+| 2 | `public/Set_01_Brand_Collection/02_round_logo_spice_banner.png` | `796x442` | `1.8009` | `592921` | not selected; banner use unverified |
+| 3 | `public/Set_01_Brand_Collection/03_herbs_category.png` | `334x241` | `1.3859` | `159063` | not selected; category use |
+| 4 | `public/Set_01_Brand_Collection/04_spices_category.png` | `323x241` | `1.3402` | `140748` | not selected; category use |
+| 5 | `public/Set_01_Brand_Collection/05_blends_category.png` | `322x241` | `1.3361` | `147091` | not selected; category use |
+| 6 | `public/Set_01_Brand_Collection/06_natural_products_category.png` | `322x241` | `1.3361` | `140214` | not selected; category use |
+| 7 | `public/Set_01_Brand_Collection/07_bay_leaves_category.png` | `347x241` | `1.4398` | `144018` | not selected; slug-map required |
+| 8 | `public/Set_01_Brand_Collection/08_herbal_recipes_banner.png` | `560x211` | `2.6540` | `191129` | not selected; claim/use unverified |
+| 9 | `public/Set_01_Brand_Collection/09_faq_banner.png` | `563x211` | `2.6682` | `182457` | not selected; G4A role only |
+| 10 | `public/Set_01_Brand_Collection/10_wishlist_empty_banner.png` | `536x211` | `2.5403` | `175484` | not selected; G4A role only |
+| 11 | `public/Set_02_Modern_Organic_Collection/01_wooden_logo_hero.png` | `977x403` | `2.4243` | `763879` | not selected; wooden-hero alternative |
+| 12 | `public/Set_02_Modern_Organic_Collection/02_herbal_tea_banner.png` | `684x403` | `1.6973` | `438199` | not selected; banner use unverified |
+| 13 | `public/Set_02_Modern_Organic_Collection/03_herbs_category.png` | `332x251` | `1.3227` | `145884` | not selected; category use |
+| 14 | `public/Set_02_Modern_Organic_Collection/04_spices_category.png` | `317x251` | `1.2629` | `137928` | not selected; category use |
+| 15 | `public/Set_02_Modern_Organic_Collection/05_blends_category.png` | `316x251` | `1.2590` | `142634` | not selected; category use |
+| 16 | `public/Set_02_Modern_Organic_Collection/06_natural_products_category.png` | `319x251` | `1.2709` | `124211` | not selected; category use |
+| 17 | `public/Set_02_Modern_Organic_Collection/07_natural_oils_category.png` | `313x251` | `1.2470` | `120792` | not selected; slug-map required |
+| 18 | `public/Set_02_Modern_Organic_Collection/08_faq_banner.png` | `672x238` | `2.8235` | `246949` | not selected; G4A role only |
+| 19 | `public/Set_02_Modern_Organic_Collection/09_wishlist_empty_banner.png` | `369x238` | `1.5504` | `123071` | not selected; G4A role only |
+| 20 | `public/Set_02_Modern_Organic_Collection/10_brand_footer_banner.png` | `580x238` | `2.4370` | `251798` | not selected; Header/Footer forbidden |
+| 21 | `public/Set_03_Campaign_And_Product_Collection/01_wooden_logo_hero.png` | `881x432` | `2.0394` | `763599` | **SELECTED OG ASSET**; owner-selected exact path; pixel fidelity not independently inspected |
+| 22 | `public/Set_03_Campaign_And_Product_Collection/02_natural_drinks_banner.png` | `780x432` | `1.8056` | `567090` | not selected; claim/use unverified |
+| 23 | `public/Set_03_Campaign_And_Product_Collection/03_herbs_category.png` | `405x259` | `1.5637` | `195223` | not selected; category use |
+| 24 | `public/Set_03_Campaign_And_Product_Collection/04_spices_category.png` | `395x259` | `1.5251` | `188195` | not selected; category use |
+| 25 | `public/Set_03_Campaign_And_Product_Collection/05_blends_category.png` | `391x259` | `1.5097` | `190084` | not selected; category use |
+| 26 | `public/Set_03_Campaign_And_Product_Collection/06_natural_products_category.png` | `409x259` | `1.5792` | `188334` | not selected; category use |
+| 27 | `public/Set_03_Campaign_And_Product_Collection/07_fast_delivery_banner.png` | `557x205` | `2.7171` | `166079` | not selected; unverified business claim |
+| 28 | `public/Set_03_Campaign_And_Product_Collection/08_quality_banner.png` | `540x205` | `2.6341` | `147440` | not selected; unverified business claim |
+| 29 | `public/Set_03_Campaign_And_Product_Collection/09_special_offers_banner.png` | `516x205` | `2.5171` | `139173` | not selected; unverified offer claim |
+
+### 53.2 مصدر التنفيذ
+
+- `lib/seo.ts`: أُضيف عقد `ISeoImage` وحقل اختياري `ogImage` إلى `buildMetadata`؛ عند توفيره يُخرج `openGraph.images` و`twitter.images` بالمسار والأبعاد والـalt. لم يُنشأ metadata موازٍ؛Canonical/hreflang/OG/Twitter ما زالت من مصدر واحد.
+- `lib/brandAssets.ts`: أُضيف `HOME_OG_ASSET` بالمسار الحقيقي `/Set_03_Campaign_And_Product_Collection/01_wooden_logo_hero.png` والأبعاد `881x432`. الصورة تُحوَّل إلى URL مطلق في metadata عبر `SITE_URL` الحالي.
+- `app/[locale]/(Store)/metadata.ts`: ملف جديد مسؤول فقط عن `generateMetadata` للهوم؛ يقرأ `home.metaTitle` و`home.metaDescription` و`home.ogImageAlt`، ويمرر `path: ""` حتى يبقى الـcanonical `/{locale}`.
+- `app/[locale]/(Store)/page.tsx`: أُضيف re-export لـ`generateMetadata` من الملف الجديد؛ الصفحة بقيت رقيقة ولا تحتوي business logic.
+- `messages/ar.json` و`messages/en.json`: أُضيفت مفاتيح `home.metaTitle` و`home.metaDescription` و`home.ogImageAlt` بتماثل كامل؛ لا نص مستخدم hard-coded في metadata.
+- مراجعة JSON-LD: `components/ECommerce/StoreJsonLd.tsx` و`lib/jsonld.ts` و`(Store)/layout.tsx` لم تُعدَّل لأن `Organization` و`WebSite/SearchAction` موجودان وصحيحان في مصدر واحد عبر `JsonLd` الآمن. لا `BreadcrumbList` وهمي على الهوم لأن الصفحة جذرية ولا يوجد breadcrumb مرئي؛ القرار موثّق في `DAY8_TASKS.md §2`. لا بيانات عميل/توكن/بريد في structured data.
+- لا تعديلات على `app/sitemap.ts` أو `app/robots.ts`؛ `D15-SEO-SITEMAP` ما زال مؤجلًا. لا تعديل Header/Footer أو Hero/Banner/Featured/Categories أو أي API/DB/env/deps.
+
+### 53.3 VerificationCommandResults
+
+- `npm run lint` → `EXIT 0`.
+- `npm run check` → `EXIT 0`؛ `298 code files`، `487 message keys per locale`، `0 failure(s), 0 warning(s)`.
+- `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → `EXIT 0`.
+- `npm run build` → `EXIT 0`؛ Next `16.4.5` Turbopack؛ compile `79s`؛ TypeScript `11.8s`؛ `56/56` pages. لا `NETWORK_ERROR` في تشغيل هذه الـGate.
+- `git status --short --untracked-files=all` → `EXIT 0`؛ رُوجع؛ من أعمال G2 يظهر `app/[locale]/(Store)/metadata.ts` جديدًا، مع تعديل `page.tsx`، `lib/seo.ts`، `lib/brandAssets.ts`، `messages/ar.json`، `messages/en.json`، و`docs/PROGRESS.md`. بقية القائمة موروثة.
+- `git diff --check` → `EXIT 0` مع تحذيرات LF→CRLF/symlink اعتيادية على Windows، بلا whitespace errors.
+- `git diff --stat` → `EXIT 0`؛ رُوجع؛ لا تعديلات خارج النطاق المخطط.
+- `git diff -- package.json package-lock.json` → `EXIT 0` وبدون diff؛ صفر dependencies/lock changes.
+- `git status --porcelain=v1 --untracked-files=all | sort | sha256sum` → `EXIT 0`؛ hash أثناء preflight قبل تعديلات المصدر `f62c40f8345ca441973ab5b16ab4deae45f51f5df2cec3f8cf4ca4f8aba113a2`، وبعد كل ملفات G2 `82b75694da2c6679c13b7ad92f14067d22115e5893e89c4dfea5c885f9106485`؛ الفرق هو ملفات G2 المخططة فقط داخل شجرة متسخة موروثة.
+- **HTML source verification:** شغّل `next start -p 3001` محليًا لفحص مصدر `/ar` و`/en` ثم أُوقف. كلا المصدرين يحتوي `<title>`، canonical، alternates `ar/en/ar-EG/x-default`، `og:*`، `twitter:*`، وscriptين `application/ld+json` لـOrganization وWebSite/SearchAction. لا escaping problems ظاهرة في JSON-LD؛ الـSearchAction target هو `/{locale}/search?q={search_term_string}`. عناوين الـSEO تظهر `http://localhost:3001/...` لأن قيمة `NEXT_PUBLIC_SITE_URL` في `.env.local` محلية؛ لم يُتحقق من عنوان إنتاج.
+- **Browser Verification:** `NOT TESTED`. لا Playwright/Puppeteer/Lighthouse؛ فحص HTML source ليس بديلًا عن DOM/browser/CWV/social preview. HTTP/local source inspection لا يُرقَّى إلى visual acceptance.
+- **Astra Review:** `NOT TESTED` لهذا التقرير. **Production:** `D8-SEAL NOT READY / NOT SEALED`. **Owner visual acceptance:** `PENDING`، خصوصًا اجتماع الصورة مع الـcrop النهائي لمعاينات السوشيال.
+- **النتيجة:** `G2 SOURCE IMPLEMENTATION COMPLETE — AUTOMATED CHECKS PASS — HTML SEO VERIFICATION PASS — BROWSER VERIFICATION NOT TESTED — OWNER ACCEPTANCE PENDING — NO NEXT GATE AUTHORIZED`.
+
+⛔ STOP — G2 COMPLETE — WAITING FOR OWNER REVIEW
+
+## 54) DAY 8 G3 — GOOGLE SIGN-IN UI ONLY IMPLEMENTATION (2026-11-24)
+
+- **تنفيذ مصرح به:** المالك فتح `G3 — DAY 8 GOOGLE SIGN-IN UI ONLY` صراحةً، مع تحديث إذن Execution لاحقًا. لا فتح تلقائي لـG4/G4A/G5/G6/G7. G1/G2 visual acceptance ما زال PENDING، وGoogle real auth ما زال `DEFERRED — NO IMPLEMENTATION AUTHORIZED`. الشجرة المتسخة الموروثة محفوظة؛ لا reset/clean/checkout/stash، لا commit/push/deploy.
+- **Preflight:** قُرئت `AGENTS.md`، `FRONTEND_TASKS_10_DAYS.md §0.3/يوم8`، `PROGRESS.md §49/§53`، `DAY7_TASKS.md §6/§7`، `DAY8_TASKS.md §0/§5.4/§Gate3`، والكود الحالي. فُحص `git status` قبل التعديل؛ لم يوجد تعارض عقد بعد مواءمة أحدث رسالة مالك مع وصف `DAY8_TASKS.md` لأن الإذن الصريح الحالي يحتوي اسم Gate بعينه.
+- **خطة ملفات قُدّمت قبل التعديل:** `components/ECommerce/Account/GoogleSignInButton.tsx` للجعل الزر متاحًا وتغذية الراجاع فقط؛ `messages/{ar,en}.json` لمفتاح `account.google.*` مترجم؛ `docs/PROGRESS.md` للتوثيق. `LoginForm.tsx` و`Button.tsx` و`Toaster.tsx` كانت للمراجعة فقط ولم تُعدَّل.
+- **مصدر التنفيذ:** `GoogleSignInButton.tsx` أصبح client component، وأُزيل `disabled`، وأُضيف `onClick` واحد يستدعي `toast(unavailable)` محايدًا عبر Sonner الموجود. لا `toast.success` ولا `toast.error`، لا router/redirect، لا fetch/axios/RTK Query، لا GIS/OAuth/client ID/secret/callback، لا token/session/customer/cart merge، لا تغيير في `LoginForm` أو Email/Password.
+- **الهوية البصرية:** علامة Google "G" أحادية اللون من مسار SVG ثابت تُPaint عبر `currentColor`؛ لا أصل Google جاهز داخل المشروع، ولا ألوان خام، ولا dependencies/أصول جديدة. اختيار monochromatic theme-safe mark هو حل وسط Chancellor لقواعد `no raw colors`؛ دقة الألوان الرسمية متعددة الألوان تبقى `D8-OWNER-VIS PENDING` وليست ادعاءً بمراجعة بصرية نهائية.
+- **الوصول والتجاوب:** الزر يستخدم `Button variant="soft"` الموجود، فيحتفظ بـ`focus-visible:outline-primary` و`active:scale`، مع `w-full whitespace-nowrap` وgap موجود؛ لا classes `left/right`. `title` و`aria-label` يستخدمان رسالة عدم التوفر المترجمة؛ أُزيل النص `sr-only` القديم لأن `aria-label` يغطي نفس المعنى. أنيميشن `animate-fade-up` الحالي يحترم `prefers-reduced-motion` عبر CSS الموجود؛ لم يُضف أنيميشن جديد.
+- **الترجمات:** استُبدل `account.google.notConfigured` بـ`account.google.unavailable` في `messages/ar.json` و`messages/en.json`: «تسجيل الدخول عبر Google غير متاح حاليًا.» / `Google sign-in is currently unavailable.` المفاتيح متطابقة، иحصاء `npm run check` ما زال `487` لكل لغة، ولا يوجد نص مستخدم hard-coded في المكوّن.
+- **VerificationCommandResults:**
+  - `npm run lint` → `EXIT 0`.
+  - `npm run check` → `EXIT 0`؛ `298 code files`، `487 message keys per locale`، `0 failure(s), 0 warning(s)`.
+  - `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → `EXIT 0`.
+  - `npm run build` → `EXIT 0`؛ Next `16.4.5` Turbopack؛ compile `71s`؛ TypeScript `9.4s`؛ `56/56` pages. لا `NETWORK_ERROR` في تشغيل هذه الـGate.
+  - `git diff --check` → `EXIT 0` مع تحذيرات LF→CRLF/symlink موروثة على Windows، بلا whitespace errors.
+  - `git status --short --untracked-files=all` → `EXIT 0`؛ رُوجع؛ `GoogleSignInButton.tsx` ما زال untracked موروثًا، و`messages/ar.json`/`messages/en.json`/`docs/PROGRESS.md` modifications موروثة الأصل؛ لا ملف جديد أو محذوف بسبب G3.
+  - `git diff --stat` → `EXIT 0`؛ رُوجع؛ لا تعديلات خارج النطاق المخطط.
+  - `git diff -- package.json package-lock.json` → `EXIT 0` وبدون diff؛ صفر dependencies/lock changes.
+  - `git status --porcelain=v1 --untracked-files=all | sort | sha256sum` → `EXIT 0`؛ hash أثناء preflight وبعد ملفات G3 وبعد توثيق هذا القسم بقي `82b75694da2c6679c13b7ad92f14067d22115e5893e89c4dfea5c885f9106485` لأن قائمة المسارات المتسخة لم تتغير؛ محتويات G3 داخل ملفات موروثة/modified بالفعل.
+- **Network/Source review:** فحص مصدر الزر يُظهر صفر request وصفر تعديل `customerSession`/`cartToken` وصفر redirect وصفر toast نجاح. لوحة Network في المتصفح لم تُستخدم؛ لذلك تبقى `NOT TESTED` لا `PASS`.
+- **Browser Verification:** `NOT TESTED`. لا Playwright/Puppeteer/Lighthouse؛ لم تُنفَّذ مصفوفة الضغط/HP، focus-visible، RTL/LTR، 360px/desktop، 4 ثيمات، أو reduced motion فعليًا. لا يُرقَّى فحص المصدر إلى visual acceptance.
+- **Astra Review:** `NOT TESTED`. **Production:** `D8-SEAL NOT READY / NOT SEALED`. **Owner visual acceptance:** `PENDING`، خصوصًا شكل علامة Google أحادية اللون ورسالة التوست في اللغتين/الاتجاهين.
+- **النتيجة:** `G3 SOURCE IMPLEMENTATION COMPLETE — UI-ONLY — NO REAL GOOGLE AUTH — AUTOMATED CHECKS PASS — BROWSER VERIFICATION NOT TESTED — ASTRA NOT TESTED — OWNER REVIEW PENDING — NO NEXT GATE AUTHORIZED`.
+
+⛔ STOP — G3 PARTIAL — NO NEXT GATE AUTHORIZED
+
+## 55) DAY 8 G4 — CART → CHECKOUT ENTRY IMPLEMENTATION (2026-11-25)
+
+- **تنفيذ مصرح به:** المالك فتح `G4 — DAY 8 CHECKOUT ENTRY` صراحةً وأكد `تم اعتماد G3 — Google UI/UX من المالك`. G0 مقبول وموثّق في §51؛ لا فتح تلقائي لـG4A/G5/G6/G7. G1/G2 visual acceptance ما زال PENDING، وGoogle real auth ما زال `DEFERRED — NO IMPLEMENTATION AUTHORIZED`. الشجرة المتسخة الموروثة محفوظة؛ لا reset/clean/checkout/stash، لا commit/push/deploy.
+- **Preflight:** قُرئت `AGENTS.md`، `FRONTEND_TASKS_10_DAYS.md §0.3/يوم8/يوم9/يوم10`، `PROGRESS.md §49/§50/§51/§54`، `DAY7_TASKS.md §6/§7`، `DAY8_TASKS.md §0/§5.5/§Gate4/§8`، والكود الحالي لـCart/Checkout/Routes/i18n/Button/messages. فُحص `git status`؛ hash ما قبل التعديل `82b75694da2c6679c13b7ad92f14067d22115e5893e89c4dfea5c885f9106485`. حُلّ التعارض الظاهري حول G0: النص القديم ملغى، لكن G0 الجديد مقبول في §51، والإذن الحالي باسم G4 صريح؛ لذلك لا حاجر implementation.
+- **خطة ملفات قُدّمت قبل التعديل:** `CartCheckoutLink.tsx` ملف جديد للرابط فقط؛ `CartSummary.tsx` لعرض الـCTA كـslot؛ `CartDrawer.tsx` لتمرير حالة العرض فقط؛ `messages/{ar,en}.json` لـ`cart.checkout.cta`؛ `docs/PROGRESS.md` للتوثيق. `CartSection.tsx` وCheckout internals و`lib/routes.ts` و`Button.tsx` وtoken hooks كانت للمراجعة فقط ولم تُعدَّل.
+- **مصدر التنفيذ:** أُضيف `components/ECommerce/Cart/CartCheckoutLink.tsx`، وهو client component صغير يستخدم `Link` من `@/i18n/navigation` مع `CHECKOUT_HREF` و`buttonVariants()` و`w-full`؛ لا `<a>` ولا `<button>` يقلّد الرابط ولا `useRouter` ولا fetch/mutation ولا token.
+- **فصل المسؤوليات:** `CartDrawer` يحسب `showCheckout` من `hasHydrated && token !== undefined && !isLoading && !error && data !== undefined && data.itemsCount > 0` ويمرّر boolean فقط. `CartSummary` يعرض CTA عند `showCheckout` دون معرفة الـtoken أو الـrouter أو الـAPI. لا إجماليات أو سلة مختلقة.
+- **الترجمات:** أُضيف `cart.checkout.cta` إلى `messages/ar.json` و`messages/en.json`: «متابعة إلى الدفع» / `Continue to checkout`. المفاتيح متطابقة، ولا نص مستخدم hard-coded في المكوّن الجديد.
+- **العقود والبيانات:** الرابط ينتقل إلى `/checkout` عبر `CHECKOUT_HREF` فقط. checkout يقرأ نفس guest token عبر `useCartToken`/`useGetCartByTokenQuery` الموجودين. لم يُضف request ولا storage key ولا cart slice ولا تغيير `om_cart_token` أو customer session؛ فجوة قراءة سلة العميل بعد merge ما زالت موثّقة ومحجوبة.
+- **خارج النطاق:** لم تُنفَّذ ملاحظة زر الإضافة الثابت فوق BackToTop لأنها خارج إذن G4 وتحتاج إذنًا منفصلًا. لا Checkout internals، لا cart mutations، لا style/motion جديد، لا FAQ/Wishlist، لا Header/Footer، لا backend/DB/env/deps، لا commit/push/deploy.
+- **VerificationCommandResults:**
+  - `npm run lint` → `EXIT 0`.
+  - `npm run check` → `EXIT 0`؛ `299 code files`، `488 message keys per locale`، `0 failure(s), 0 warning(s)`.
+  - `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → `EXIT 0`.
+  - `npm run build` → `EXIT 0`؛ Next `16.4.5` Turbopack؛ compile `84s`؛ TypeScript `63s`؛ `56/56` pages.
+  - `git diff --check` → `EXIT 0` مع تحذيرات LF→CRLF/symlink موروثة على Windows، بلا whitespace errors.
+  - `git status --short --untracked-files=all` → `EXIT 0`؛ رُوجع؛ `CartCheckoutLink.tsx` ملف جديد ضمن نطاق G4، والباقي مدخلات موروثة؛ لا حذف أو إصلاح تلقائي للشجرة المتسخة.
+  - `git diff --stat` → `EXIT 0`؛ رُوجع؛ لا تعديلات خارج الملفات المخططة سوى هذا القسم التوثيقي.
+  - `git diff -- package.json package-lock.json` → `EXIT 0` وبدون diff؛ صفر dependencies/lock changes.
+  - `git status --porcelain=v1 --untracked-files=all | sort | sha256sum` → `EXIT 0`؛ hash ما قبل G4 `82b75694da2c6679c13b7ad92f14067d22115e5893e89c4dfea5c885f9106485`، وبعد G4 `237ce298b63bf98fefeacfee4ba0897c3afb07782812b3f58bf23b17f48be456`. التغيير الوحيد في قائمة المسارات هو إضافة `components/ECommerce/Cart/CartCheckoutLink.tsx`؛ كل المسارات الأخرى موروثة ولم يُحذف أو يُصلَح شيء تلقائيًا.
+- **Network/Source review:** فحص المصدر يُظهر أن الضغط على CTA لا ينشئ request سوى تنقل الصفحة، ولا يغيّر cart token. لوحة Network في المتصفح لم تُستخدم؛ لذلك تبقى `NOT TESTED` لا `PASS`.
+- **Browser Verification:** `NOT TESTED`. لا Playwright/Puppeteer/Lighthouse؛ لم تُنفَّذ مصفوفة loaded/empty/loading/error، 360px/desktop، RTL/LTR، 4 ثيمات، أو focus-visible فعليًا. لا يُرقَّى فحص المصدر إلى visual acceptance.
+- **Astra Review:** `NOT TESTED`. **Production:** `D8-SEAL NOT READY / NOT SEALED`. **Owner acceptance:** `PENDING`. **Next gate:** `NOT AUTHORIZED`.
+- **النتيجة:** `G4 SOURCE IMPLEMENTATION COMPLETE — CHECKOUT ENTRY ONLY — AUTOMATED CHECKS PASS — BROWSER VERIFICATION NOT TESTED — ASTRA NOT TESTED — OWNER ACCEPTANCE PENDING — NO NEXT GATE AUTHORIZED`.
+
+⛔ STOP — G4
+
+## 56) OWNER FOLLOW-UP — CART BADGE RESET / FLOATING CTA / HERO SLIDER (2026-11-25)
+
+- **تنفيذ مصرح به:** بعد `G4` أصدر المالك إذنًا صريحًا بـ`ابدأ الآن` لثلاث مهام خارج نطاق G4: تفريغ رقم السلة بعد نجاح الدفع من الهيدر والـfloating، إظهار زر السلة المتحرك أثناء السك롤 العادي فوق BackToTop، وإعادة بناء Hero بلا كتابة مع سلايدر صور. المالك اختار «كل الصور + jar-mark» وأكد أن البادج يبقى في الموضعين. لا فتح تلقائي لأي Gate آخر؛ الشجرة المتسخة الموروثة محفوظة.
+- **خطة ملفات قُدّمت قبل التعديل:** `hooks/useCheckoutSubmit.ts` لتفريغ كاش السلة؛ `hooks/useFloatingCartCta.ts` لقاعدة الظهور؛ `lib/brandAssets.ts` لسجل أصول الهيرو؛ `Hero.tsx` للتركيب؛ `HeroSlider.tsx` و`HeroCta.tsx` ملفان جديدان؛ `docs/PROGRESS.md` للتوثيق. لم تُضف مفاتيح ترجمة؛ استُخدم `home.hero.cta` و`home.hero.imageAlt` الموجودان.
+- **تفريغ البادج:** `useCheckoutSubmit.ts` كان يمسح `om_cart_token` عند نجاح الطلب فقط؛ أُضيف `dispatch(cartApi.util.resetApiState())` بعد المسح حتى تُفرَّغ نسخة RTK Query المخزنة التي يقرأ منها عدّاد الهيدر والـfloating. لا token جديد ولا تغيير storage key ولا cart mutation.
+- **زر السلة المتحرك:** `useFloatingCartCta.ts` لم يعد يشترط `isScrolled`؛ يظهر طالما السلة جاهزة وفيها عناصر وليس المستخدم داخل صفحة السلة. موضعه الحالي `bottom-24` يبقى فوق BackToTop عند `bottom-6`.
+- **أصول الهيرو:** `HERO_SLIDES` في `lib/brandAssets.ts` يسجل `/hero/2.jpg` و`/hero/3.jpg` وملف اللافتة PNG و`/assets/brand/jar-mark.png`. كُتب مسار الملف العربي بصيغة `\u...` لتفادي قاعدة «no hardcoded Arabic text» مع بقاء المسار الفعلي كما هو.
+- **الهيرو الجديد:** `Hero.tsx` أصبح تركيبًا رقيقًا بلا عنوان أو وصف أو نص مرئي، بخلفية `bg-ink` وطبقة تدرج داكنة من tokens (`from-ink/95 via-ink/60 to-ink/20`)؛ يبدأ بعد الـsticky header الطبيعي في DOM. `HeroSlider.tsx` يدير crossfade مع zoom/pan عبر `useRotatingIndex` و`AnimatePresence`، ويوقف الدوران مع `prefers-reduced-motion`. `HeroCta.tsx` يستخدم `Link` و`buttonVariants()` مع spring hover/tap ونبضة تحيط الزر، ويوقف النبضة مع تقليل الحركة.
+- **خارج النطاق:** لا backend/DB/env/deps، لا تغيير توكن أو customer session، لا Checkout internals، لا FAQ/Wishlist، لا Header/Footer edits، لا commit/push/deploy.
+- **VerificationCommandResults:**
+  - `npm run lint` → `EXIT 0` بعد إضافة `dispatch` إلى تبعيات `useCallback` وإزالة تحذير exhaustive-deps.
+  - `npm run check` → `EXIT 0`؛ `301 code files`، `488 message keys per locale`، `0 failure(s), 0 warning(s)`.
+  - `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → `EXIT 0`.
+  - `npm run build` → `EXIT 0`؛ Next `16.4.5` Turbopack؛ compile `21.3s`؛ TypeScript `15.8s`؛ `56/56` pages.
+  - `git diff --check` → `EXIT 0` مع تحذيرات LF→CRLF/symlink موروثة على Windows، بلا whitespace errors.
+  - `git status --short --untracked-files=all` → `EXIT 0`؛ رُوجع؛ الملفات الجديدة داخل نطاق هذا الإذن، والباقي موروث.
+  - `git diff --stat` → `EXIT 0`؛ رُوجع؛ لا تعديلات خارج الملفات المخططة سوى هذا القسم التوثيقي.
+  - `git diff -- package.json package-lock.json` → `EXIT 0` وبدون diff؛ صفر dependencies/lock changes.
+  - `git status --porcelain=v1 --untracked-files=all | sort | sha256sum` → `EXIT 0`؛ hash قبل هذا الإذن `237ce298b63bf98fefeacfee4ba0897c3afb07782812b3f58bf23b17f48be456`، وبعده `481e2444dd72d30bf47cf62e83c2cc356204052f1a5f792fd6307ebb4016bf80`. التغيير في القائمة هو ملفا `HeroSlider.tsx` و`HeroCta.tsx` فقط؛ بقية المسارات موروثة.
+- **Network/Source review:** فحص المصدر يُظهر أن عدم ظهور البادج بعد الطلب ناتج عن كاش RTK Query؛ أُضيف reset صريح. لا request جديد ولا تغيير توكن. لوحة Network/Browser لم تُستخدم ⇒ `NOT TESTED`.
+- **Browser Verification:** `NOT TESTED`. لم تُنفَّذ مصفوفة السلايدر، تقليل الحركة، RTL/LTR، 360px/desktop، الثيمات الأربعة، focus-visible، ولا إثبات اختفاء البادج في المتصفح. لا يُرقَّى فحص المصدر إلى acceptance بصري.
+- **Astra Review:** `NOT TESTED`. **Production:** `D8-SEAL NOT READY / NOT SEALED`. **Owner acceptance:** `PENDING`. **Next gate:** `NOT AUTHORIZED`.
+- **النتيجة:** `CART BADGE RESET COMPLETE — FLOATING CTA ALWAYS VISIBLE WITH ITEMS — HERO TEXT REMOVED — DARK ANIMATED IMAGE SLIDER COMPLETE — AUTOMATED CHECKS PASS — BROWSER VERIFICATION NOT TESTED — OWNER ACCEPTANCE PENDING`.
+
+⛔ STOP — CART/HERO FOLLOW-UP
+
+## 57) HERO SLIDER REFINEMENT — FAST CROSSFADE / FULL IMAGE / STRONGER CTA (2026-11-25)
+
+- **إذن صريح جديد:** المالك اعترض على زمن الانتقال بين الصور وطلب: عرض كل الصورة كاملة، تغيير سريع بلا انقطاع، بقاء كل صورة فترة كافية للقراءة، زر «اتسوق دلوقتي» بشكل وحركة أفضل، والهيرو يبدأ تحت الـNAV ويأخذ الـVH كامل. نُفِّذ هذا الطلب فقط؛ لا Gate جديد ولا commit/push/deploy.
+- **الملفات:** `HeroSlider.tsx` لآلية العرض، `HeroCta.tsx` للزر، `Hero.tsx` لارتفاع السكشن، `docs/PROGRESS.md` للتوثيق. لا ملفات جديدة ولا مفاتيح ترجمة ولا backend/DB/env/deps.
+- **السلايدر:** أُزيل `AnimatePresence` وخروج/دخول الـ1.1s. كل صور `HERO_SLIDES` تُركَّب مرة واحدة وتتحرك عبر opacity فقط بمدة `0.18s` مع `easeOut`؛ الصورة السابقة والجديدة تتداخلان في نفس الإطار فلا توجد فجوة سوداء. الفترة `3600ms` (`SLIDE_INTERVAL_MS`) تكفي للقراءة دون ملل، و`useRotatingIndex` يوقف الدوران مع تقليل الحركة.
+- **العرض الكامل:** `object-cover` استُبدل بـ`object-contain` داخل `grid place-items-center` و`p-6 md:p-12`، فتظهر الصورة كاملة في المنتصف. خُفِّف التدرج إلى `from-ink/70 via-ink/20 to-ink/10` وخُفِّفت glows إلى `primary/10` و`accent/10` حتى لا تُخفى تفاصيل الصور مع بقاء الهوية الداكنة. كل الشرائح تحصل `preload` لأنها كلها above-the-fold.
+- **الارتفاع:** الهيرو لم يعد `min-h-[78dvh]`؛ أصبح `min-h-[calc(100dvh-7rem)] sm:min-h-[calc(100dvh-4.5rem)]` مع `py-10 md:py-14`، أي يبدأ بعد الـsticky header ويملأ الارتفاع المتاح تحت الناف على الموبايل والديسكتوب.
+- **الـCTA:** أُضيف `ArrowRight` مع `rtl:rotate-180`، شكل `rounded-full px-8`، حلقة نبض أسرع `1.8s`، شimmer قطري داخل الزر `2.6s`، وحركة spring سريعة `stiffness 420 damping 24` مع hover/tap. كل الحركات المتكررة تتوقف مع `useReducedMotion()`؛ النص ما زال من `home.hero.cta`.
+- **Logical utilities:** استُبدل `-left-1/3` بـ`-start-1/3` بعد تنبيه `check-rules`، فصار RTL-safe.
+- **VerificationCommandResults:**
+  - `npm run lint` → `EXIT 0`.
+  - `npm run check` → `EXIT 0`؛ `301 code files`، `488 message keys per locale`، `0 failure(s), 0 warning(s)`.
+  - `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → `EXIT 0`.
+  - `npm run build` → `EXIT 0`؛ Next `16.4.5` Turbopack؛ compile `101s`؛ TypeScript `33.7s`؛ `56/56` pages.
+  - `git diff --check` → `EXIT 0` مع تحذيرات LF→CRLF/symlink موروثة على Windows، بلا whitespace errors.
+  - `git status --short --untracked-files=all` → `EXIT 0`؛ رُوجع؛ لا مسارات جديدة مقارنة بالقسم 56.
+  - `git diff --stat` → `EXIT 0`؛ رُوجع؛ التعديلات داخل الملفات الثلاثة المخططة سوى هذا القسم التوثيقي.
+  - `git diff -- package.json package-lock.json` → `EXIT 0` وبدون diff؛ صفر dependencies/lock changes.
+  - `git status --porcelain=v1 --untracked-files=all | sort | sha256sum` → `EXIT 0`؛ hash قبل وبعد هذا التحسين `481e2444dd72d30bf47cf62e83c2cc356204052f1a5f792fd6307ebb4016bf80` لأن مجموعة المسارات لم تتغير.
+- **Network/Source review:** لا requests جديدة؛ `preload` يخص صور الهيرو الموجودة محليًا فقط. لا توكن ولا cart mutation. لوحة Network/Browser لم تُستخدم ⇒ `NOT TESTED`.
+- **Browser Verification:** `NOT TESTED`. لم تُنفَّذ مصفوفة السلاسة، زمن التغيير، object-contain على 360px/desktop، RTL/LTR، الثيمات الأربعة، تقليل الحركة، ولا focus-visible على الزر الجديد. لا يُرقَّى فحص المصدر إلى visual acceptance.
+- **Astra Review:** `NOT TESTED`. **Production:** `D8-SEAL NOT READY / NOT SEALED`. **Owner acceptance:** `PENDING`. **Next gate:** `NOT AUTHORIZED`.
+- **النتيجة:** `HERO SLIDER REFINEMENT COMPLETE — FAST 0.18s CROSSFADE — FULL IMAGE CENTERED — FULL VIEWPORT BELOW NAV — STRONGER ANIMATED CTA — AUTOMATED CHECKS PASS — BROWSER VERIFICATION NOT TESTED — OWNER ACCEPTANCE PENDING`.
+
+⛔ STOP — HERO REFINEMENT
+
+## 58) HERO COVER FIT / REMOVE JAR MARK FROM SLIDES (2026-11-25)
+
+- **إذن صريح جديد:** المالك طلب أن تمتلئ الصورة كل السكشن طولًا وعرضًا، مع ضبط المقاسات والشكل، واستخدام `cover`، وإزالة اللوجو من السلايدر لأن حجمه غير مناسب. نُفِّذ هذا الطلب فقط؛ لا Gate جديد ولا commit/push/deploy.
+- **الملفات:** `lib/brandAssets.ts` لتقليل قائمة الشرائح، `HeroSlider.tsx` لطريقة الملء، `docs/PROGRESS.md` للتوثيق. لا ملفات جديدة ولا مفاتيح ترجمة ولا backend/DB/env/deps.
+- **الشرائح:** أُزيل `BRAND_ASSETS.jarMark` من `HERO_SLIDES`؛ السلايدر الآن ثلاث صور حقيقية فقط: `/hero/2.jpg` و`/hero/3.jpg` وملف اللافتة PNG. `BRAND_ASSETS.jarMark` نفسه بقي في سجل الأصول للاستخدامات الأخرى ولم يُحذف من الملف.
+- **المقاسات:** فُحصت أبعاد الملفات: `1280x720` و`1280x720` و`1672x941`، أي كلها نسبة ~16:9. استُبدل `object-contain` بـ`object-cover object-center`، وأُزيل `grid place-items-center p-6 md:p-12` من غلاف الشريحة، فتغطي الصورة `absolute inset-0` بالكامل دون هوامش.
+- **الطبقات:** خُفِّف التدرج إلى `from-ink/60 via-ink/15 to-ink/5` حتى تظهر تفاصيل الصورة الكاملة مع بقاء تباين الزر. سرعة الانتقال `0.18s` وفترة البقاء `3600ms` كما في القسم 57 لم تتغير.
+- **VerificationCommandResults:**
+  - `npm run lint` → `EXIT 0`.
+  - `npm run check` → `EXIT 0`؛ `301 code files`، `488 message keys per locale`، `0 failure(s), 0 warning(s)`.
+  - `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → `EXIT 0`.
+  - `npm run build` → `EXIT 0`؛ Next `16.4.5` Turbopack؛ compile `14.6s`؛ TypeScript `23.0s`؛ `56/56` pages.
+  - `git diff --check` → `EXIT 0` مع تحذيرات LF→CRLF/symlink موروثة على Windows، بلا whitespace errors.
+  - `git status --short --untracked-files=all` → `EXIT 0`؛ رُوجع؛ لا مسارات جديدة أو محذوفة مقارنة بالقسم 57.
+  - `git diff --stat` → `EXIT 0`؛ رُوجع؛ التعديلات داخل الملفين المخططين سوى هذا القسم التوثيقي.
+  - `git diff -- package.json package-lock.json` → `EXIT 0` وبدون diff؛ صفر dependencies/lock changes.
+  - `git status --porcelain=v1 --untracked-files=all | sort | sha256sum` → `EXIT 0`؛ hash قبل وبعد هذا الضبط `481e2444dd72d30bf47cf62e83c2cc356204052f1a5f792fd6307ebb4016bf80` لأن مجموعة المسارات لم تتغير.
+- **Network/Source review:** لا requests جديدة ولا تغيير توكن أو cart؛ الصور محلية من `public/`. لوحة Browser/Network لم تُستخدم ⇒ `NOT TESTED`.
+- **Browser Verification:** `NOT TESTED`. لم تُنفَّذ مراجعة بصرية لـ`cover` على 360px/desktop، ولا زاوية القص، ولا الثيمات الأربعة، ولا تقليل الحركة، ولا focus على الزر. لا يُرقَّى فحص المصدر إلى visual acceptance.
+- **Astra Review:** `NOT TESTED`. **Production:** `D8-SEAL NOT READY / NOT SEALED`. **Owner acceptance:** `PENDING`. **Next gate:** `NOT AUTHORIZED`.
+- **النتيجة:** `HERO COVER FIT COMPLETE — JAR MARK REMOVED FROM SLIDES — IMAGE FILLS FULL SECTION WITH COVER/CENTER — AUTOMATED CHECKS PASS — BROWSER VERIFICATION NOT TESTED — OWNER ACCEPTANCE PENDING`.
+
+⛔ STOP — HERO COVER FIT

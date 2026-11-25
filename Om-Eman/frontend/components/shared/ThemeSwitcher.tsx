@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { AnimatePresence, m } from "motion/react";
 import { Check, Palette } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -36,15 +36,16 @@ export const ThemeSwitcher = ({ className, labelNamespace = "theme" }: IProps) =
     },
     [close, setTheme],
   );
-  const onMenuKeyDown = useCallback(
-    (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === "Escape") {
-        event.stopPropagation();
-        close();
-      }
-    },
-    [close],
-  );
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [close, isOpen]);
 
   const triggerLabel = labelNamespace === "design" ? t("themes") : t("label");
 
@@ -58,7 +59,7 @@ export const ThemeSwitcher = ({ className, labelNamespace = "theme" }: IProps) =
         aria-label={triggerLabel}
         aria-expanded={isOpen}
         aria-haspopup="true"
-        aria-controls={menuId}
+        aria-controls={isOpen ? menuId : undefined}
         className="grid size-10 place-items-center rounded-sm bg-surface text-ink shadow-rest transition-transform duration-150 hover:scale-105"
       >
         <Palette className="size-5" aria-hidden="true" />
@@ -76,7 +77,6 @@ export const ThemeSwitcher = ({ className, labelNamespace = "theme" }: IProps) =
             />
             <m.div
               id={menuId}
-              onKeyDown={onMenuKeyDown}
               initial={{ opacity: 0, y: 8, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.95 }}

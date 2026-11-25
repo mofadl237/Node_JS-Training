@@ -1,4 +1,8 @@
 export {
+  mergeCartResultSchema,
+  mergeCartSchema,
+} from "./cartMerge";
+export {
   checkoutAddressSchema,
   checkoutFormSchema,
   checkoutItemSchema,
@@ -8,6 +12,17 @@ export {
   orderTotalsSchema,
 } from "./checkout";
 export { couponPreviewSchema, couponValidateSchema } from "./coupon";
+export {
+  customerAuthResponseSchema,
+  customerLoginSchema,
+  customerMessageResponseSchema,
+  customerTokenSchema,
+  forgotPasswordSchema,
+  registerCustomerSchema,
+  resetPasswordSchema,
+  storeCustomerSchema,
+  verifyEmailSchema,
+} from "./customerAuth";
 export {
   orderReceiptSchema,
 } from "./orderReceipt";
@@ -25,6 +40,10 @@ export {
   shippingQuoteSchema,
 } from "./shipping";
 export { productCardSchema, storefrontProductSchema } from "./storeProduct";
+export {
+  trackingTokenSchema,
+  trackedOrderSchema,
+} from "./track";
 export {
   SEARCH_LIMIT_DEFAULT,
   searchLimitSchema,

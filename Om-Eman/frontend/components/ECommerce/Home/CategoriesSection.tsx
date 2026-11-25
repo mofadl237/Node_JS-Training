@@ -5,6 +5,7 @@ import { SectionHeading } from "@/components/shared/SectionHeading";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { getStoreCategories } from "@/lib/server/storeQueries";
+import { getHomeCategoryImage } from "@/lib/brandAssets";
 import type { TGlowCardAccent } from "@/components/shared/GlowCard";
 import { CategoryCard } from "@/components/Card/CategoryCard";
 
@@ -31,7 +32,12 @@ export const CategoriesSection = async () => {
           <Stagger className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
             {result.data.map((category, index) => (
               <StaggerItem key={category.id}>
-                <CategoryCard category={category} locale={locale} accent={ACCENTS[index % ACCENTS.length]} />
+                <CategoryCard
+                  category={category}
+                  locale={locale}
+                  accent={ACCENTS[index % ACCENTS.length]}
+                  fallbackImageUrl={getHomeCategoryImage(category.slug)}
+                />
               </StaggerItem>
             ))}
           </Stagger>
