@@ -38,7 +38,7 @@ export const FloatingCartCta = () => {
                 variant="accent"
                 className="absolute -top-1 -end-1 grid size-6 place-items-center px-0 py-0 text-[10px] leading-none"
               >
-                <RollingNumber value={itemsCount} suffix={itemsCount > 99 ? "+" : undefined} />
+                <RollingNumber value={Math.min(itemsCount, 99)} suffix={itemsCount > 99 ? "+" : undefined} />
               </Badge>
             </span>
             <span className="text-start">

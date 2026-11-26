@@ -19,5 +19,6 @@ export async function generateMetadata({ params }: IProps): Promise<Metadata> {
     description: t("metaDescription"),
     path: CART_HREF,
     locale: safeLocale,
+    isNoIndex: true,
   });
 }

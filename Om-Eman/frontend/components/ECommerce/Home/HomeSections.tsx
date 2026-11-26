@@ -18,17 +18,25 @@ const TrustSkeletonInline = () => (
 export const HomeSections = () => (
   <div className="space-y-16 pb-16 md:space-y-24">
     <Hero />
-    <Suspense fallback={<TrustSkeletonInline />}>
-      <HomeTrust />
-    </Suspense>
-    <Suspense fallback={<BannerSkeleton />}>
-      <BannerSection />
-    </Suspense>
-    <Suspense fallback={<CategoriesSkeleton />}>
-      <CategoriesSection />
-    </Suspense>
-    <Suspense fallback={<FeaturedSkeleton />}>
-      <FeaturedSection />
-    </Suspense>
+    <div className="animate-fade-up [animation-delay:80ms] motion-reduce:animation-none">
+      <Suspense fallback={<TrustSkeletonInline />}>
+        <HomeTrust />
+      </Suspense>
+    </div>
+    <div className="animate-fade-up [animation-delay:160ms] motion-reduce:animation-none">
+      <Suspense fallback={<BannerSkeleton />}>
+        <BannerSection />
+      </Suspense>
+    </div>
+    <div className="animate-fade-up [animation-delay:240ms] motion-reduce:animation-none">
+      <Suspense fallback={<CategoriesSkeleton />}>
+        <CategoriesSection />
+      </Suspense>
+    </div>
+    <div className="animate-fade-up [animation-delay:320ms] motion-reduce:animation-none">
+      <Suspense fallback={<FeaturedSkeleton />}>
+        <FeaturedSection />
+      </Suspense>
+    </div>
   </div>
 );

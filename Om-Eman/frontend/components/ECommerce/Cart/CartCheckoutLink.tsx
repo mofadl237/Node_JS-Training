@@ -11,7 +11,13 @@ const CartCheckoutLink = () => {
   const t = useTranslations("cart.checkout");
 
   return (
-    <Link href={CHECKOUT_HREF} className={cn(buttonVariants({ size: "sm" }), "w-full")}>
+    <Link
+      href={CHECKOUT_HREF}
+      className={cn(
+        buttonVariants({ size: "sm" }),
+        "w-full motion-safe:transition-transform motion-safe:duration-150 motion-safe:ease-out motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.98] motion-reduce:transform-none motion-reduce:transition-none",
+      )}
+    >
       {t("cta")}
     </Link>
   );

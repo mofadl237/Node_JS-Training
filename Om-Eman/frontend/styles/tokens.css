@@ -37,9 +37,13 @@
   --animate-pulse-ring: pulse-ring 6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
 
   /* 5- SSR-visible entrance animations — safe above the fold: they run from
-     CSS alone (no JS), so server HTML is never stuck at opacity 0. */
-  --animate-fade-up: fade-up var(--dur-base) var(--ease-out) both;
-  --animate-page-in: page-in var(--dur-base) var(--ease-out) both;
+     CSS alone (no JS), so server HTML is never stuck at opacity 0.
+     Fill mode is `backwards` (NOT `both`): a finished transform animation that
+     keeps filling forwards turns the element into the containing block of its
+     `position: fixed` descendants, so fixed UI (cart CTA, progress bar) would
+     anchor to the page instead of the viewport. */
+  --animate-fade-up: fade-up var(--dur-base) var(--ease-out) backwards;
+  --animate-page-in: page-in var(--dur-base) var(--ease-out) backwards;
 
   /* 6- WhatsApp brand colors — fixed in every theme (owner may tune them).
      They are not theme-derived, so they stay out of themes.css. */

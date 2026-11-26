@@ -15,6 +15,10 @@ export const CHECKOUT_SUCCESS_HREF = "/checkout/success";
 
 export const TRACK_HREF = "/track";
 
+export const FAQ_HREF = "/faq";
+
+export const WISHLIST_HREF = "/wishlist";
+
 export const ACCOUNT_HREF = "/account";
 export const ACCOUNT_LOGIN_HREF = "/account/login";
 export const ACCOUNT_REGISTER_HREF = "/account/register";

@@ -28,7 +28,7 @@ const HeroSlider = () => {
             src={slide}
             alt={t("imageAlt")}
             sizes="100vw"
-            preload
+            preload={index === 0}
             className="object-cover object-center"
           />
         </m.div>

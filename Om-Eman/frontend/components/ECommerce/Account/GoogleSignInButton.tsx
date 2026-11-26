@@ -20,7 +20,7 @@ const GoogleSignInButton = () => {
       onClick={notifyUnavailable}
       title={unavailable}
       aria-label={`${label} — ${unavailable}`}
-      className="animate-fade-up [animation-delay:60ms] w-full whitespace-nowrap"
+      className="animate-fade-up [animation-delay:60ms] w-full whitespace-nowrap motion-safe:transition-transform motion-safe:duration-150 motion-safe:ease-out motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.98] motion-reduce:transform-none motion-reduce:transition-none"
     >
       <svg
         aria-hidden="true"

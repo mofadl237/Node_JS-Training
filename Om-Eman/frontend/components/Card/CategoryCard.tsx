@@ -24,8 +24,8 @@ export const CategoryCard = async ({ category, locale, accent, fallbackImageUrl 
   // 3- render
   return (
     <GlowCard accent={accent} className="h-full overflow-hidden">
-      <Link href={categoryHref(category.slug)} className="block h-full focus-visible:outline-2 focus-visible:outline-primary">
-        <div className="relative aspect-[4/3] w-full">
+      <Link href={categoryHref(category.slug)} className="group block h-full focus-visible:outline-2 focus-visible:outline-primary">
+        <div className="relative aspect-[4/3] w-full motion-safe:transition-transform motion-safe:duration-300 motion-safe:ease-out motion-safe:group-hover:scale-[1.03] motion-reduce:transform-none">
           {imageUrl ? (
             <StoreImage
               src={imageUrl}

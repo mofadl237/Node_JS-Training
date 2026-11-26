@@ -1,7 +1,8 @@
 # PROGRESS — سجل الشغل (محدَّث بعد كل جلسة)
 
 > ده ملف المتابعة الوحيد: أي AI يقراه يعرف اتعمل إيه بالظبط، وإيه اللي لسه.
-> آخر تسليم: `G6 — DAY 7 FINAL REVIEW & HANDOFF` — **مراجعة وثائق/أدلة وتسليم جزئي فقط؛ لا تعديل مصدر ولا Google implementation؛ DAY 7 = PARTIAL HANDOFF؛ G4 conditional وG5/G6 visual معلّقة؛ لا Production Seal**. مرجع الخطة: [DAY7_TASKS.md](./DAY7_TASKS.md)؛ اليوم السابق: `DAY6_TASKS.md` §12؛ الخطة الكاملة: `FRONTEND_TASKS_10_DAYS.md` §0.3.
+> **آخر تحديث (2026-11-26): §63 — `End Day8` closure fixes. Day 8 = SOURCE COMPLETE — PARTIAL HANDOFF، NOT SEALED، ما اتعملوش Browser Verification شامل.** الجدول القديم أدناه (حالة الأيام) تاريخي؛ الحالة الصحيحة في `REVIEW_DAY8.md §3.1` و`§10`، وخطة اليوم التالي في `DAY9_TASKS.md`.
+> (تاريخي) آخر تسليم قبل ده: `G6 — DAY 7 FINAL REVIEW & HANDOFF` — مراجعة وثائق/أدلة وتسليم جزئي فقط؛ DAY 7 = PARTIAL HANDOFF. مرجع الخطة: [DAY7_TASKS.md](./DAY7_TASKS.md)؛ اليوم السابق: `DAY6_TASKS.md` §12؛ الخطة الكاملة: `FRONTEND_TASKS_10_DAYS.md` §0.3.
 > **رموز الحالة:** ✅ متأكد بأوامر · 🟢 بصري اعتمده المالك · 🟡 بصري بانتظار المالك · ⛔ محجوب · ⚠️ جزئي.
 > أداة الفحص الموحدة للمراجعة: `npm run check` (`scripts/check-rules.mjs`) — حدود الأسطر، نصوص عربي hard-coded، ألوان خام، any/console.log/framer-motion، تطابق `ar.json`/`en.json`.
 > القاعدة: نحدّث الملف ده **قبل ما نقفل أي خطوة** (مش بعد).
@@ -3210,3 +3211,299 @@ SMART EGYPT ADDRESS SYSTEM — PLANNING COMPLETE — DOCUMENTATION ONLY — IMPL
 - **النتيجة:** `HERO COVER FIT COMPLETE — JAR MARK REMOVED FROM SLIDES — IMAGE FILLS FULL SECTION WITH COVER/CENTER — AUTOMATED CHECKS PASS — BROWSER VERIFICATION NOT TESTED — OWNER ACCEPTANCE PENDING`.
 
 ⛔ STOP — HERO COVER FIT
+
+## 59) DAY 8 G4A — FAQ & WISHLIST UI PREPARATION (2026-11-25)
+
+- **الإذن والتحقق التمهيدي:** إذن مستقل باسم `G4A — DAY 8 FAQ & WISHLIST UI PREPARATION`، مع اعتماد المالك الحالي لـG4 وتأكيده المباشر أن G2 مقبول `source-wise` لاتفاقيات metadata/breadcrumb. تعارض G0 محسوم: القديم ملغى (`DAY8_TASKS.md:8`) والجديد مقبول وموثّق (`PROGRESS.md:2941-2954`). رُوجعت `AGENTS.md` و`FRONTEND_TASKS §0.3/Day8/9/10` و`PROGRESS` أقسام Day7/8 و`DAY7_TASKS` و`DAY8_TASKS` والكود الحالي للـHeader/Footer/Routes/Metadata/Breadcrumb/Translations قبل أي تعديل. لا committing/pushing/deploy/reset/clean/checkout/stash.
+- **خطة الملفات:** عُرض جدول قبل التنفيذ يحدد الملفات والمسؤولية والسبب والمكونات الجديدة والمعاد استخدامها واتفاقيات Routes/Metadata/Breadcrumb ومفاتيح الترجمة وحالة الأصول. لم يُنفَّذ أي source change قبل عرض الخطة.
+- **الملفات المنشئة:** `app/[locale]/(Store)/faq/page.tsx`, `faq/metadata.ts`, `app/[locale]/(Store)/wishlist/page.tsx`, `wishlist/metadata.ts`, `components/shared/StoreBreadcrumb.tsx`, `components/ECommerce/FAQ/FaqSection.tsx`, `components/ECommerce/FAQ/FaqItem.tsx`, `components/ECommerce/Wishlist/WishlistEmptyState.tsx`.
+- **الملفات المعدّلة:** `lib/routes.ts`, `messages/ar.json`, `messages/en.json`, `components/ECommerce/Footer/FooterNav.tsx`, `components/ECommerce/Header/HeaderNavLinks.tsx`, `components/ECommerce/Header/MobileNavItems.tsx`, `docs/PROGRESS.md`. لا تعديل على `lib/jsonld.ts` أو `components/shared/JsonLd.tsx`؛ استُخدمت أدواتهما الحالية كما هي.
+- **FAQ:** صفحة رقيقة تركّب `StoreBreadcrumb` و`FaqSection` فقط؛ المحتوى في component منفصل ويعرض ثلاثة أسئلة موثّقة بالمصادر الحالية: تصفح المنتجات، التواصل عبر روابط التذييل، وأن الحفظ في المفضلة غير مفعّل. استُخدم `<details>` ACCESSIBLE بلا JS مخصص، ولا توجد وعود شحن/توصيل/دفع/إرجاع/ضمانات. لم يُضف FAQ JSON-LD لأن محتوى السياسات التجارية غير معتمد بعد.
+- **Wishlist:** صفحة تحضيرية رقيقة ببيانات واضحة أن القائمة غير مفعّلة وأنه لا يمكن حفظ المنتجات أو استرجاعها. `WishlistEmptyState` منفصل ويستخدم `EmptyState` و`buttonVariants` و`Link` إلى المنتجات. صفر endpoint، صفر request، صفر persistence، صفر localStorage/sessionStorage، صفر mutations، صفر slice/store جديد، صفر ادعاء بوظيفة فاعلة.metadata الصفحة تستخدم `isNoIndex: true`.
+- **التنقل:** أُضيف `FAQ_HREF` و`WISHLIST_HREF` إلى `lib/routes.ts`، ودخلات FAQ/Wishlist إلى `HeaderNavLinks` و`MobileNavItems` و`FooterNav` بنفس arrays/classes الحالية وأيقونات lucide مثبتة (`HelpCircle`, `Heart`). لا إعادة تصميم Header/Footer.
+- **Metadata/Breadcrumb:** كلا المسارين يستخدمان `buildMetadata` مع `path` صحيح و`isLocale` و`routing.defaultLocale`؛ FAQ قابل للفهرسة وWishlist `noindex`. `StoreBreadcrumb` يبني BreadcrumbList عبر `buildBreadcrumbJsonLd` الحالي مع عناصر الرئيسية + الصفحة الحالية. لم يُمسَّ sitemap؛ تأجيله إلى `D15-SEO-SITEMAP` ما زال ساريًا.
+- **الترجمات:** أُضيفت namespaces `faq.*` و`wishlist.*` وlabels `header.faq/wishlist` و`footer.nav.faq/wishlist` في ar/en بهيكل متطابق. لا نص مستخدم مرئي مكتوب داخل المكونات.
+- **الأصول:** لم تُستخدم أصول جديدة. مرشحات `Set_01_Brand_Collection/09_faq_banner.png` و`10_wishlist_empty_banner.png` و`Set_02_Modern_Organic_Collection/08_faq_banner.png` و`09_wishlist_empty_banner.png` مسجّلة في G0 كمرشحات `G4A only` فقط، وليست معتمدة للربط ⇒ `NOT USED / BLOCKER`. لم يُعدَّل `lib/brandAssets.ts` في G4A.
+- **VerificationCommandResults:**
+  - `npm run lint` → `EXIT 0`.
+  - `npm run check` → `EXIT 0`؛ `309 code files`، `513 message keys per locale`، `0 failure(s), 0 warning(s)`. أُصلح تحذير طول صفحة Wishlist إلى `0 warnings` بنقل العنوان إلى `WishlistEmptyState`.
+  - `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → `EXIT 0`.
+  - `npm run build` → `EXIT 0`؛ Next `16.4.5` Turbopack؛ compile `72s`؛ TypeScript `19.2s`؛ `62/62` pages؛ ظهر `/[locale]/faq` و`/[locale]/wishlist` مع `/ar` و`/en` في جدول المسارات.
+  - `git diff --check` → `EXIT 0` مع تحذيرات LF→CRLF/symlink موروثة على Windows، بلا whitespace errors.
+  - `git status --short --untracked-files=all` → `EXIT 0`؛ رُوجع؛ الشجرة المتسخة الموروثة محفوظة، والملفات الجديدة كلها داخل خطة G4A.
+  - `git diff --stat` → `EXIT 0`؛ رُوجع؛ لا تعديلات خارج الملفات المخططة سوى هذا القسم التوثيقي.
+  - `git diff -- package.json package-lock.json` → `EXIT 0` وبدون diff؛ صفر dependencies/lock changes.
+  - `git status --porcelain=v1 --untracked-files=all | sort | sha256sum` → `EXIT 0`؛ hash ما قبل G4A `481e2444dd72d30bf47cf62e83c2cc356204052f1a5f792fd6307ebb4016bf80`، وبعد ملفات المصدر `a7388815f1cd9cf24a89384d5e80de9cdd5b50ad15e9779a0ad5a97cd09c83a9`. الفرق هو ملفات G4A المخططة فقط داخل شجرة متسخة موروثة.
+- **API/runtime verification:** فحص مصدر صريح على `components/ECommerce/Wishlist/**` وعموم المشروع لم يجد `wishlistApi` أو `WISHLIST_API` أو `FAQPage` أو `localStorage` أو `sessionStorage` أو `fetch(` أو `useMutation` أو `/api/` داخل نطاق G4A. لا request جديدة. `app/sitemap.ts` لم يُعدَّل.
+- **Network/Source review:** الصفحتان ثابتتان بلا data fetching؛ لا توكن ولا بيانات عملاء ولا request من أي نوع. لوحة Network/Browser لم تُستخدم ⇒ `NOT TESTED`.
+- **Browser Verification:** `NOT TESTED`. لا Playwright/Puppeteer/Lighthouse؛ لم تُنفَّذ مصفوفة ar/en، RTL/LTR، 360px/desktop، الثيمات الأربعة، keyboard/focus-visible، Breadcrumb، Empty State، ولا فحص metadata فعلي في DOM. لا يُرقَّى فحص المصدر أو build إلى visual acceptance.
+- **Business Content Blockers:** سياسات الشحن والتوصيل والدفع والإرجاع والاستبدال والضمانات غير موثقة ⇒ لم تُكتب ولم تُختلق؛ محتوى FAQ التجاري يحتاج مصادر معتمدة من المالك؛ FAQ structured data مؤجل حتى تحقق المحتوى؛ أصول FAQ/Wishlist تحتاج اختيارًا واعتمادًا صريحًا.
+- **Astra Review:** `NOT TESTED`. **Production:** `D8-SEAL NOT READY / NOT SEALED`.
+- **التقرير النهائي:** `G4A SOURCE IMPLEMENTATION: COMPLETE — FAQ ROUTE + WISHLIST UI PREPARATION ONLY — TWO LOCALIZED THIN PAGES — METADATA/BREADCRUMB CONVENTIONS APPLIED — NAV LINKS ADDED — NO API/PERSISTENCE/MUTATIONS`. `AUTOMATED CHECKS: PASS`. `API VERIFICATION: PASS — NO WISHLIST ENDPOINT OR REQUEST`. `BROWSER VERIFICATION: NOT TESTED`. `BUSINESS CONTENT BLOCKERS: OPEN`. `ASTRA REVIEW: NOT TESTED`. `OWNER ACCEPTANCE: PENDING`. `NEXT GATE: NOT AUTHORIZED`.
+
+⛔ STOP — G4A
+
+## 60) DAY 8 G5 — STYLE & MOTION (2026-11-25)
+
+- **الإذن والـprerequisites:** إذن مالك مستقل باسم `G5 — DAY 8 STYLE & MOTION`. قُرئت `AGENTS.md`، `FRONTEND_TASKS_10_DAYS.md §0.3/يوم8/يوم9/يوم10`، `PROGRESS.md` حالة G1/G2/G3/G4/G4A، و`DAY8_TASKS.md §0/§5.7/Gate5`. G0 مقبول وموثّق؛ G1/G2 source-wise مقبولان للترتيب؛ G3 مقبول صراحةً في إذن G4؛ G4 مقبول صراحةً في إذن G4A؛ G4A مقبول الآن `source-wise` بتأكيد المالك المباشر أثناء preflight. Astra Review لم يُستخدم بديلًا عن Owner Acceptance. لا source change قبل حل هذا الشرط.
+- **Preflight إضافي:** فُحصت مخزونات الحركة الحالية: `MotionProvider.tsx` (`LazyMotion strict` + `MotionConfig reducedMotion="user"`)، `lib/motion.ts`، `styles/animations.css` kill-switch عند `288-318`، `animate-fade-up`، `Stagger`/`StaggerItem`، `GlowCard`، `Spotlight`، `BorderBeam`، `CountUp`، `useRotatingIndex`، والكود الفعلي للهوم/Google/checkout/FAQ/Wishlist. `git status --short --untracked-files=all` رُوجع؛ hash ما قبل G5 `84c9e60fa6d51306c7bd80dccaebee097fdf677cf4d2f0b286e305f9317f7595`؛ الشجرة المتسخة الموروثة محفوظة بلا reset/checkout/stash/overwrite/commit/push/deploy.
+- **خطة文件的 قُدّمت قبل التنفيذ:** جدول يحدد كل component، الحركة المطلوبة، الـwrapper/utility المعاد استخدامه، وقرار عدم تعديل `styles/animations.css`. لم يُبدأ implementation قبل عرضها.
+- **انحراف مبرر عن الخطة:** الخطة الأولى اقترحت `Stagger`/`StaggerItem` لستاگر الأقسام. أثناء المراجعة المصدرية لـreduced-motion تبيّن أن `MotionConfig reducedMotion="user"` يكبح Transform ولا يضمن إلغاء delay/opacity، بينما قاعدة `day 8 §0` و`AGENTS.md §3.2` تجعل مداخل SSR可见 تعتمد على `animate-fade-up`. لذلك استُبدل الـstagger بـCSS-only fade-up بـdelays `80/160/240/320ms` و`motion-reduce:animation-none` صريح؛ لا `initial opacity:0` جديد ولا تأخير محتوى مع تقليل الحركة. هذا ضمن النطاق ولا يغيّر محتوى أو بيانات.
+- **الملفات المعدّلة ومسؤوليتها:**
+  - `components/ECommerce/Home/HomeSections.tsx`: أربع حركات ظهور متتالية خفيفة للأقسام بعد الهيرو فقط؛ الهيرو above-the-fold لم يُلمس.
+  - `components/Card/CategoryCard.tsx`: hover خفيف لصورة الكارت عبر transform محمي بـ`motion-safe:` وموقوف بـ`motion-reduce:transform-none`.
+  - `components/Card/ProductCard.tsx`: لمسة zoom خفيفة على الصورة الرئيسية وhover/press للـCTA بدون لمس Fly/Spotlight/BorderBeam ولا عقد الإضافة للسلة.
+  - `components/ECommerce/Account/GoogleSignInButton.tsx`: hover lift وpress scale بصريان فقط؛ `onClick` ما زال يستدعي `toast(unavailable)` مرة واحدة، والرسالة من `messages/` كما هي.
+  - `components/ECommerce/Cart/CartCheckoutLink.tsx`: hover/press بصري للرابط؛ `CHECKOUT_HREF` والشروط و`Link`/`buttonVariants()` لم تتغير.
+  - `components/ECommerce/FAQ/FaqItem.tsx`: hover/open transition لحالة `<details>`؛ السهم ما زال يعكس الحالة فورًا حتى مع تقليل الحركة؛ المحتوى لم يتغير.
+  - `components/ECommerce/Wishlist/WishlistEmptyState.tsx`: hover خفيف للحاوية وhover/press لزر المنتجات؛ `EmptyState` والرسالة وعدم الـpersistence كما هي.
+  - `docs/PROGRESS.md`: هذا السجل والتقرير النهائي فقط.
+- **الأدوات المعاد استخدامها:** `animate-fade-up` وkill-switch الحالي في `styles/animations.css:288-318`، `MotionConfig reducedMotion="user"`، `GlowCard`، `Spotlight`، `BorderBeam`، `buttonVariants()`، `Button`، `EmptyState`، `<details>/<summary>`، utilities `motion-safe:`/`motion-reduce:`، والتوكينات الدلالية فقط. لا مكتبة جديدة، لا `motion.*`، لا `framer-motion`، لا GSAP/Lottie/Three، لا Sass، لا raw hex/rgb.
+- **`styles/animations.css`:** لم يُعدَّل. لا keyframe جديد لأن `animate-fade-up` موجود ويختفي تلقائيًا مع `prefers-reduced-motion`، والانتقالات الجديدة كلها transform/opacity/color عبر utilities موجودة. لا دوارة مستمرة جديدة.
+- **Reduced Motion — source-level review:** كل Scale/Translate الجديد داخل `motion-safe:` أو متبوع بـ`motion-reduce:transform-none`؛ `animate-fade-up` مكتوب عليه صراحةً `motion-reduce:animation-none` إضافة إلى CSS kill-switch؛ سهم FAQ يبقى مرئيًا ويتغير اتجاهه دون انتقال عند تقليل الحركة؛ لا حالة أو رسالة مخفية خلف opacity؛ لا تأخير تنقل أو focus؛ لا حركة مستمرة مضافة؛ Fly/Pulse/Sheen القديمة تحتفظ بحواجزها الحالية ولم تُمدَّد. لا يُعتمد على CSS rule وحده: رُوجع كل ملف على حدة.
+- **VerificationCommandResults:**
+  - `npm run lint` → `EXIT 0`.
+  - `npm run check` → `EXIT 0`؛ `309 code files`، `513 message keys per locale`، `0 failure(s), 0 warning(s)`.
+  - `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → `EXIT 0`.
+  - `npm run build` → `EXIT 0`؛ Next `16.4.5` Turbopack؛ compile `9.9s`، TypeScript `13.4s`، `62/62` pages في التشغيل النهائي بعد انحراف الـstagger؛ لا أخطاء network/type في البناء.
+  - `git diff --check` → `EXIT 0` مع تحذيرات LF→CRLF/symlink موروثة على Windows، بلا whitespace errors.
+  - `git status --short --untracked-files=all` → `EXIT 0`؛ رُوجع؛ files الجديدة/المعدّلة داخل خطة G5 والانحراف الموثّق؛ الشجرة المتسخة الموروثة محفوظة.
+  - `git diff` و`git diff --stat` → `EXIT 0`؛ رُوجع؛ لا تعديلات خارج الملفات المذكورة سوى هذا القسم. `git diff -- package.json package-lock.json` → `EXIT 0` وبدون diff؛ صفر dependencies/lock changes.
+  - File line-count checks: `HomeSections 42`, `CategoryCard 50`, `ProductCard 108`, `GoogleSignInButton 38`, `CartCheckoutLink 26`, `FaqItem 19`, `WishlistEmptyState 36` — كلها أقل من 150 سطرًا.
+  - `git status --porcelain=v1 --untracked-files=all | sort | sha256sum` → `EXIT 0`؛ hash ما قبل G5 `84c9e60fa6d51306c7bd80dccaebee097fdf677cf4d2f0b286e305f9317f7595`، وبعد ملفات المصدر `1c2c19156b825003c48c4dd61e7c95e57046919ba1286042f1ecf860a951be1b`؛ الفرق هو تعديلات G5 داخل ملفات موجودة فقط، بلا مسارات جديدة.
+- **Browser Verification:** `NOT TESTED`. لا Playwright/Puppeteer/Lighthouse ولا بيئة متصفح مأذونة؛ لم تُختبر مصفوفة stagger/cards، Google hover/press، checkout hover/press، FAQ، Wishlist، 360px/desktop، RTL/LTR، الثيمات الأربعة، normal/reduced motion، focus-visible، overflow، ولا hydration flicker. لا يُرقَّى build/source review إلى دليل بصري.
+- **Blockers/انحرافات:** لا blocker جديد داخل G5؛ البلوكات الموروثة (D8 assets، محتوى FAQ التجاري، browser environment، authenticated merge، D8-SEAL) كما هي. الانحراف الوحيد هو استبدال Stagger المقترح بـCSS fade-up موثّق أعلاه لصالح reduced-motion وSSR visibility.
+- **Astra Review:** `NOT TESTED`. **Production:** `D8-SEAL NOT READY / NOT SEALED`.
+- **التقرير النهائي:** `G5 SOURCE IMPLEMENTATION: COMPLETE — GENTLE HOME STAGGER + CARD HOVER + GOOGLE/CHECKTOPRESS + FAQ/WISHLIST STATE TRANSITIONS — NO BEHAVIOR/API/MESSAGE/ROUTE CHANGES — NO NEW KEYFRAME`. `AUTOMATED CHECKS: PASS`. `REDUCED MOTION: PASS SOURCE-LEVEL`. `BROWSER VERIFICATION: NOT TESTED`. `ASTRA REVIEW: NOT TESTED`. `OWNER VISUAL ACCEPTANCE: PENDING`. `NEXT GATE: NOT AUTHORIZED`.
+
+⛔ STOP — G5
+
+---
+
+## §61) G6 — Day 8 Browser / Visual Evidence (Owner-authorized, evidence-only)
+
+- **Owner Decision:** المالك منح صراحةً `G6 — DAY 8 BROWSER EVIDENCE`، وسجّل `G5 visual acceptance granted`. هذا إذن لتجميع أدلة/browser evidence فقط؛ ليس إذناً لتنفيذ G7 أو Day 9 أو أي Gate آخر.
+- **Scope guard:** `Implementation: Evidence collection only`. ملف واحد مسموح بتعديله: `docs/PROGRESS.md`. لا source changes، لا bug fixes، لا backend/DB/env/config/deps، لا API writes/mutations، لا Google OAuth حقيقي، لا authenticated cart merge، لا production deployment، لا commit/push/deploy، لا إخفاء عيوب.
+- **Phase 1 — Preflight:** مكتمل.
+  - قُرئت `AGENTS.md`، و`docs/FRONTEND_TASKS_10_DAYS.md §0.3` (lines `31-55`) وDay 8 (lines `225-236`) وDay 9 boundaries (من `238`) وacceptance (lines `284-294`)، و`docs/PROGRESS.md §47-§49` وسجلات G0/G1/G2/G3/G4/G4A/G5/§59/§60، و`docs/DAY7_TASKS.md §6` (lines `154-169`) و`§7` (من `173`) و`§12` (lines `332-342`).
+  - قُرئ `docs/DAY8_TASKS.md:363-376`؛ `Gate 6 — Browser / Visual Evidence` هو نفسه المرجع المشار إليه بـ`§7.6` في رسالة الإذن؛ لا يوجد جدول مستقل بعنوان `§7.6 Browser Matrix` داخل الملف، لذلك استُخدمت مصفوفة الإذن الصريحة (ar/en، RTL/LTR، أربعة ثيمات، 360px/desktop، focus-visible، normal/reduced motion، overflow/hydration flicker/responsive) كمرجع تنفيذي.
+  - تحقّق Acceptance: G0 مقبول في `§51`؛ G1/G2 مقبولان source-wise في preflight G4A `§59`؛ G3 مقبول صراحةً في إذن G4 `§55`؛ G4 مقبول صراحةً في `§59/§60`؛ G4A مقبول source-wise في `§60`؛ G5 مكتمل source/automated في `§60` والآن مقبول بصرياً من المالك. لا تعارض يمنع اختبار G6.
+  - automated-check evidence موروث وموثّق في `§§52-60`: `npm run lint`، `npm run check`، `tsc --noEmit`، `npm run build`، `git diff --check`، و`git diff -- package.json package-lock.json` كلها `EXIT 0`؛ لم تُعَد تشغيلها في G6 لأن المرحلة evidence-only وليست إعادة build.
+  - `git status --short --untracked-files=all` و`git status --porcelain=v1 --untracked-files=all | sort | sha256sum` → `EXIT 0`؛ baseline hash `1c2c19156b825003c48c4dd61e7c95e57046919ba1286042f1ecf860a951be1b`؛ `20` entry (12 modified + 8 untracked)؛ الشجرة المتسخة الموروثة محفوظة، بلا reset/checkout/stash/revert.
+- **Phase 2 — Browser Environment Availability:** `NOT AVAILABLE`.
+  - المالك لم يوفّر URL مأذوناً لـLocal أو Staging؛ لا يُسمح بProduction ولا بأي بيئة خارج النطاق المملوك/المأذون.
+  - `package.json` scripts: `dev, build, start, lint, check` فقط؛ لا `playwright`، لا `@playwright/test`، لا `puppeteer`، لا `lighthouse` في dependencies/devDependencies.
+  - `node_modules/playwright`، `node_modules/@playwright/test`، `node_modules/puppeteer`، `node_modules/lighthouse` → `ABSENT`.
+  - `Get-NetTCPConnection -State Listen -LocalPort 3001,3002` → `NO_LISTENER_3001_3002`؛ لا خادم frontend قائم.
+  - أوامر المتصفح `google-chrome`، `chrome`، `msedge`، `chromium`، `firefox` → `ABSENT` في shell المتاح.
+  - لم يُبدأ dev server، لم يُثبَّت أي tooling، لم يُعدَّل أي config، ولم تُفتح Production. لذلك لا توجد لقطات أو DOM logs أو console/network captures.
+- **Phase 3 — Required scope evidence matrix:** كل الصفوف `NOT TESTED` لغياب بيئة متصفح مأذونة؛ `Actual` تعني أنه لم تحدث ملاحظة فعلية، وليس أن العنصر فاشل.
+
+| Test ID | Exact route / locale | Intended conditions | Planned steps | Expected | Actual / Result | Evidence ref |
+|---|---|---|---|---|---|---|
+| `G6-HOME-AR` | `/ar`، `ar`، `rtl` | loading / empty / error / loaded × 360px/desktop × 4 themes × normal/reduced | افتح الصفحة ولاحظ skeletons ثم final state وحالات fallback | skeleton قبل المحتوى، empty/error واضحان، loaded بلا flicker | `NO OBSERVATION — no authorized browser` / `NOT TESTED` | none |
+| `G6-HOME-EN` | `/en`، `en`، `ltr` | loading / empty / error / loaded × 360px/desktop × 4 themes × normal/reduced | افتح الصفحة ولاحظ skeletons ثم final state وحالات fallback | skeleton قبل المحتوى، empty/error واضحان، loaded بلا flicker | `NO OBSERVATION — no authorized browser` / `NOT TESTED` | none |
+| `G6-SEO-AR` | `/ar`، `ar`، `rtl` | HTML source: canonical، hreflang، OG، Twitter، JSON-LD | افحص source/metadata domains في بيئة مأذونة | canonical/hreflang/OG/Twitter/JSON-LD صحيحة ومحلية | `NO OBSERVATION — no authorized browser/server` / `NOT TESTED` | none |
+| `G6-SEO-EN` | `/en`، `en`، `ltr` | HTML source: canonical، hreflang، OG، Twitter، JSON-LD | افحص source/metadata domains في بيئة مأذونة | canonical/hreflang/OG/Twitter/JSON-LD صحيحة ومحلية | `NO OBSERVATION — no authorized browser/server` / `NOT TESTED` | none |
+| `G6-FAQ-AR` | `/ar/faq`، `ar`، `rtl` | details open/close + breadcrumb + navigation + 360px/desktop + keyboard | افتح FAQ، بدّل details، تحقق breadcrumb/nav/focus | محتوى عربي صحيح، تنقل سليم، details قابلة للوصول | `NO OBSERVATION — no authorized browser` / `NOT TESTED` | none |
+| `G6-FAQ-EN` | `/en/faq`، `en`، `ltr` | details open/close + breadcrumb + navigation + 360px/desktop + keyboard | افتح FAQ، بدّل details، تحقق breadcrumb/nav/focus | محتوى إنجليزي صحيح، تنقل سليم، details قابلة للوصول | `NO OBSERVATION — no authorized browser` / `NOT TESTED` | none |
+| `G6-WISHLIST-AR` | `/ar/wishlist`، `ar`، `rtl` | UI-only empty state؛ بلا persistence/API | افتح الصفحة ولاحظ empty state فقط | حالة فارغة ودودة بلا أثر تخزين أو طلبات mutation | `NO OBSERVATION — no authorized browser` / `NOT TESTED` | none |
+| `G6-WISHLIST-EN` | `/en/wishlist`، `en`، `ltr` | UI-only empty state؛ بلا persistence/API | افتح الصفحة ولاحظ empty state فقط | حالة فارغة ودودة بلا أثر تخزين أو طلبات mutation | `NO OBSERVATION — no authorized browser` / `NOT TESTED` | none |
+| `G6-GOOGLE-AR` | `/ar/account/login`، `ar`، `rtl` | localized unavailable feedback؛ بلا OAuth حقيقي | اضغط زر Google ولاحظ الرسالة/التركيز | رسالة محلية بأن التفاعل غير متاح، بلا network OAuth | `NO OBSERVATION — no authorized browser` / `NOT TESTED` | none |
+| `G6-GOOGLE-EN` | `/en/account/login`، `en`، `ltr` | localized unavailable feedback؛ بلا OAuth حقيقي | اضغط زر Google ولاحظ الرسالة/التركيز | رسالة محلية بأن التفاعل غير متاح، بلا network OAuth | `NO OBSERVATION — no authorized browser` / `NOT TESTED` | none |
+| `G6-CART-AR` | `/ar/cart`، `ar`، `rtl` | CTA visibility مع cart valid/invalid + hover/press + keyboard | افتح cart بحالة صالحة ثم غير صالحة ولاحظ CTA | يظهر CTA فقط عند صلاحية المتطلبات، بلا تنقل خاطئ | `NO OBSERVATION — no authorized browser` / `NOT TESTED` | none |
+| `G6-CART-EN` | `/en/cart`، `en`، `ltr` | CTA visibility مع cart valid/invalid + hover/press + keyboard | افتح cart بحالة صالحة ثم غير صالحة ولاحظ CTA | يظهر CTA فقط عند صلاحية المتطلبات، بلا تنقل خاطئ | `NO OBSERVATION — no authorized browser` / `NOT TESTED` | none |
+| `G6-CHECKOUT-AR` | `/ar/checkout`، `ar`، `rtl` | تنقل من CTA + الحفاظ على اللغة | انقر CTA من cart ولاحظ المسار والـdir | يفتح `/ar/checkout` باللغة والاتجاه الصحيحين | `NO OBSERVATION — no authorized browser` / `NOT TESTED` | none |
+| `G6-CHECKOUT-EN` | `/en/checkout`، `en`، `ltr` | تنقل من CTA + الحفاظ على اللغة | انقر CTA من cart ولاحظ المسار والـdir | يفتح `/en/checkout` باللغة والاتجاه الصحيحين | `NO OBSERVATION — no authorized browser` / `NOT TESTED` | none |
+- **Phase 3 guard:** لم يُجرَ Google حقيقي، ولا تسجيل دخول، ولا cart mutation/merge، ولا API write؛ لا توجد بيانات عملاء أو tokens أو عناوين أو emails في هذا السجل.
+- **Phase 4 — Browser matrix evidence:** كل الصفوف `NOT TESTED`؛ لا توجد لقطة أو قياس أو مقارنة بصرية.
+
+| Test ID | Axis | Exact setting | Planned check | Actual / Result | Evidence ref |
+|---|---|---|---|---|---|
+| `G6-M-LOCALE-AR` | locale/direction | `ar` / `rtl` | تحقق `lang`، `dir`، logical spacing، انعكاس الأيقونات | `NO OBSERVATION` / `NOT TESTED` | none |
+| `G6-M-LOCALE-EN` | locale/direction | `en` / `ltr` | تحقق `lang`، `dir`، ترتيب العناصر وmessage text | `NO OBSERVATION` / `NOT TESTED` | none |
+| `G6-M-THEME-ZAFRAN` | theme | `zafran` | تحقق `data-theme` وتوكنات الألوان | `NO OBSERVATION` / `NOT TESTED` | none |
+| `G6-M-THEME-ATTAR` | theme | `attar` | تحقق `data-theme` وتوكنات الألوان | `NO OBSERVATION` / `NOT TESTED` | none |
+| `G6-M-THEME-CINNAMON` | theme | `cinnamon` | تحقق `data-theme` وتوكنات الألوان | `NO OBSERVATION` / `NOT TESTED` | none |
+| `G6-M-THEME-HIBISCUS` | theme | `hibiscus` | تحقق `data-theme` وتوكنات الألوان | `NO OBSERVATION` / `NOT TESTED` | none |
+| `G6-M-VIEWPORT-360` | viewport | `360px` | تحقق عدم overflow وأحجام اللمس وقابلية القراءة | `NO OBSERVATION` / `NOT TESTED` | none |
+| `G6-M-VIEWPORT-DESKTOP` | viewport | desktop | تحقق التخطيط وتوزيع الأقسام | `NO OBSERVATION` / `NOT TESTED` | none |
+| `G6-M-A11Y-FOCUS` | keyboard | Tab/Shift+Tab + focus-visible | تحقق ظهور focus وترتيب الوصول لكل interactive element | `NO OBSERVATION` / `NOT TESTED` | none |
+| `G6-M-MOTION-NORMAL` | motion | normal | تحقق الحركات/Smoothness دون flicker | `NO OBSERVATION` / `NOT TESTED` | none |
+| `G6-M-MOTION-REDUCED` | motion | `prefers-reduced-motion: reduce` | تحقق إلغاء الحركة وثبات المحتوى | `NO OBSERVATION` / `NOT TESTED` | none |
+| `G6-M-LAYOUT` | layout integrity | overflow / hydration flicker / responsive | تحقق من scrollbars أفقية ووميض ترطيب وتغير مقاسات مفاجئ | `NO OBSERVATION` / `NOT TESTED` | none |
+- **Phase 5 — DOM / Visual / Console / Network:**
+  - DOM: `NOT TESTED`؛ لا DOM snapshots ولا element queries ولا HTML source capture في G6. أي فحص source سابق في `§53` يبقى source-only ولا يُرقَّى إلى دليل G6.
+  - Visual: `NOT TESTED`؛ لا screenshots ولا مقارنة بصرية تحت أي ثيم/مقاس/اتجاه.
+  - Console: `NOT TESTED`؛ لا console capture؛ لا يُادَّعى خلوّ وحدة التحكم من الأخطاء.
+  - Network: `NOT TESTED`؛ لا DevTools/network capture؛ لا يُستنتج نجاح أو فشل من `HTTP 200` لأنه لم تحدث طلبات مرصودة أصلاً.
+  - Accessibility/Focus: `NOT TESTED`؛ ملاحظات source/type السابقة لا تُعد بديلاً عن اختبار لوحة المفاتيح/التركيز في المتصفح.
+  - Reduced Motion runtime: `NOT TESTED`؛ `§60` يثبت source-level فقط، ولم يُختبر سلوك `prefers-reduced-motion` فعلياً.
+- **Findings / Blockers:**
+  - `D8-BROWSER-ENVIRONMENT: BLOCKED` — لا URL مأذون، لا خادم على `3001/3002`، لا browser automation، لا browser command متاح؛ غياب البيئة blocker للأدلة وليس فشل كود.
+  - لا عيب كود جديد مكتشف أو مُصلَح؛ لا تعديلات source، لا إخفاء defects.
+  - inherited blockers ما زالت مفتوحة: محتوى FAQ التجاري (شحن/توصيل/دفع/إرجاع/ضمانات)، أصول FAQ/Wishlist غير معتمدة للربط، Google الحقيقي وauthenticated cart merge غير مأذونين، D8-SEAL.
+  - `OWNER VISUAL ACCEPTANCE`: G5 مقبول صراحةً الآن؛ G6 لم يُعتمد بصرياً ولا يُستنتج acceptance له.
+  - `ASTRA REVIEW: NOT TESTED`. `PRODUCTION READINESS: D8-SEAL NOT READY / NOT SEALED`.
+- **VerificationCommandResults (بعد تعديل هذا القسم):**
+  - `git diff --check` → `EXIT 0` مع تحذيرات `LF will be replaced by CRLF` موروثة على Windows (منها `docs/PROGRESS.md`)، بلا whitespace errors.
+  - `git status --short --untracked-files=all` و`git status --porcelain=v1 --untracked-files=all | sort | sha256sum` → `EXIT 0`؛ `20` entry؛ hash نهائي `1c2c19156b825003c48c4dd61e7c95e57046919ba1286042f1ecf860a951be1b` مطابق لـbaseline G6؛ لا مسارات جديدة أو محذوفة.
+  - `git diff --stat` → `EXIT 0`؛ الإجمالي الموروث `12 files changed, 299 insertions(+), 27 deletions(-)`؛ حصة G6 وحدها `docs/PROGRESS.md | 152 +++++++++++++++++++++`؛ بقية الملفات هي أعمال G4A/G5 source الموروثة.
+  - `git diff -- package.json package-lock.json` → `EXIT 0` وبدون diff؛ صفر dependency/lock changes.
+- **Final status report:**
+  1. G6 Preflight: `COMPLETE` — docs وacceptance وautomated evidence وgit baseline رُوجعت؛ لا تعارض prerequisite.
+  2. Browser Environment Availability: `NOT AVAILABLE` — لا Local/Staging URL ولا أدوات/متصفح/خادم؛ `NO_LISTENER_3001_3002`.
+  3. Homepage States: `NOT TESTED` — `/ar` و`/en`، loading/empty/error/loaded، بلا evidence.
+  4. SEO HTML Source: `NOT TESTED` — canonical/hreflang/OG/Twitter/JSON-LD، بلا evidence.
+  5. FAQ ar/en: `NOT TESTED` — `/ar/faq` و`/en/faq`، details/breadcrumb/navigation، بلا evidence.
+  6. Wishlist UI-only empty: `NOT TESTED` — `/ar/wishlist` و`/en/wishlist`، بلا persistence claims.
+  7. Google interaction/localized unavailable: `NOT TESTED` — `/ar/account/login` و`/en/account/login`، بلا OAuth.
+  8. Cart CTA visibility: `NOT TESTED` — `/ar/cart` و`/en/cart`، valid/invalid states، بلا evidence.
+  9. Checkout navigation/locale: `NOT TESTED` — `/ar/checkout` و`/en/checkout`، بلا evidence.
+  10. DOM / Visual / Console / Network: `NOT TESTED` — لا captures ولا screenshots ولا network logs.
+  11. Accessibility / Focus / Reduced Motion: `NOT TESTED` — لا keyboard/focus أو runtime reduced-motion verification.
+  12. Astra Review: `NOT TESTED`.
+  13. Owner Visual Acceptance: `G5 ACCEPTED`؛ `G6 NOT INFERRED`.
+  14. Production Readiness: `NOT SEALED`.
+- **Strict scope compliance:** لم يُعدَّل أي مصدر أو إعداد أو حزمة أو بيانات؛ التعديل الوحيد في G6 هو هذا القسم داخل `docs/PROGRESS.md`. `G7/Day 9: NOT AUTHORIZED`.
+
+⛔ STOP — G6
+
+---
+
+## §62) G7 — DAY 8 FINAL REVIEW & HANDOFF (2026-11-26)
+
+- **Owner Authorization:** `G7 — DAY 8 FINAL REVIEW & HANDOFF`. **Executor:** GLM. **Reviewer:** Astra. **Scope:** Documentation only.
+- **Scope guard:** المسموح تعديله فقط `docs/PROGRESS.md` و`docs/DAY8_TASKS.md`. صفر source/backend/DB/env/config/deps/commit/push/deploy؛ صفر Day 9/Dashboard/Production Seal؛ صفر فتح Gate جديد؛ صفر إصلاح bugs أثناء المراجعة.
+- **Preflight:** قُرئت `AGENTS.md`، و`docs/FRONTEND_TASKS_10_DAYS.md §0.3/Day8/Day9/Day10`، و`docs/PROGRESS.md §47-§61` مع كامل سجلات Day 8/Gates، و`docs/DAY8_TASKS.md §1-§7/§10-§11`، وفُحص `git status`. لا قُبول أي Gate بالاستنتاج؛ كل حالة مقتبسة من سجلها أو من إذن مالك موثّق.
+- **Baseline:** `git status --short --untracked-files=all | sort | sha256sum` → `9c8074fbf188935508cc41285c681c436207a477b6f99d719a895562edd4009f`؛ `git status --porcelain=v1 --untracked-files=all | sort | sha256sum` → `1c2c19156b825003c48c4dd61e7c95e57046919ba1286042f1ecf860a951be1b`؛ `20` entry (12 modified + 8 untracked). الاختلاف بين الـhashين هو تنسيق اقتباس `--short` للمسارات ذات الأقواس؛ لا مسارات جديدة أو محذوفة. الشجرة المتسخة الموروثة محفوظة.
+- **قاعدة الفصل:** `SOURCE COMPLETE` لا يساوي `AUTOMATED CHECKS PASS`، ولا `BROWSER VERIFIED`، ولا `OWNER ACCEPTED`. أي `NOT TESTED` يبقى كما هو لأن G7 ليس بديلًا عن G6.
+
+### 62.1 Gate-by-gate final review — Day 8 (G0–G6)
+
+| Gate | Owner authorization | Source status | Automated checks / exact evidence | Browser verification | Astra review | Owner acceptance | Outstanding blockers / deviations |
+|---|---|---|---|---|---|---|---|
+| G0 | `G0 — DAY 8 PRE-FLIGHT / SCOPE LOCK` صريح في `§50` | COMPLETE — docs-only baseline/scope lock | `npm run lint EXIT 0`؛ `npm run check EXIT 0` (297 files / 477 keys)؛ `tsc EXIT 0`؛ `npm run build EXIT 0` موروث (56/56)؛ `git diff --check EXIT 0`؛ package diff فارغ | NOT TESTED | planning/audit `PASS WITH NOTES`؛ تقرير G0 نفسه NOT TESTED | ACCEPTED — موثّق في preflight G4A `§59` | أصول Hero/OG/Banners، حقائق FAQ، بيئة browser، D8-SEAL، D15-SEO-SITEMAP مؤجل |
+| G1 | `G1 — DAY 8 HOMEPAGE STRUCTURE & DATA` صريح في `§52` | COMPLETE — Home/Hero/Banner/Featured/Categories + states | `lint/check/tsc/build EXIT 0`؛ `check 297 files / 484 keys`؛ `build 56/56` مع `store/* NETWORK_ERROR` بيئي أثناء prerender؛ `git diff --check EXIT 0`؛ package diff فارغ | NOT TESTED | NOT TESTED | ACCEPTED source-wise — مستخدم في `§59/§60` | صور/ placement نهائي، FAQ facts، browser matrix، D8-SEAL |
+| G2 | `G2 — DAY 8 SEO & STRUCTURED DATA` صريح في `§53` | COMPLETE — homepage metadata/canonical/hreflang/OG/Twitter/JSON-LD review | `lint/check/tsc/build EXIT 0`؛ `check 298 files / 487 keys`؛ `build 56/56`؛ HTML source محلي `/ar` و`/en` PASS؛ `git diff --check EXIT 0`؛ package diff فارغ | NOT TESTED — HTML source ليس DOM/browser | NOT TESTED | ACCEPTED source-wise — صراحةً في `§59` | معاينة social crop بصريًا، browser matrix، sitemap مؤجل إلى D15 |
+| G3 | `G3 — DAY 8 GOOGLE SIGN-IN UI ONLY` صريح في `§54` | COMPLETE — UI-only unavailable toast، بلا OAuth | `lint/check/tsc/build EXIT 0`؛ `check 298 files / 487 keys`؛ `build 56/56`؛ `git diff --check EXIT 0`؛ package diff فارغ | NOT TESTED | NOT TESTED | ACCEPTED صراحةً في إذن G4 `§55` | Google real auth DEFERRED؛ شكل علامة Google/رسالة التوست لم يُختبرا بصريًا |
+| G4 + follow-ups | `G4 — DAY 8 CHECKOUT ENTRY` صريح في `§55`؛ follow-ups مصرّ بها في `§§56-58` | COMPLETE — CTA مشروط + badge reset + floating CTA + Hero slider/cover | `lint/check/tsc/build EXIT 0`؛ `check 299 files / 488 keys` ثم `301 files / 488 keys`؛ `build 56/56`؛ `git diff --check EXIT 0`؛ package diff فارغ | NOT TESTED | NOT TESTED | ACCEPTED صراحةً في preflight G4A `§59` | authenticated merge، قراءة سلة العميل بعد merge، browser/DOM، مراجعة الهيرو النهائية |
+| G4A | `G4A — DAY 8 FAQ & WISHLIST UI PREPARATION` صريح في `§59` | COMPLETE — FAQ + Wishlist UI preparation فقط | `lint/check/tsc/build EXIT 0`؛ `check 309 files / 513 keys`؛ `build 62/62`؛ API source review PASS (لا wishlist endpoint/request)؛ `git diff --check EXIT 0`؛ package diff فارغ | NOT TESTED | NOT TESTED | ACCEPTED source-wise في preflight G5 `§60` | محتوى FAQ التجاري غير موثق، أصول FAQ/Wishlist غير معتمدة، wishlist API DEFERRED، browser matrix |
+| G5 | `G5 — DAY 8 STYLE & MOTION` صريح في `§60` | COMPLETE — stagger/hover/press/details transitions بلا behavior/API/route changes | `lint/check/tsc/build EXIT 0`؛ `check 309 files / 513 keys`؛ `build 62/62` compile `9.9s`؛ `git diff --check EXIT 0`؛ package diff فارغ؛ Reduced Motion PASS source-level فقط | NOT TESTED | NOT TESTED | VISUAL ACCEPTANCE GRANTED — مسجّل في `§61` | runtime reduced-motion/browser matrix لم تُختبر؛ لا عيب جديد؛ D8-SEAL |
+| G6 | `G6 — DAY 8 BROWSER EVIDENCE` صريح في `§61` | Evidence-only; لا source implementation | لم تُعَد الأوامر؛ inherited `lint/check/tsc/build` كلها `EXIT 0`؛ `git diff --check EXIT 0`؛ package diff فارغ | PREFLIGHT COMPLETE؛ Browser Environment NOT AVAILABLE؛ كل الاختبارات NOT TESTED | NOT TESTED | NOT INFERRED — لا acceptance بصري لـG6 | `D8-BROWSER-ENVIRONMENT: BLOCKED`؛ لا DOM/Visual/Console/Network evidence |
+
+### 62.2 G6 — Browser Evidence Test Matrix (مطلوب داخل G7 — نتائج منقولة من `§61` كما هي)
+
+> كل الصفوف أدناه `NOT TESTED`. `NO OBSERVATION` تعني أنه لم تحدث ملاحظة فعلية، وليس أن العنصر فاشل. لا screenshots ولا DOM/console/network captures موجودة. ممنوع تحويل أي صف إلى `PASS` دون إعادة اختبار فعلي.
+
+#### 62.2.1 Functional Tests
+
+| Test ID | Route | Locale | Viewport | Theme | Motion | Steps | Expected | Actual | Result | Evidence Reference |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `G6-HOME-AR` | `/ar` | `ar` / `rtl` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | افتح الصفحة ولاحظ skeletons ثم final state وحالات fallback | skeleton قبل المحتوى، empty/error واضحان، loaded بلا flicker | `NO OBSERVATION — no authorized browser` | `NOT TESTED` | none |
+| `G6-HOME-EN` | `/en` | `en` / `ltr` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | افتح الصفحة ولاحظ skeletons ثم final state وحالات fallback | skeleton قبل المحتوى، empty/error واضحان، loaded بلا flicker | `NO OBSERVATION — no authorized browser` | `NOT TESTED` | none |
+| `G6-SEO-AR` | `/ar` | `ar` / `rtl` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | افحص source/metadata domains في بيئة مأذونة | canonical/hreflang/OG/Twitter/JSON-LD صحيحة ومحلية | `NO OBSERVATION — no authorized browser/server` | `NOT TESTED` | none |
+| `G6-SEO-EN` | `/en` | `en` / `ltr` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | افحص source/metadata domains في بيئة مأذونة | canonical/hreflang/OG/Twitter/JSON-LD صحيحة ومحلية | `NO OBSERVATION — no authorized browser/server` | `NOT TESTED` | none |
+| `G6-FAQ-AR` | `/ar/faq` | `ar` / `rtl` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | افتح FAQ، بدّل details، تحقق breadcrumb/nav/focus | محتوى عربي صحيح، تنقل سليم، details قابلة للوصول | `NO OBSERVATION — no authorized browser` | `NOT TESTED` | none |
+| `G6-FAQ-EN` | `/en/faq` | `en` / `ltr` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | افتح FAQ، بدّل details، تحقق breadcrumb/nav/focus | محتوى إنجليزي صحيح، تنقل سليم، details قابلة للوصول | `NO OBSERVATION — no authorized browser` | `NOT TESTED` | none |
+| `G6-WISHLIST-AR` | `/ar/wishlist` | `ar` / `rtl` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | افتح الصفحة ولاحظ empty state فقط | حالة فارغة ودودة بلا أثر تخزين أو طلبات mutation | `NO OBSERVATION — no authorized browser` | `NOT TESTED` | none |
+| `G6-WISHLIST-EN` | `/en/wishlist` | `en` / `ltr` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | افتح الصفحة ولاحظ empty state فقط | حالة فارغة ودودة بلا أثر تخزين أو طلبات mutation | `NO OBSERVATION — no authorized browser` | `NOT TESTED` | none |
+| `G6-GOOGLE-AR` | `/ar/account/login` | `ar` / `rtl` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | اضغط زر Google ولاحظ الرسالة/التركيز | رسالة محلية بأن التفاعل غير متاح، بلا network OAuth | `NO OBSERVATION — no authorized browser` | `NOT TESTED` | none |
+| `G6-GOOGLE-EN` | `/en/account/login` | `en` / `ltr` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | اضغط زر Google ولاحظ الرسالة/التركيز | رسالة محلية بأن التفاعل غير متاح، بلا network OAuth | `NO OBSERVATION — no authorized browser` | `NOT TESTED` | none |
+| `G6-CART-AR` | `/ar/cart` | `ar` / `rtl` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | افتح cart بحالة صالحة ثم غير صالحة ولاحظ CTA | يظهر CTA فقط عند صلاحية المتطلبات، بلا تنقل خاطئ | `NO OBSERVATION — no authorized browser` | `NOT TESTED` | none |
+| `G6-CART-EN` | `/en/cart` | `en` / `ltr` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | افتح cart بحالة صالحة ثم غير صالحة ولاحظ CTA | يظهر CTA فقط عند صلاحية المتطلبات، بلا تنقل خاطئ | `NO OBSERVATION — no authorized browser` | `NOT TESTED` | none |
+| `G6-CHECKOUT-AR` | `/ar/checkout` | `ar` / `rtl` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | انقر CTA من cart ولاحظ المسار والـdir | يفتح `/ar/checkout` باللغة والاتجاه الصحيحين | `NO OBSERVATION — no authorized browser` | `NOT TESTED` | none |
+| `G6-CHECKOUT-EN` | `/en/checkout` | `en` / `ltr` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | انقر CTA من cart ولاحظ المسار والـdir | يفتح `/en/checkout` باللغة والاتجاه الصحيحين | `NO OBSERVATION — no authorized browser` | `NOT TESTED` | none |
+
+#### 62.2.2 Cross-Browser UI Matrix
+
+| Test ID | Route | Locale | Viewport | Theme | Motion | Steps | Expected | Actual | Result | Evidence Reference |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `G6-M-LOCALE-AR` | Day 8 G6 scope routes | `ar` / `rtl` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | تحقق `lang`، `dir`، logical spacing، انعكاس الأيقونات | locale/direction/logical spacing/icon direction صحيحة | `NO OBSERVATION` | `NOT TESTED` | none |
+| `G6-M-LOCALE-EN` | Day 8 G6 scope routes | `en` / `ltr` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | تحقق `lang`، `dir`، ترتيب العناصر وmessage text | locale/direction/layout order/translated messages صحيحة | `NO OBSERVATION` | `NOT TESTED` | none |
+| `G6-M-THEME-ZAFRAN` | Day 8 G6 scope routes | `ar/en` | `360px/desktop` — NOT OBSERVED | `zafran` | `normal/reduced` — NOT OBSERVED | تحقق `data-theme` وتوكنات الألوان | `data-theme` وتوكنات zafran صحيحة | `NO OBSERVATION` | `NOT TESTED` | none |
+| `G6-M-THEME-ATTAR` | Day 8 G6 scope routes | `ar/en` | `360px/desktop` — NOT OBSERVED | `attar` | `normal/reduced` — NOT OBSERVED | تحقق `data-theme` وتوكنات الألوان | `data-theme` وتوكنات attar صحيحة | `NO OBSERVATION` | `NOT TESTED` | none |
+| `G6-M-THEME-CINNAMON` | Day 8 G6 scope routes | `ar/en` | `360px/desktop` — NOT OBSERVED | `cinnamon` | `normal/reduced` — NOT OBSERVED | تحقق `data-theme` وتوكنات الألوان | `data-theme` وتوكنات cinnamon صحيحة | `NO OBSERVATION` | `NOT TESTED` | none |
+| `G6-M-THEME-HIBISCUS` | Day 8 G6 scope routes | `ar/en` | `360px/desktop` — NOT OBSERVED | `hibiscus` | `normal/reduced` — NOT OBSERVED | تحقق `data-theme` وتوكنات الألوان | `data-theme` وتوكنات hibiscus صحيحة | `NO OBSERVATION` | `NOT TESTED` | none |
+| `G6-M-VIEWPORT-360` | Day 8 G6 scope routes | `ar/en` | `360px` | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | تحقق عدم overflow وأحجام اللمس وقابلية القراءة | لا horizontal overflow، مقاسات لمس وقراءة صالحة | `NO OBSERVATION` | `NOT TESTED` | none |
+| `G6-M-VIEWPORT-DESKTOP` | Day 8 G6 scope routes | `ar/en` | desktop | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | تحقق التخطيط وتوزيع الأقسام | توزيع responsive صحيح بلا انهيار تخطيط | `NO OBSERVATION` | `NOT TESTED` | none |
+| `G6-M-A11Y-FOCUS` | Day 8 G6 scope routes | `ar/en` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | Tab/Shift+Tab + focus-visible | focus مرئي وترتيب وصول منطقي لكل interactive element | `NO OBSERVATION` | `NOT TESTED` | none |
+| `G6-M-MOTION-NORMAL` | Day 8 G6 scope routes | `ar/en` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | normal | تحقق الحركات/Smoothness دون flicker | حركة سلسة بلا flicker | `NO OBSERVATION` | `NOT TESTED` | none |
+| `G6-M-MOTION-REDUCED` | Day 8 G6 scope routes | `ar/en` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `prefers-reduced-motion: reduce` | تحقق إلغاء الحركة وثبات المحتوى | الحركة مكبوتة والمحتوى ظاهر بالكامل | `NO OBSERVATION` | `NOT TESTED` | none |
+| `G6-M-LAYOUT` | Day 8 G6 scope routes | `ar/en` | `360px/desktop` — NOT OBSERVED | `zafran/attar/cinnamon/hibiscus` — NOT OBSERVED | `normal/reduced` — NOT OBSERVED | تحقق من scrollbars أفقية ووميض ترطيب وتغير مقاسات مفاجئ | لا horizontal scrollbar، لا hydration flicker، لا layout shift مفاجئ | `NO OBSERVATION` | `NOT TESTED` | none |
+
+#### 62.2.3 Runtime Evidence — منفصل كما في `§61`
+
+- **DOM:** `NOT TESTED` — لا DOM snapshots ولا element queries ولا HTML source capture في G6؛ فحص `§53` source-only ولا يُرقَّى إلى دليل G6.
+- **Visual:** `NOT TESTED` — لا screenshots ولا مقارنة بصرية تحت أي ثيم/مقاس/اتجاه.
+- **Console:** `NOT TESTED` — لا console capture؛ لا يُادَّعى خلوّ وحدة التحكم من الأخطاء.
+- **Network:** `NOT TESTED` — لا DevTools/network capture؛ `HTTP 200` ليس بديلًا، ولم تحدث طلبات مرصودة أصلاً.
+- **Accessibility/Focus:** `NOT TESTED` — لا keyboard/focus فعلي؛ ملاحظات source/type لا تُعد بديلًا.
+- **Reduced Motion:** `NOT TESTED`.runtime — `§60` source-level فقط؛ لم يُختبر `prefers-reduced-motion` في المتصفح.
+
+#### 62.2.4 Evidence requirements and forbidden upgrades
+
+- النتائج المسموحة: `PASS` فقط مع تنفيذ ودليل؛ `FAIL` مع عيب ودليل؛ `NOT TESTED` حين تغيب البيئة أو لم يُنفَّذ الاختبار. هنا كل الصفوف `NOT TESTED`.
+- لا HTTP 200 كدليل نجاح، لا screenshots متخيلة، لا automated checks كبديل عن browser verification، لا `PASS` لـreduced motion من source code، لا بيانات عملاء/tokens/emails/addresses/credentials في الأدلة.
+- لا Google OAuth حقيقي، لا API writes/cart mutations/authenticated merge، لا production testing/deploy، لا dependency/config changes، لا إصلاح عيوب، لا تحويل `NOT TESTED` قديم إلى `PASS` بلا إعادة اختبار.
+
+### 62.3 Required Handoff — Task ID / Status / Files / Evidence / Blockers
+
+| Task ID | Status | Actual Files | Evidence | Remaining Blockers |
+|---|---|---|---|---|
+| `KS-11` | SOURCE COMPLETE / BROWSER NOT TESTED | `app/[locale]/(Store)/page.tsx`، `HomeSections`، `Hero*`، `BannerSection`، `FeaturedSection`، `CategoriesSection`، `Card/*`، `messages/{ar,en}.json`، `lib/brandAssets.ts` | `§52` lint/check/tsc/build `EXIT 0`؛ check `297 files/484 keys`؛ build `56/56` | D8-HERO/BANNER assets، G6 browser matrix، D8-SEAL |
+| `KS-12` | SOURCE COMPLETE / BROWSER NOT TESTED | `lib/seo.ts`، `lib/brandAssets.ts`، `app/[locale]/(Store)/metadata.ts`، `page.tsx`، `messages/{ar,en}.json` | `§53` أوامر `EXIT 0`؛ HTML source `/ar` و`/en` PASS؛ browser NOT TESTED | social crop visual، Sitemap مؤجل `D15-SEO-SITEMAP`، D8-SEAL |
+| `KS-13` | SOURCE COMPLETE / BROWSER NOT TESTED | `components/ECommerce/Account/GoogleSignInButton.tsx`، `messages/{ar,en}.json` | `§54` أوامر `EXIT 0`؛ source review صفر request/token | Google real auth DEFERRED، browser visual/focus/toast NOT TESTED |
+| `KS-14` | SOURCE COMPLETE / BROWSER NOT TESTED | `CartCheckoutLink.tsx`، `CartSummary.tsx`، `CartDrawer.tsx`، `useCheckoutSubmit.ts`، `useFloatingCartCta.ts`، `Hero*.tsx`، `messages/{ar,en}.json` | `§55-58` أوامر `EXIT 0`؛ check `299→301 files/488 keys`؛ build `56/56` | authenticated merge، D8-MERGE-READ، browser/DOM/network |
+| `KS-15` | SOURCE COMPLETE / BROWSER NOT TESTED | `faq/page.tsx`، `faq/metadata.ts`، `FaqSection.tsx`، `FaqItem.tsx`، `StoreBreadcrumb.tsx`، `FooterNav.tsx`، nav files، messages | `§59` أوامر `EXIT 0`؛ check `309 files/513 keys`؛ build `62/62` | FAQ commercial facts غير موثقة، أصول FAQ غير معتمدة، browser matrix |
+| `KS-16` | SOURCE COMPLETE UI-ONLY / BROWSER NOT TESTED | `wishlist/page.tsx`، `wishlist/metadata.ts`، `WishlistEmptyState.tsx`، `lib/routes.ts`، nav files، messages | `§59` أوامر `EXIT 0`؛ API source review صفر endpoint/request/persistence | wishlist API DEFERRED، أصل empty غير معتمد، browser matrix |
+| `D8-ASSET-REGISTER` | RECORDED / PARTIAL | `docs/PROGRESS.md §51/§53/§59` | جرد 29 PNG + اختيار `Set_03` hero/OG؛ لا بكسل-review مستقل | اعتماد كل أصل لكل موضع، browser preview |
+| `D8-HERO-ASSET` | OWNER PATH SELECTED / BROWSER NOT VERIFIED | `lib/brandAssets.ts`، `Hero.tsx`، `HeroSlider.tsx`، `HeroCta.tsx` | `§51/§53/§56-58` | فحص النص/اللوجو/القص في المتصفح؛ G6 NOT TESTED |
+| `D8-OG-ASSET` | OWNER PATH SELECTED / BROWSER NOT VERIFIED | `lib/seo.ts`، `lib/brandAssets.ts`، homepage metadata | `§53` HTML source PASS | social crop preview NOT TESTED |
+| `D8-BANNER-ASSETS` | BLOCKED | `lib/brandAssets.ts`، `messages/{ar,en}.json` | `§50/§51` سجل مرشحات وادعاءات غير متحققة | لا أصول معتمدة للربط؛ لا وعود تجارية متخيلة |
+| `D8-FAQ` | SOURCE COMPLETE / BROWSER NOT TESTED | FAQ files، `StoreBreadcrumb.tsx`، nav files، messages | `§59` build `62/62` | حقائق الشحن/الدفع/الإرجاع/الضمان غير موثقة؛ FAQ JSON-LD مؤجل |
+| `D8-WISHLIST` | SOURCE COMPLETE UI-ONLY / BROWSER NOT TESTED | Wishlist files، `lib/routes.ts`، nav files، messages | `§59` أوامر `EXIT 0` | G6 browser matrix |
+| `D8-WISHLIST-API` | DEFERRED | لا ملفات G7 | `§59` source review صفر request/persistence | عقد باك معتمد؛ لا endpoint متخيل |
+| `D8-SITEMAP` | DEFERRED TO D15 — مرتبط بـ`D15-SEO-SITEMAP` | `app/sitemap.ts` لم يُعدَّل | `§50/§59` صراحةً لا تعديل في اليوم 8 | بيانات products/categories منشورة/indexable + caching/revalidation في اليوم 15 |
+| `D8-GOOGLE-REAL` | DEFERRED — NO IMPLEMENTATION AUTHORIZED | `GoogleSignInButton.tsx` UI-only | `§54` صفر OAuth/token/request | إذن منفصل + client ID/callback؛ لا اختبار حقيقي |
+| `D8-MERGE-READ` | BLOCKED من Day 7 | لا ملفات G7 | `§47.4` و`§55` | لا endpoint لقراءة سلة العميل بعد merge؛ لا اختبار authenticated |
+| `D8-BROWSER` / `D8-BROWSER-ENVIRONMENT` | BLOCKED / NOT TESTED | لا ملفات G7 | `§61` لا URL، لا listener، لا tooling، لا متصفح | توفير Local/Staging مأذون ثم إعادة اختبار G6 بالكامل |
+| `D8-OWNER-VIS` | G5 ACCEPTED / G6 NOT INFERRED | لا ملفات G7 | `§61` Owner Decision | G6 visual/browser acceptance غائبة； لا ترقية تلقائية |
+| `D8-SEAL` | NOT READY / NOT SEALED | لا ملفات G7 | `§61` وكل تقارير Gates | كل Browser/Blockers أعلاه مفتوحة； لا deploy |
+| `D8-DASHBOARD` | مرجع تاريخي — لم يُفتح | لا ملفات G7 | `DAY8_TASKS.md §1.5` | لا إذن Day 9/Dashboard |
+| `D15-SEO-SITEMAP` | DEFERRED TO DAY 15 | `app/sitemap.ts` لم يُعدَّل | `DAY8_TASKS.md §6` المواصفة الكاملة | يوم 15 فقط: sitemap ديناميكي + مراجعة SEO/اركتيكتشر/جاهزية إنتاج |
+
+### 62.4 VerificationCommandResults (بعد تحرير وثائق G7)
+
+- `git diff --check` → `EXIT 0`؛ تحذيرات `LF will be replaced by CRLF` موروثة على Windows (منها `docs/PROGRESS.md` و`docs/DAY8_TASKS.md`)، بلا whitespace errors.
+- `git diff --stat` → `EXIT 0`؛ الإجمالي `13 files changed, 445 insertions(+), 27 deletions(-)`. حصة G7 وحدها: `docs/PROGRESS.md` من `152` إلى `282` سطرًا مضافًا (أي `+130`) و`docs/DAY8_TASKS.md | 16 ++`؛ بقية الملفات أعمال G4A/G5 source الموروثة.
+- `git status --short --untracked-files=all` → `EXIT 0`؛ `21` entry بعد G7 (13 modified + 8 untracked) مقابل `20` في baseline (12 modified + 8 untracked)؛ المدخل الجديد هو تعديل `docs/DAY8_TASKS.md` المسموح به، بلا untracked جديد.
+- hash baseline قبل G7: `--short` `9c8074fbf188935508cc41285c681c436207a477b6f99d719a895562edd4009f` و`--porcelain=v1` `1c2c19156b825003c48c4dd61e7c95e57046919ba1286042f1ecf860a951be1b`. hash نهائي بعد G7: `--short` `fa7f7eac8ad28b8bf61b2f6d03a9bafcbf4c2638da4d94a49dec09b525567a98` و`--porcelain=v1` `9f41f24b978710bb55f2a489f08ec5640e9d8d31dbff90fd919e9c4008ed42b4`. التغيير هو إضافة مسار `docs/DAY8_TASKS.md` إلى قائمة Modified فقط.
+- `git diff -- package.json package-lock.json` → `EXIT 0` وبدون diff؛ صفر dependency/lock changes. لم تُعَد `lint`/`check`/`tsc`/`build` لأن G7 documentation-only؛ الأدلة الموروثة في `§62.1` هي المرجع.
+
+### 62.5 Astra recommendation — منفصل عن Owner Acceptance
+
+- **Astra Review Status:** `NOT TESTED`؛ لم تُجرَ مراجعة Astra مستقلة داخل هذه الـGate. التقارير السابقة المسجّلة: G0 planning/audit `PASS WITH NOTES`، وأما G1–G6 فـ`NOT TESTED` في سجلاتها.
+- **Astra Recommendation (للمراجعة):** `PARTIAL HANDOFF ACCEPTABLE — DO NOT SEAL`؛ يُقبل الأرشيف كـ`SOURCE COMPLETE + AUTOMATED PASS` مع إبقاء Browser/NOT TESTED وكل البلوكات مفتوحة، وفتح G6 مجددًا فقط عند بيئة مأذونة.
+- **Owner Acceptance:** G0/G1/G2/G3/G4/G4A/G5 مقبولة كما هو موثّق أعلاه؛ G6 لم يُعتمد بصريًا؛ G7 نفسه `PENDING` حتى مراجعة المالك. لا تُترجم توصية Astra إلى اعتماد مالك.
+
+### 62.6 Production Readiness
+
+- `PRODUCTION READINESS: NOT READY / NOT SEALED`؛ `DAY 8 STATUS: PARTIAL HANDOFF — D8-HOME/SEO/GOOGLE-UI/CHECKOUT-ENTRY/FAQ/WISHLIST-UI/G5-MOTION SOURCE-COMPLETE؛ D8-BROWSER EVIDENCE BLOCKED`.
+- لا Deployment، لا Day 9/Dashboard، لا reopening Gates تلقائيًا، لا اعتبار G7 بديلًا عن G6. جميع البلوكات في `§62.3` تبقى مفتوحة.
+
+⛔ STOP — Gate 7
+
+---
+
+## §63) END DAY8 — Closure fixes + floating cart CTA + credentials hygiene (2026-11-26)
+
+- **Owner decisions:** اعتماد الشكل الحالي؛ إصلاح H1/H2/M1/M2 من `REVIEW_DAY8 §4`؛ زرار السلة العايم يفضل Fixed أثناء السكرول؛ تنضيف credentials؛ commit `End Day8` بعد الفحوص. **الـ commit لا يعني Browser Verification ولا SEALED.** BE-1/BE-5 مش بيتفتحوا بالتوازي مع Day 9.
+- **Source changes:** `Home/Hero.tsx` (h1 sr-only) · `Home/HeroCta.tsx` (بدون opacity:0، دخول CSS) · `Home/HeroSlider.tsx` (preload للأول) · `Card/ProductCard.tsx` (focus ring) · `styles/tokens.css` (fill-mode `both` → `backwards`) · `hooks/useFloatingCartCta.ts` (يختفي في checkout) · `FloatingCartCta.tsx` + `Header/CartLink.tsx` (`99+`) · `cart/metadata.ts` (noindex) · `messages/{ar,en}.json` (حذف 3 مفاتيح ميتة: 513 → 510) · `backend/.env.example` (placeholders).
+- **Root cause (floating CTA):** `.animate-page-in` بـ `fill-mode: both` يفضل بـ `transform: matrix(1,0,0,1,0,0)` ⇒ containing block لـ `position: fixed`. تفاصيل وقياسات قبل/بعد في `REVIEW_DAY8 §10.2` (موبايل 537/537/537، desktop 493/493/493؛ قبل: 3239 / 2055 خارج الشاشة).
+- **VerificationCommandResults:** `npm run lint` EXIT 0 · `npm run check` EXIT 0 (309 files / 510 keys) · `tsc --noEmit` EXIT 0 · `npm run build` EXIT 0 (62/62) · `git diff -- package.json package-lock.json` فاضي. ملف مؤقت `dupmsg.js` (من وكيل المراجعة) اتحذف.
+- **Browser (Chrome headless عبر CDP، بدون dependency):** اتقاس DOM/HTML فقط: h1=1، `<meta robots noindex>` على `/cart`، preload ×1، CTA ثابت. **كل الباقي (الشكل، الثيمات، reduced-motion، focus، FAQ/Wishlist/Google/Checkout، الموبايل 360px) = NOT TESTED** وبيتنفذ بالقايمة اليدوية `REVIEW_DAY8 §6 + §10.7`.
+- **Credentials:** `.env` غير متتبع ✅؛ القيم القديمة لسه في تاريخ git (commits `a9397c3, 5c8639a, aff19ee, 1a2360c`) ⇒ **Revoke من Cloudinary مطلوب من المالك**. ملفات خارج Om-Eman تحتاج قرار (`project2_clinica/.env.example` فيه SMTP، و`Day1/.env`,`Day2/.env` متتبعين).
+- **Status:** `D8-SEAL NOT SEALED` · `Astra review NOT TESTED` · `Owner visual: الشكل معتمد من المالك، والتحقق بالمتصفح لسه`.
+
+⛔ STOP — §63

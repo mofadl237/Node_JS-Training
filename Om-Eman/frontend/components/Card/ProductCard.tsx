@@ -54,7 +54,7 @@ const ProductCardBase = ({ product, locale, isBeamActive = false, isDemo = false
             src={product.primaryImage?.url ?? null}
             alt={alt}
             sizes="(min-width:1024px) 25vw, 50vw"
-            className="object-cover transition-opacity duration-300"
+            className="object-cover transition-[opacity,transform] duration-300 ease-out motion-safe:group-hover:scale-[1.02] motion-reduce:transform-none motion-reduce:transition-none"
           />
         </div>
         {product.secondaryImage ? (
@@ -70,7 +70,7 @@ const ProductCardBase = ({ product, locale, isBeamActive = false, isDemo = false
       <div className="relative flex min-h-[11rem] flex-col p-3">
         <p className="h-4 truncate text-xs text-ink-soft">{categoryName ?? "\u00a0"}</p>
         <h3 className="mt-1 line-clamp-2 min-h-[2.75rem] font-display text-base leading-snug text-ink">
-          <Link href={productHref(product.slug)} className="after:absolute after:inset-0 focus-visible:outline-none">
+          <Link href={productHref(product.slug)} className="after:absolute after:inset-0 after:rounded-lg focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:-outline-offset-2 focus-visible:after:outline-primary">
             {name}
           </Link>
         </h3>
@@ -82,7 +82,7 @@ const ProductCardBase = ({ product, locale, isBeamActive = false, isDemo = false
           {needsChoice ? (
             <Link
               href={productHref(product.slug)}
-              className="relative z-10 inline-flex h-9 w-full items-center justify-center gap-2 rounded-md bg-surface-2 px-4 text-sm font-semibold text-ink transition-all duration-150 hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              className="relative z-10 inline-flex h-9 w-full items-center justify-center gap-2 rounded-md bg-surface-2 px-4 text-sm font-semibold text-ink transition-all duration-150 hover:bg-primary/10 motion-safe:hover:-translate-y-0.5 motion-safe:active:translate-y-0 motion-safe:active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transform-none motion-reduce:transition-none"
             >
               {ctaLabel}
             </Link>
@@ -90,7 +90,7 @@ const ProductCardBase = ({ product, locale, isBeamActive = false, isDemo = false
             <Button
               variant={canAddDirect ? "primary" : "soft"}
               size="sm"
-              className="relative z-10 w-full"
+              className="relative z-10 w-full motion-reduce:transform-none motion-reduce:transition-none"
               disabled={!canAddDirect || isAdding || isAdded}
               onClick={onAdd}
               aria-label={ctaLabel}

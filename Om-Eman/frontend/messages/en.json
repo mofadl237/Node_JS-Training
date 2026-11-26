@@ -23,7 +23,9 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "menuTitle": "Explore Om Eman",
-    "brandTagline": "Natural herbs and spices"
+    "brandTagline": "Natural herbs and spices",
+    "faq": "FAQ",
+    "wishlist": "Wishlist"
   },
   "locale": {
     "ar": "العربية",
@@ -48,7 +50,9 @@
       "shop": "Shop",
       "track": "Track order",
       "account": "My account",
-      "cart": "Cart"
+      "cart": "Cart",
+      "faq": "FAQ",
+      "wishlist": "Wishlist"
     },
     "contactTitle": "Contact us",
     "socialTitle": "Follow us",
@@ -74,14 +78,11 @@
     "phoneSecondary": "Secondary phone"
   },
   "home": {
-    "title": "Natural spices and herbs for your home",
-    "body": "The main page is built during the storefront days — the final design is decided together.",
     "metaTitle": "Om Eman | Natural Spices & Herbs for Your Home",
     "metaDescription": "Om Eman store for natural spices and herbs — clear prices and delivery to your door.",
     "ogImageAlt": "Om Eman identity on a wooden background",
     "hero": {
       "title": "Natural spices and herbs for your home",
-      "subtitle": "Balanced picks, authentic flavor, and clear prices — all in one place.",
       "cta": "Shop now",
       "imageAlt": "Om Eman identity on a wooden background"
     },
@@ -597,6 +598,39 @@
     "title": "Page not found",
     "body": "The link looks old or wrong.",
     "backHome": "Back to home"
+  },
+  "faq": {
+    "home": "Home",
+    "breadcrumb": "FAQ",
+    "title": "Frequently asked questions",
+    "subtitle": "Short answers about browsing Om Eman products and contacting the store.",
+    "metaTitle": "FAQ | Om Eman",
+    "metaDescription": "Short answers about browsing Om Eman products and contacting the store.",
+    "items": {
+      "products": {
+        "question": "What can I browse in the store?",
+        "answer": "You can browse the products listed on the products page."
+      },
+      "contact": {
+        "question": "How can I contact Om Eman?",
+        "answer": "The contact links available in the footer are the supported way to get in touch."
+      },
+      "wishlist": {
+        "question": "Can I save products to a wishlist?",
+        "answer": "No. Saving is not active yet; the wishlist page is informational only."
+      }
+    }
+  },
+  "wishlist": {
+    "home": "Home",
+    "breadcrumb": "Wishlist",
+    "title": "Wishlist",
+    "subtitle": "A preparation page with no saving or retrieving of products.",
+    "metaTitle": "Wishlist | Om Eman",
+    "metaDescription": "A preparation page explaining that saving products is not active yet.",
+    "emptyTitle": "Wishlist is not active yet",
+    "emptyBody": "You cannot save or retrieve products right now. This is a preparation page only.",
+    "browseCta": "Browse products"
   },
   "common": {
     "backToTop": "Back to top",

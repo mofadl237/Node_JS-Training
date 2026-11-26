@@ -1,11 +1,11 @@
 "use client";
 
 import { memo } from "react";
-import { ChevronRight, PackageSearch, Store, UserRound, type LucideIcon } from "lucide-react";
+import { ChevronRight, Heart, HelpCircle, PackageSearch, Store, UserRound, type LucideIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { isNavPathActive } from "@/lib/navActive";
-import { ACCOUNT_HREF, PRODUCTS_HREF, TRACK_HREF } from "@/lib/routes";
+import { ACCOUNT_HREF, FAQ_HREF, PRODUCTS_HREF, TRACK_HREF, WISHLIST_HREF } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import { headerNavLinkActiveClass, headerNavLinkClass } from "./headerStyles";
 
@@ -30,6 +30,18 @@ const HeaderNavLinks = ({ className }: IProps) => {
       label: t("shop"),
       icon: Store,
       isActive: isNavPathActive(pathname, PRODUCTS_HREF),
+    },
+    {
+      href: FAQ_HREF,
+      label: t("faq"),
+      icon: HelpCircle,
+      isActive: isNavPathActive(pathname, FAQ_HREF),
+    },
+    {
+      href: WISHLIST_HREF,
+      label: t("wishlist"),
+      icon: Heart,
+      isActive: isNavPathActive(pathname, WISHLIST_HREF),
     },
     {
       href: TRACK_HREF,

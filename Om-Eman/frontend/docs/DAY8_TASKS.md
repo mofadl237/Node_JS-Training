@@ -440,3 +440,19 @@
 **الإذن الحالي:** `DAY 8 SCOPE CLARIFICATIONS RECORDED — FULL SCOPE LOCKED — NO GATE OPENED — NO IMPLEMENTATION AUTHORIZED`.
 
 ⛔ STOP — DAY 8 SCOPE CLARIFICATIONS RECORDED — FULL SCOPE LOCKED — NO GATE OPENED — NO IMPLEMENTATION AUTHORIZED
+
+---
+
+## 12) G7 — DAY 8 FINAL REVIEW & HANDOFF (2026-11-26)
+
+- **Owner Authorization:** `G7 — DAY 8 FINAL REVIEW & HANDOFF`؛ **Executor:** GLM؛ **Reviewer:** Astra؛ **Scope:** documentation only.
+- **Preflight:** قُرئت `AGENTS.md`، وأجزاء `FRONTEND_TASKS_10_DAYS.md §0.3/Day8/Day9/Day10`، و`PROGRESS.md §47-§61` خصوصًا `§61`، وهذا الملف `§1-§7/§10-§11`؛ فُحص `git status` وسُجّل baseline في `PROGRESS.md §62`. لا قبول أي Gate بالاستنتاج.
+- **Scope guard:** التعديل الوثائقي في G7 انحصر في `docs/PROGRESS.md` و`docs/DAY8_TASKS.md`. صفر source/backend/DB/env/config/deps، صفر commit/push/deploy، صفر Day 9/Dashboard، صفر Production Seal.
+- **Final review:** جدول G0–G6 الكامل مع Owner authorization وSource status وAutomated exit codes وBrowser/Astra/Owner acceptance وBlockers موجود في `PROGRESS.md §62.1`.
+- **G6 mandatory qualification:** مصفوفة `G6-HOME-*`, `G6-SEO-*`, `G6-FAQ-*`, `G6-WISHLIST-*`, `G6-GOOGLE-*`, `G6-CART-*`, `G6-CHECKOUT-*` وكل `G6-M-*` منقولة كما هي في `PROGRESS.md §62.2`. كلها `NOT TESTED` بلا evidence؛ DOM/Visual/Console/Network وAccessibility/Focus وRuntime Reduced Motion منفصلة و`NOT TESTED`؛ `D8-BROWSER-ENVIRONMENT: BLOCKED`. G7 ليس بديلًا عن G6.
+- **Handoff coverage:** `PROGRESS.md §62.3` يغطي `KS-11`–`KS-16` وكل معرّفات `§6` (`D8-ASSET-REGISTER`, `D8-HERO-ASSET`, `D8-OG-ASSET`, `D8-BANNER-ASSETS`, `D8-FAQ`, `D8-WISHLIST`, `D8-WISHLIST-API`, `D8-SITEMAP`, `D8-GOOGLE-REAL`, `D8-MERGE-READ`, `D8-BROWSER`, `D8-OWNER-VIS`, `D8-SEAL`, `D8-DASHBOARD`, `D15-SEO-SITEMAP`)؛ `D15-SEO-SITEMAP` مؤجل إلى اليوم 15.
+- **Astra / Owner:** Astra Review Status `NOT TESTED`؛ التوصية المعدّة للمراجعة `PARTIAL HANDOFF ACCEPTABLE — DO NOT SEAL`، منفصلة عن Owner Acceptance. G5 visual acceptance مقبول؛ G6 لم يُعتمد بصريًا؛ G7 PENDING حتى مراجعة المالك.
+- **Production readiness:** `NOT READY / NOT SEALED`؛ لا deployment ولا ادعاء اكتمال Day 8؛ كل البلوكات مفتوحة.
+- **VerificationCommandResults:** `git diff --check EXIT 0` مع تحذيرات LF→CRLF موروثة وبلا whitespace errors؛ `git diff --stat EXIT 0` (`13 files changed, 445 insertions(+), 27 deletions(-)`؛ حصة G7: `PROGRESS.md +130` و`DAY8_TASKS.md +16`)؛ `git status --short --untracked-files=all EXIT 0` (`21` entry مقابل `20` في baseline، بسبب تعديل `DAY8_TASKS.md` المسموح به فقط)؛ `git diff -- package.json package-lock.json EXIT 0` بلا diff. لم تُعَد أوامر lint/build لأن النطاق وثائقي.
+
+⛔ STOP — Gate 7

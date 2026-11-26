@@ -14,7 +14,7 @@ const HeroCta = () => {
   const reduceMotion = useReducedMotion();
 
   return (
-    <div className="relative flex justify-center">
+    <div className="animate-fade-up relative flex justify-center motion-reduce:animation-none">
       <m.span
         aria-hidden="true"
         className="absolute -inset-3 -z-10 rounded-full bg-primary/25 blur-xl"
@@ -22,8 +22,7 @@ const HeroCta = () => {
         transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
       />
       <m.div
-        initial={{ opacity: 0, y: 16, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
+        initial={false}
         whileHover={{ scale: 1.05, y: -2 }}
         whileTap={{ scale: 0.97 }}
         transition={{ type: "spring", stiffness: 420, damping: 24 }}

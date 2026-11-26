@@ -35,7 +35,7 @@ export const CartLink = () => {
           aria-label={t("cartItems", { count: itemsCount })}
           className="pointer-events-none absolute -top-1.5 -end-1.5 grid size-7 place-items-center rounded-full px-0 py-0 text-[11px] font-bold leading-none shadow-rest ring-2 ring-paper select-none"
         >
-          <RollingNumber value={itemsCount} suffix={itemsCount > 99 ? "+" : undefined} />
+          <RollingNumber value={Math.min(itemsCount, 99)} suffix={itemsCount > 99 ? "+" : undefined} />
         </Badge>
       ) : null}
     </Link>

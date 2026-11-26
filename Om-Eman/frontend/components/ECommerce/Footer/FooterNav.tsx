@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { ACCOUNT_HREF, CART_HREF, PRODUCTS_HREF, TRACK_HREF } from "@/lib/routes";
+import { ACCOUNT_HREF, CART_HREF, FAQ_HREF, PRODUCTS_HREF, TRACK_HREF, WISHLIST_HREF } from "@/lib/routes";
 
 const linkClass =
   "rounded-sm text-ink-soft transition-colors duration-150 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
@@ -13,6 +13,8 @@ const FooterNav = () => {
     { href: TRACK_HREF, label: t("nav.track") },
     { href: ACCOUNT_HREF, label: t("nav.account") },
     { href: CART_HREF, label: t("nav.cart") },
+    { href: FAQ_HREF, label: t("nav.faq") },
+    { href: WISHLIST_HREF, label: t("nav.wishlist") },
   ];
 
   return (

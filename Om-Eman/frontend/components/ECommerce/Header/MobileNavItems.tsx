@@ -3,6 +3,8 @@
 import { m } from "motion/react";
 import {
   ChevronRight,
+  Heart,
+  HelpCircle,
   PackageSearch,
   ShoppingCart,
   Store,
@@ -12,7 +14,7 @@ import {
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { isNavPathActive } from "@/lib/navActive";
-import { ACCOUNT_HREF, CART_HREF, PRODUCTS_HREF, TRACK_HREF } from "@/lib/routes";
+import { ACCOUNT_HREF, CART_HREF, FAQ_HREF, PRODUCTS_HREF, TRACK_HREF, WISHLIST_HREF } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import { mobileNavLinkClass } from "./headerStyles";
 
@@ -37,6 +39,18 @@ const MobileNavItems = ({ onClose }: IProps) => {
       label: t("shop"),
       icon: Store,
       isActive: isNavPathActive(pathname, PRODUCTS_HREF),
+    },
+    {
+      href: FAQ_HREF,
+      label: t("faq"),
+      icon: HelpCircle,
+      isActive: isNavPathActive(pathname, FAQ_HREF),
+    },
+    {
+      href: WISHLIST_HREF,
+      label: t("wishlist"),
+      icon: Heart,
+      isActive: isNavPathActive(pathname, WISHLIST_HREF),
     },
     {
       href: TRACK_HREF,
