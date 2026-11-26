@@ -1,6 +1,6 @@
 # اليوم 8 — Storefront: الهوم + SEO الثقيل + إضافات المالك — تاسكات التخطيط والتفكيك
 
-> آخر تحديث: 2026-11-24. **حالة المستند: DAY 8 SCOPE CLARIFICATIONS RECORDED — FULL SCOPE LOCKED — NO GATE OPENED — NO IMPLEMENTATION AUTHORIZED.**
+> آخر تحديث: 2026-11-26. **حالة المستند: DAY 8 SOURCE COMPLETE — PARTIAL HANDOFF — NOT SEALED — BROWSER MATRIX NOT TESTED — DAY 8 COMMIT `5a64603 End Day8`.** الرأس القديم «NO GATE OPENED — NO IMPLEMENTATION AUTHORIZED» كان خاصًا بمرحلة التخطيط قبل تنفيذ Gates Day 8؛ كل Gates Day 8 G0–G7 موثّقة في `PROGRESS.md §50-§62`، وإصلاحات الإغلاق في `§63`. لا يُترجم هذا السطر إلى Day 9 أو Gate جديد.
 > **المدير/المراجع:** Astra. **المنفّذ المقترح:** GLM. **المالك:** صاحب القرار في النطاق، صورة Hero/OG، تعديل Header/Footer، فتح كل Gate، والانتقال للي بعده.
 > **تصحيح النطاق:** الغى المالك الصياغة السابقة التي حصرت اليوم 8 في Google UI/UX + Cart → Checkout. تلك إضافتان داخل اليوم وليستا نطاقًا بديلًا. `FRONTEND_TASKS_10_DAYS.md:225-234` «اليوم 8 — Storefront: الهوم + SEO الثقيل (مسار C)» هو الآن مصدر الحقيقة للنطاق الأساسي. أي ملاحظة تاريخية في هذا الملف أو في `PROGRESS.md` تقول إن هذا القسم «مرجع تاريخي فقط» تُقرأ الآن **مُستبدلة بقرار المالك الصريح هذا**؛ لا تُفتح Gate تلقائيًا.
 > **توضيحات المالك الإضافية (2026-11-24):** صور Hero/OG حقيقية ومعتمدة فقط؛ FAQ صفحة حقيقية داخل اليوم 8؛ Wishlist UI preparation فقط بلا باك/حفظ/mutations؛ توسيع sitemap مؤجل صراحةً إلى `D15-SEO-SITEMAP`. هذه قرارات تخطيط فقط ولا تفتح Gate.

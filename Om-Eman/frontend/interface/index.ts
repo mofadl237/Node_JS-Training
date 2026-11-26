@@ -14,6 +14,18 @@ export type {
   TCustomerStatus,
 } from "./customerAuth";
 export type {
+  IAdminListMeta,
+  IAdminLoginBackendResult,
+  IAdminLoginPayload,
+  IAdminLoginResult,
+  IAdminProxyTarget,
+  IEmployee,
+  IProductRow,
+  TEmployeeRole,
+  TProductStatus,
+  TProductType,
+} from "./dashboard";
+export type {
   ICheckoutAddress,
   ICheckoutCartLine,
   ICheckoutItem,

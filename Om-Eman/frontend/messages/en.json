@@ -588,6 +588,53 @@
       "unexpected": "Something unexpected happened. Please try again."
     }
   },
+  "dashboard": {
+    "errors": {
+      "validation": "The submitted data is invalid. Check the fields and try again.",
+      "requestFailed": "The request failed. Please try again shortly.",
+      "network": "The connection failed. Please try again in a moment.",
+      "timeout": "The request took too long. Please try again.",
+      "invalidCredentials": "The email or password is incorrect.",
+      "employeeDisabled": "This employee account is disabled. Contact an administrator.",
+      "employeeUnavailable": "This employee is unavailable right now.",
+      "sessionMissing": "No active session. Please sign in again.",
+      "sessionInvalid": "The session is invalid or expired. Please sign in again.",
+      "sessionExpired": "The session has expired. Please sign in again.",
+      "rateLimited": "Too many attempts. Please wait and try again.",
+      "routeNotAllowed": "This action is not allowed.",
+      "invalidResponse": "The server returned invalid data. Please try again.",
+      "unexpected": "Something unexpected happened. Please try again."
+    },
+    "login": {
+      "meta": {
+        "title": "Dashboard login | Om Eman",
+        "description": "Secure employee sign-in for the Om Eman dashboard."
+      },
+      "title": "Employee sign in",
+      "subtitle": "Sign in with your employee credentials to continue.",
+      "fields": {
+        "email": "Email",
+        "password": "Password"
+      },
+      "submit": "Sign in",
+      "signOut": "Sign out",
+      "retry": "Try again",
+      "status": {
+        "signedIn": "Signed in successfully.",
+        "signedOut": "Signed out successfully.",
+        "redirecting": "Signed in. Redirecting to the dashboard..."
+      },
+      "sessionError": {
+        "title": "Session check failed",
+        "body": "The session could not be checked. Please try again in a moment."
+      }
+    },
+    "error": {
+      "title": "Dashboard problem",
+      "body": "Please try again. If the problem continues, contact an administrator.",
+      "retry": "Try again"
+    }
+  },
   "errors": {
     "title": "Something unexpected happened",
     "body": "Try again, and if the problem stays contact us on WhatsApp.",

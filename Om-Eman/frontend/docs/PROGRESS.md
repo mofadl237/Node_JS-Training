@@ -2,7 +2,9 @@
 
 > ده ملف المتابعة الوحيد: أي AI يقراه يعرف اتعمل إيه بالظبط، وإيه اللي لسه.
 > **آخر تحديث (2026-11-26): §63 — `End Day8` closure fixes. Day 8 = SOURCE COMPLETE — PARTIAL HANDOFF، NOT SEALED، ما اتعملوش Browser Verification شامل.** الجدول القديم أدناه (حالة الأيام) تاريخي؛ الحالة الصحيحة في `REVIEW_DAY8.md §3.1` و`§10`، وخطة اليوم التالي في `DAY9_TASKS.md`.
-> (تاريخي) آخر تسليم قبل ده: `G6 — DAY 7 FINAL REVIEW & HANDOFF` — مراجعة وثائق/أدلة وتسليم جزئي فقط؛ DAY 7 = PARTIAL HANDOFF. مرجع الخطة: [DAY7_TASKS.md](./DAY7_TASKS.md)؛ اليوم السابق: `DAY6_TASKS.md` §12؛ الخطة الكاملة: `FRONTEND_TASKS_10_DAYS.md` §0.3.
+> **آخر تحديث (2026-11-26): §65 — `G2 — DAY 9 SESSION & API PLUMBING` (SOURCE + AUTOMATED). الداشبورد لسه `BROWSER NOT TESTED` و`G3 BLOCKED (owner_count:0)`.** أي Gate/commit/browser acceptance لاحق محتاج إذن صريح باسمه.
+> (سابق) §64 — `G0 — DAY 9 PRE-FLIGHT / DAY 8 CLOSURE` (وثائق فقط). الداشبورد كان `PLAN WRITTEN — NO DAY-9 GATE OPENED — NO DAY-9 IMPLEMENTATION AUTHORIZED`.
+> (تاريخي) آخر تسليم قبل Day 8: `G6 — DAY 7 FINAL REVIEW & HANDOFF` — مراجعة وثائق/أدلة وتسليم جزئي فقط؛ DAY 7 = PARTIAL HANDOFF.
 > **رموز الحالة:** ✅ متأكد بأوامر · 🟢 بصري اعتمده المالك · 🟡 بصري بانتظار المالك · ⛔ محجوب · ⚠️ جزئي.
 > أداة الفحص الموحدة للمراجعة: `npm run check` (`scripts/check-rules.mjs`) — حدود الأسطر، نصوص عربي hard-coded، ألوان خام، any/console.log/framer-motion، تطابق `ar.json`/`en.json`.
 > القاعدة: نحدّث الملف ده **قبل ما نقفل أي خطوة** (مش بعد).
@@ -27,17 +29,20 @@
 
 ## الفرونت — حالة الأيام
 
-| اليوم | المحتوى | الحالة |
-| --- | --- | --- |
-| 1 | Foundation: i18n/RTL + tokens/4 ثيمات + ThemeSwitcher + baseApi + Animation wrappers أساسية + UI primitives + /design + SEO base + error/not-found | ✅ كود + lint + build (2026-11-16) · 🟢 البصري اعتمده المالك (2026-11-17) · ⚠️ اتصال الباك جزئي (settings/categories/banners/faqs/pages/sitemap شغالين، المنتجات ⛔) |
-| 2 | إكمال Foundation: سباكة/عقود (interface/store, Toaster, split hooks) + باقي الحركة (Spotlight/BorderBeam/PulseRing/Marquee/Confetti/FlyToCart/PageTransition) + recipes (GlowCard/PriceTag/SectionHeading/TrustStrip/Empty-ErrorState) + صفوف /design | ✅ مقفول (2026-11-17) — 24/24 مهمة موجودة ومتركّبة، lint/build/check خضرا، البصري 🟢. ⚠️ بند واحد محجوب خارجيًا (A5: مقارنة كارت المنتج على رد حي) + عيوب مسجلة D2-01…D2-09 بتتصلح في Gate 1 من يوم 3 |
-| 3 | Storefront: غلاف المتجر + الهوم SSR + SEO + متابعات البراند | منفّذ في المصدر؛ ✅ lint/check؛ ⚠️ 4 أخطاء TS؛ ⛔ آخر build؛ 🟡 لا قبول متصفح شامل. التحقق المحلي السابق لـGate 5 لا يُعاد كمهام Day 4. |
-| 4 | كتالوج أساسي؛ تفاصيل المنتج مشروطة بعقد النشر؛ اختيار عبوة وإضافة بالسلة القائمة بعد التفاصيل | **خطة فقط** — `docs/DAY4_TASKS.md`. لا تفويض بتنفيذ أي Gate؛ KS-1/KS-2 لم تُغلقا. |
-| 5 | Product Search + Guest Cart / Cart Page | **Planned for Day 5 — Not Started** لكلا المهمتين؛ راجع سجل التسليم أدناه. |
-| 6–7 | Checkout → تتبع → حساب العميل | ⏳ لاحقًا حسب خطة المتجر؛ خارج تكليف اليوم. |
-| 8-9 | Dashboard أساسي: دخول + هيكل + منتجات + أقسام + طلبات + مدفوعات | ⏳ |
-| 10-12 | Dashboard تكميلي: فواتير، شحن، عروض، كوبونات، محتوى، تقارير، عملاء، audit | ⏳ |
-| 13-14 | الإطلاق: Lighthouse ≥ 95 + SEO نهائي + مراجعة RTL | ⏳ |
+> **تصحيح 2026-11-26 (G0):** الجدول القديم كان سجلًا يوم 2026-11-19 وقديمًا؛ الحالة الحالية أدناه هي المرجع، وتفاصيل الأدلة في `REVIEW_DAY8.md §3.1` و`PROGRESS.md §§47-63`. ترقيم الخطة الأصلية «يوم 9/10» نُفّذ فعليًا في أيام 4–7.
+
+| اليوم | المحتوى الفعلي | المصدر | آلي | متصفح | قبول المالك |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Foundation (i18n/tokens/4 themes/baseApi/motion/UI/`/design`/SEO base) | ✅ | ✅ | ✅ | 🟢 |
+| 2 | باقي الحركة + recipes + إصلاحات D2 | ✅ | ✅ | ✅ | 🟢 |
+| 3 | غلاف المتجر + هوم SSR + data layer + SEO | ✅ | ✅ | 🟡 | 🟡 (D3-RM) |
+| 4 | كتالوج + PDP + إضافة للسلة | ✅ | ✅ | 🟡 | 🟡 (`R-G4-MAJOR`) |
+| 5 | بحث + سلة الضيف | ✅ | ✅ | 🟡 | 🟡 |
+| 6 | Checkout + شحن + كوبون + إثبات تحويل | ✅ | ✅ | ⛔ NOT TESTED | 🟡 |
+| 7 | تتبع + Email auth + merge | ✅ | ✅ | 🟡 | ⚠️ partial |
+| 8 | هوم/SEO/Google-UI/Cart→Checkout/FAQ/Wishlist-UI/Motion + إصلاحات الإغلاق | ✅ | ✅ | ⛔ NOT TESTED | G5 🟢؛ باقي 🟡 |
+| 9 (فعلي) | Dashboard Foundation — جلسة/بروكسي RTK plumbing (G2 فقط، بلا UI) | ✅ | ✅ | ⛔ NOT TESTED | — |
+| 15 (فعلي) | إطلاق + `D15-SEO-SITEMAP` + مراجعة معمارية | ❌ مؤجل | — | — | — |
 
 ## Deferred Tasks / Upcoming Work
 
@@ -2941,7 +2946,7 @@ SMART EGYPT ADDRESS SYSTEM — PLANNING COMPLETE — DOCUMENTATION ONLY — IMPL
 
 - **الإذن الصريح:** `G0 — DAY 8 PRE-FLIGHT / SCOPE LOCK`؛ موافقة مستقلة للقراءة والتوثيق فقط. صفر تعديل مصدر، صفر backend/DB/env/deps/config/deploy، صفر commit/push، صفر reset/clean/checkout/stash. الملف الوحيد المسموح تحديثه هو `docs/PROGRESS.md`.
 - **المرجعية:** `AGENTS.md`، `FRONTEND_TASKS §0.3/يوم8/يوم9/يوم10`، `PROGRESS §47-§49`، `DAY7_TASKS §6/§7/§12`، `DAY8_TASKS` كامل. النطاق الكامل المثبّت في §49 هو الحاكم؛ G0 القديمة ملغاة ولا تُعتبر إذن تنفيذ. لا فتح G1/G2/G3/G4/G4A/G5/G6 تلقائيًا.
-- **Baseline مؤرّخ:** repo root `E:/NODE_JS/Udemy/Training`؛ frontend cwd `Om-Eman/frontend`؛ branch `main`؛ HEAD `36d1d96 End Day6`. `git status --porcelain=v1 --untracked-files=all | sort | sha256sum` = `287e5be2e36f81680fa8ac2f199606078b7b759151addb21c8231642942e00ea` قبل وبعد G0؛ `101` إجمالي مدخلات، منها `24` tracked modified و`77` untracked. الشجرة المتسخة موروثة من Days 1–7/Navbar/Day8 docs ولم يُلمس شيء منها سوى إضافة هذا القسم إلى `docs/PROGRESS.md`.
+- **Baseline مؤرّخ (تاريخي وقت Day 8 G0):** repo root `E:/NODE_JS/Udemy/Training`؛ frontend cwd `Om-Eman/frontend`؛ branch `main`؛ HEAD كان `36d1d96 End Day6`. `git status --porcelain=v1 --untracked-files=all | sort | sha256sum` = `287e5be2e36f81680fa8ac2f199606078b7b759151addb21c8231642942e00ea` قبل وبعد G0؛ `101` إجمالي مدخلات، منها `24` tracked modified و`77` untracked. **تحديث 2026-11-26 (Day 9 G0):** HEAD الحالي `5a64603 End Day8`؛ الـ baseline القديم كان قبل الـ commit ولم يعد مرجعًا للحالة الحالية.
 - **تحذيرات Git دون أخطاء محتوى:** `warning: could not open directory 'Day7-caching/backend/.claude/skills/prisma-cli/': No such file or directory` وأمثالها لمسارات `.claude/skills/prisma-*` و`.windsurf/skills/prisma-*`؛ `warning: in the working copy of 'Om-Eman/frontend/components/ECommerce/Cart/CartDrawer.tsx', LF will be replaced by CRLF the next time Git touches it` وأمثالها لملفات الـdirty tree. هذه تحذيرات Windows LF→CRLF/symlink noise، لا whitespace errors ولا تعديلات G0.
 - **فحوص القراءة/الbaseline المنفذة:** `git status --short --untracked-files=all`؛ `git rev-parse`؛ `git log -5 --oneline`؛ `git diff --check` → `EXIT 0`؛ `git diff --stat -- package.json package-lock.json` → بلا diff؛ `npm run lint` → `EXIT 0`؛ `npm run check` → `EXIT 0` (`297 code files`, `477 message keys per locale`, `0 failure(s), 0 warning(s)`)؛ `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → `EXIT 0`؛ فحص وجود أصول؛ فحص وجود أدوات متصفح. لم يُعاد `npm run build` داخل G0 لأنه يكتب مخرجات `.next`؛ الدليل الموروث من §48: `npm run build` → `EXIT 0`، Next `16.4.5`، `56/56` pages. لا ادعاء باختبار runtime أو بصري بهذه الأوامر.
 - **البيئة:** `package.json` scripts: `dev`, `build`, `start`, `lint`, `check`. `.env.example` موجود و`.env` غير موجود؛ لم تُقرأ قيم Biئة أو tokens أو أسرار. `playwright` و`@playwright/test` و`puppeteer` غير موجودين في `node_modules`؛ لا أداة browser/visual/Lighthouse مأذونة أو مثبتة هنا ⇒ `D8-BROWSER: NOT TESTED`.
@@ -3507,3 +3512,71 @@ SMART EGYPT ADDRESS SYSTEM — PLANNING COMPLETE — DOCUMENTATION ONLY — IMPL
 - **Status:** `D8-SEAL NOT SEALED` · `Astra review NOT TESTED` · `Owner visual: الشكل معتمد من المالك، والتحقق بالمتصفح لسه`.
 
 ⛔ STOP — §63
+
+---
+
+## §64) G0 — DAY 9 PRE-FLIGHT / DAY 8 CLOSURE (2026-11-26)
+
+- **Owner Authorization:** `G0 — DAY 9 PRE-FLIGHT / DAY 8 CLOSURE` صريح من المالك. **Scope:** docs only. **Executor:** GLM. **Reviewer:** Astra (توصية منفصلة أدناه).
+- **Scope guard:** التعديل الوثائقي انحصر في `docs/PROGRESS.md`, `docs/DAY8_TASKS.md`, `docs/FRONTEND_TASKS_10_DAYS.md`. صفر source/backend/DB/env/Cloudinary/deps/config/commit/push/reset/checkout/overwrite. لم تُفتح G1 ولا أي Gate من Day 9.
+- **Files read:** `AGENTS.md` · `docs/REVIEW_DAY8.md` (كامل، مع §7/§10) · `docs/DAY9_TASKS.md` (كامل، G0/§1.3/Q1–Q6/§5/§6) · `docs/PROGRESS.md` (البانر + جدول الأيام + §62 + §63) · `docs/DAY8_TASKS.md` (الرأس + §12) · `docs/FRONTEND_TASKS_10_DAYS.md` (§0.3 + الأيام 8–10 + جدول الباك).
+- **Git baseline قبل:** HEAD `5a64603e2adcc35de3ba7304d5b5da846993c786` (`5a64603 End Day8`)؛ `git status --short --untracked-files=all` → `EXIT 0`，**لا مدخلات tracked/untracked داخل Om-Eman**（تحذيرات `could not open directory ... .claude/.windsurf/skills/prisma-*` ضجيج Windows/symlink outside scope）；`git diff --check` → `EXIT 0`؛ `git diff -- package.json package-lock.json` → فارغ.
+- **Day 8 closure (مثبّت كما هو):** `DAY 8 = SOURCE COMPLETE — PARTIAL HANDOFF` · الإصلاحات الأربعة H1/H2/M1/M2 منفذة وموثّقة في `§63` و`REVIEW_DAY8 §10` · `End Day8` commit موجود · Browser Testing الشامل `NOT TESTED` (قياسات DOM/HTML جزئية من `§63` لا تُرقّى إلى browser verification) · `D8-SEAL NOT SEALED` · نجاح `build` ليس بديلًا عن Browser Evidence.
+- **Q1–Q6 (قرارات المالك المسجّلة — لا تُعاد):** Q1 Cloudinary أولوية قصوى؛ `.env.example` placeholders و`.env` غير متتبع، والـ Revoke مسؤولية المالك (القيم القديمة لسه في history). Q2 Browser Testing لـDay 8 مطلوب قبل/مع Day 9، أي اختبار غير منفذ `NOT TESTED`، ممنوع `SEALED` بلا evidence. Q3 داشبورد بالثيمات الأربعة الحالية بلا dark mode. Q4 BE-1/BE-5 لا يُفتحان بالتوازي؛ تركيز Day 9 = Auth + Structure + Read-only Products. Q5 `End Day8` commit تم بعد الإصلاحات والفحوص ولا يعني browser verification/seal. Q6 زرار السلة العايم Fixed أثناء السكرول اتنفذ بإصلاح الـ `fill-mode`؛ المالك اعتمد الشكل الحالي حتى يغيّره. G1 اتنفذت قبل Day 9 بإذن صريح ولا تُعتبر Gate مفتوحة الآن.
+- **D9-ENV (قراءة فقط — بدون قيم حساسة):**
+  - Backend availability: `:3002` LISTENING · `GET /api/store/products` → `200` · `GET /api/auth/me` → `401` (متوقع بدون Bearer) · `/api/health` و`/health` → `404` (لا health endpoint — لا يُخترع).
+  - Frontend availability: `:3001` LISTENING · `GET /ar` → `200`.
+  - `CORS_ORIGIN` في `backend/.env` موجود ويشمل `localhost:3001` ✅؛ لا يشمل `:3101` ❌ (قياسات CDP السابقة استخدمت `--disable-web-security` فقط). لا قيم CORS أو env طُبعت.
+  - `backend/.env`: present · `git ls-files` → غير متتبع ✅ · `git check-ignore` → متجاهل ✅. `.env.example` placeholders من `§63`.
+  - OWNER المزروع: `owner_count:0` / `owner_seeded:0` ⚠️ (استعلام Prisma `SELECT COUNT(*)` للدور OWNER فقط، بدون اسم/إيميل/باسورد). `seed.config.json` غير موجود؛ `seed.config.example.json` موجود. **هذا blocker لـ G3/login** وليس blocker لـ G0.
+  - الاتصال Frontend→Backend: `NEXT_PUBLIC_API_URL` موجود في `frontend/.env.local` (القيمة مخفية) ويؤدي إلى `/api/store/products` → `200`؛ المسار الافتراضي `http://localhost:3002/api/store/products` → `200` أيضًا.
+  - لا تعديل `.env` أو DB أو Cloudinary؛ لم تُعرض أي secret أو كلمة مرور أو إيميل في هذا السجل.
+- **Documentation corrections (D1–D6 + D10 من `REVIEW_DAY8 §7`):** D1 بانر `PROGRESS.md` updated to Day 9 G0 · D2 جدول الأيام استُبدل بالخريطة الفعلية (historical note) · D3 ترقيم Dashboard=9 والإطلاق=15 ثبّت · D4 سطر حالة `DAY8_TASKS.md` حدّث · D5 جدول ترقيم الخطة الأصل→الفعلي أُضيف في `FRONTEND_TASKS_10_DAYS.md` · D6 مسار `POST /api/store/cart/merge` ثبّت · D10 مرجع HEAD القديم في `§50` وُسمhistorical مع HEAD الحالي `5a64603`.
+- **VerificationCommandResults:** `lint/check/tsc/build` لم تُعَد داخل G0 لأن النطاق وثائقي؛ **النتائج السابقة الموثقة** في `§63`: `npm run lint EXIT 0` · `npm run check EXIT 0` (309 files / 510 keys/locale) · `tsc --noEmit EXIT 0` · `npm run build EXIT 0` (62/62). **نتائج جديدة G0:** `git status --short --untracked-files=all` → `EXIT 0` (clean قبل؛ 3 ملفات وثائق Modified بعد) · `git diff --check` → `EXIT 0` مع تحذيرات LF→CRLF موروثة · `git diff -- package.json package-lock.json` → فارغ. لا أوامر جديدة lint/check/tsc/build، ولا ادعاء browser verification.
+- **Git baseline بعد:** HEAD ما زال `5a64603 End Day8` (لا commit جديد)؛ working tree فيه 3 تعديلات وثائق فقط: `Om-Eman/frontend/docs/PROGRESS.md`, `Om-Eman/frontend/docs/DAY8_TASKS.md`, `Om-Eman/frontend/docs/FRONTEND_TASKS_10_DAYS.md`؛ لا untracked جديد. لا push.
+- **Remaining blockers:** `D8-SEAL NOT SEALED` · Day 8 Browser Matrix `NOT TESTED` · Cloudinary Revoke على المالك · OWNER غير مزروع · `projects/*` env artifacts خارج Om-Eman · `D9-SEC-OTHER`, `D9-BROWSER`, `D9-BE-1..9`, `D9-DARK`, `D15-SEO-SITEMAP` مؤجلة/مفتوحة كما في `DAY9_TASKS §5`.
+- **Astra recommendation (منفصل عن اعتماد المالك):** `G0 DOD SATISFIED — KEEP DAY 9 LOCKED`; يُقبل إغلاق Day 8 كـ`SOURCE COMPLETE — PARTIAL HANDOFF` فقط، ويُمنع فتح G1/G2 أو أي Day-9 implementation قبل إذن مالك جديد بالاسم. لا تُترجم هذه التوصية إلى `OWNER ACCEPTED`.
+- **Owner acceptance:** لم يُطلب بعد داخل هذا التقرير؛ المالك هو من يعتمد G0 وقرار الانتقال.
+
+⛔ STOP — Gate 0
+
+---
+
+## §65) G2 — DAY 9 SESSION & API PLUMBING (2026-11-26)
+
+- **Owner Authorization:** `G2 — DAY 9 SESSION & API PLUMBING` صريح من المالك؛ `G0 accepted`. **Scope:** frontend session/API plumbing فقط. **Reviewer:** Astra (توصية منفصلة أدناه). لا فتح `G3` تلقائيًا.
+- **Scope guard:** صفر backend/DB/ENV/deps/config/commit/push/reset/clean/checkout/stash. لم تُقرأ قيم secret؛ Cloudinary rotation مذكور `scheduled` فقط ولم يُعرض أي value. لم يُلمس `store/baseApi.ts` ولا أي customer token/session. لم تُنشأ شاشات dashboard UI ولا `/dashboard/login`.
+- **Files read:** `frontend/AGENTS.md` · `docs/DAY9_TASKS.md §4.2/§6` · `docs/REVIEW_DAY8.md` · `docs/PROGRESS.md` · `interface/api.ts` · `lib/envelope.ts` · `lib/server/storeFetch.ts` · `lib/cartError.ts` · `lib/config.ts` · `i18n/navigation.ts` · `store/baseApi.ts` · `store/store.ts` · `validation/index.ts` · `scripts/check-rules.mjs` · `package.json` · `tsconfig.json` · backend `auth/{routes,controller,service,types,validation}.ts` و`product/{validation,types}.ts` · `node_modules/next-intl` redirect typing.
+- **Baseline قبل:** HEAD `5a64603e2adcc35de3ba7304d5b5da846993c786` (`5a64603 End Day8`)؛ working tree فيه 3 تعديلات وثائق من G0 فقط: `docs/DAY8_TASKS.md`, `docs/FRONTEND_TASKS_10_DAYS.md`, `docs/PROGRESS.md`؛ `git diff --check` → `EXIT 0`؛ `git diff -- package.json package-lock.json` → فارغ. تحذيرات `.claude/.windsurf/skills/prisma-*` وLF→CRLF ضجيج Windows، ليست whitespace errors.
+
+### SOURCE
+
+- **New:** `interface/dashboard.ts` · `validation/adminLogin.ts` · `validation/adminProduct.ts` · `lib/server/adminSession.ts` · `lib/server/adminFetch.ts` · `lib/server/adminAllowlist.ts` · `lib/server/adminResponse.ts` · `lib/server/requireEmployee.ts` · `lib/adminClientFetch.ts` · `lib/adminError.ts` · `store/dashboardApi.ts` · `app/api/session/route.ts` · `app/api/admin/[...path]/route.ts`.
+- **Edited:** `interface/index.ts` · `validation/index.ts` · `store/store.ts` · `messages/ar.json` · `messages/en.json` · `docs/PROGRESS.md`. G0 docs `DAY8_TASKS.md` و`FRONTEND_TASKS_10_DAYS.md` لم يُلمسا.
+- **Contracts/validation:** `IEmployee`, `IAdminLoginPayload/Result/BackendResult`, `IProductRow`, `IAdminListMeta`, `IAdminProxyTarget` + barrel. Zod: login body strict، JWT-shaped cookie token، employee، backend login result، empty result، product row/list/meta/product query. Product query allowlist مطابقة للباك: `q`, `page`, `limit`, `sortBy` (19 قيمة), `sortOrder`.
+- **Cookie:** `oe.admin.session` ثابت؛ `httpOnly`, `sameSite:lax`, `secure` في production فقط, `path:/`, `maxAge=604800` (7 أيام). القراءة تتحقق من الشكل فقط؛ لا decoding/تجراء ثقة بالـ payload، ولا تخزين في `localStorage/sessionStorage`.
+- **Route Handlers:** `POST /api/session` يرسل `{email,password}` للباك، يكتشف الـ envelope، يكتب الكوكي، ويرجّع `employee` فقط — لا token في الجسم ولا في الـ logs. `GET /api/session` يتحقق عبر `/auth/me` ويمسح الكوكي عند 401. `DELETE /api/session` يمسح الكوكي فقط (لا يوجد revoke endpoint في الباك). `GET /api/admin/[...path]` يسمح فقط `/auth/me` و`/products` مع query مغلق؛ يرفض الباقي بـ`ROUTE_NOT_ALLOWED`/404، يمنع أي method خارج GET عبر Route Handler، يمسح الكوكي عند 401، ولا يمرّر cookie/host/body من المتصفح.
+- **Server helpers:** `adminFetch` يضيف `Authorization: Bearer` من الكوكي فقط مع timeout 8s ونتائج `{ok,...}` بدون throw؛ `adminLoginRequest` للدخول العام؛ `requireEmployee` يعيد `IEmployee` أو يعمل localized `redirect({ href: "/dashboard/login", locale })`؛ `adminErrorResponse` يوحّد أرقام الحالة ورسائل فارغة بلا نصوص raw.
+- **RTK Query:** `store/dashboardApi.ts` منفصل بـ`reducerPath:"adminApi"` وتags `AdminSession`/`AdminProducts`؛ `credentials:"same-origin"`؛ endpoints `loginEmployee`, `getEmployeeSession`, `logoutEmployee`, `getAdminProducts`; كل رد يُتحقق بـZod؛ **صفر** ربط بـ`baseApi` أو توكن عميل. `store.ts` سجّل reducer وmiddleware فقط.
+- **i18n:** namespace `dashboard.errors.*` أُضيف بـ14 مفتاحًا متطابقًا في `ar.json`/`en.json`؛ أي نص جديد لم يُHardcode في الكود؛ `lib/adminError.ts` يحوّل codes إلى المفاتيح دي.
+
+### AUTOMATED
+
+- `npm run lint` → `EXIT 0` بعد التنفيذ الأساسي. بعد حذف سطر `dynamic="force-dynamic"` الأخير، غلاف `npm run lint` رجع `Unknown: ChildProcess.kill` ثلاث مرات من مشغّل الـ shell (بلا findings من ESLint)؛ الأمر المكافئ الذي ينفّذه السكربط `node node_modules/eslint/bin/eslint.js` → `EXIT 0` بعد التعديل النهائي.
+- `npm run check` → `0 failure(s), 0 warning(s)`; `Scanned 322 code files, 524 message keys per locale`.
+- `node node_modules/typescript/bin/tsc --noEmit --incremental false --pretty false` → `EXIT 0` (بلا output).
+- `npm run build` → محاولة أولى فشلت لأن `dynamic="force-dynamic"` غير متوافق مع `nextConfig.cacheComponents`؛ بعد حذفه → `EXIT 0`، Next `16.4.5`، `63/63` pages، `/api/session` و`/api/admin/[...path]` كـ`ƒ (Dynamic)`.
+- `git diff --check` → `EXIT 0` مع تحذيرات LF→CRLF موروثة فقط. `git diff --exit-code -- package.json package-lock.json` → `EXIT 0`.
+- Complete diff review tracked: `DAY8_TASKS.md`/`FRONTEND_TASKS_10_DAYS.md` لم يتغيّرا في G2؛ `PROGRESS.md`, `interface/index.ts`, `validation/index.ts`, `store/store.ts`, `messages/ar.json`, `messages/en.json` رُوجعوا سطرًا بسطر. الـ13 ملفًا الجديدًا رُوجعوا كاملًا بعد آخر تعديل. لا secrets ولا tokens ولا كلمات مرور في الـ diff أو هذا السجل.
+- **Git baseline بعد:** HEAD ما زال `5a64603 End Day8`؛ لا commit جديد. 8 tracked modified (3 G0 docs + 5 G2 tracked) و13 untracked G2 file. لا push/deploy.
+
+### BROWSER
+
+- `BROWSER: NOT TESTED` — لا CDP ولا Playwright/Puppeteer ولا اختبار جلسة حي، ولا acceptance بصري من المالك. `D8-SEAL NOT SEALED` لم يتغيّر.
+- `owner_count:0` ما زال blocker لـ`G3`/إثبات الدخول الحقيقي؛ لا ادعاء بأن OWNER login شغّال.
+- فشل build الأول، وإصلاحه، ونجاح build الثاني موثّقان اعلاه ولا يُترجمان إلى browser evidence.
+
+- **Astra recommendation (منفصل عن اعتماد المالك):** `G2 SOURCE COMPLETE — AUTOMATED VERIFIED — KEEP G3 LOCKED`; يُقبل إغلاق G2 كـ plumbing فقط بعد مراجعة المالك للـ diff، ويُمنع فتح G3 أو أي dashboard UI قبل إذن صريح جديد.
+- **Owner acceptance:** لم يُطلب بعد داخل هذا التقرير؛ المالك هو من يعتمد G2 وقرار الانتقال.
+
+⛔ STOP — Gate 2

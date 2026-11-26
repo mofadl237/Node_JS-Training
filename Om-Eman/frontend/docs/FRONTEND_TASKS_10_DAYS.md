@@ -1,6 +1,7 @@
 # خطة الفرونت — 10 أيام (لوحة التحكم + متجر End-User بالتوازي)
 
-> آخر تحديث: 2026-11-11. ده ملف الخطة والتاسكات — مش ملف تنفيذ.
+> آخر تحديث: 2026-11-11 (أُضيف جدول الترقيم الفعلي في 2026-11-26 أثناء `G0 — DAY 9 PRE-FLIGHT`).ده ملف الخطة والتاسكات — مش ملف تنفيذ.
+> **ترقيم الخطة الأصلية مقابل التنفيذ الفعلي (تثبيت G0):** «اليوم 9 — الكتالوج + المنتج + البحث + السلة» و«اليوم 10 — Checkout + التتبع + الحساب + الإطلاق» أدناه نُفّذا فعليًا في **أيام 4–7** (كتالوج/منتج/بحث/سلة/checkout/تتبع/حساب). الهوم SEO والإضافات نُفّذت في **اليوم 8**. **اليوم 9 الفعلي = أول يوم Dashboard** (دخول موظف + هيكل + منتجات قراءة فقط) حسب `docs/DAY9_TASKS.md`. المراجعة المعمارية و`D15-SEO-SITEMAP` مؤجلة إلى **اليوم 15**. الأقسام القديمة أدناه تظل مرجعًا لمحتوى الشاشات لا لترقيم الأيام.
 > اقرأ `AGENTS.md` الأول: قواعد التقطيع (100/150 سطر)، التسمية (I/T)، RTK Query، next-intl، وملء الـ UI states.
 > مرجع الباك إند: `Om-Eman/backend/docs/mvp-guest-auth-upgrade.md`.
 > **تعديل 2026-11-13:** اقرأ القسم 0 الأول — بيغيّر الترتيب والمدة. ملف الألوان والحركة: `DESIGN_SYSTEM.md`.
@@ -269,7 +270,7 @@
 | 1 | `POST /api/store/checkout` (guest) | ✅ متاح |
 | 2 | `GET /api/store/track/:trackingToken` | ✅ متاح |
 | 3 | `POST /api/store/auth/register` + `verify-email` + `login` + `google` + `forgot-password` + `reset-password` + `logout` + `me` | ✅ متاح |
-| 4 | `GET /api/store/cart` + `POST /api/store/cart/merge` (دمج الضيف بجلسة العميل — استخدم `mergeGuestCart` من `/store`؟ **لاحظ:** دمج السلة اتعمل عبر `cart merge` service — راجع مسار الـ endpoint لو اتغير) | ✅ متاح |
+| 4 | `GET /api/store/cart` + `POST /api/store/cart/merge` (دمج الضيف بجلسة العميل — **المسار الفعلي المثبّت:** `POST /api/store/cart/merge`) | ✅ متاح |
 | 5 | `GET /api/store/search?q=` (+ تسجيل SearchLog تلقائيًا) | ✅ متاح |
 | 6 | `POST /api/store/payments/proof` | ✅ متاح |
 | 7 | `GET /api/reports/*` (10 تقارير — OWNER/ADMIN) | ✅ متاح |
