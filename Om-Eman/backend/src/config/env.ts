@@ -10,6 +10,7 @@ export interface IEnvConfig {
   readonly JWT_EXPIRES_IN: string;
   readonly BCRYPT_SALT_ROUNDS: number;
   readonly CORS_ORIGIN: string;
+  readonly FRONTEND_URL: string;
   readonly APP_NAME: string;
   readonly APP_TIMEZONE: string;
   readonly DEFAULT_CURRENCY: string;
@@ -103,6 +104,11 @@ export const env: Readonly<IEnvConfig> = Object.freeze({
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "7d",
   BCRYPT_SALT_ROUNDS: getNumber("BCRYPT_SALT_ROUNDS", 12),
   CORS_ORIGIN: process.env.CORS_ORIGIN || "*",
+  // Public storefront origin used to build absolute links inside emails.
+  FRONTEND_URL: (nodeEnv === EEnvironment.PRODUCTION
+    ? getEnv("FRONTEND_URL")
+    : getOptionalEnv("FRONTEND_URL", "http://localhost:3001")
+  ).replace(/\/+$/, ""),
   APP_NAME: appName,
   APP_TIMEZONE: appTimeZone,
   DEFAULT_CURRENCY: process.env.DEFAULT_CURRENCY || "EGP",

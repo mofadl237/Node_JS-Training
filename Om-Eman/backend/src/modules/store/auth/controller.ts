@@ -41,6 +41,26 @@ export class StoreAuthController {
     }
   };
 
+  resendVerification = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<Response | void> => {
+    try {
+      const result = await this.service.resendVerification(
+        req.body.email,
+        req.body.locale,
+      );
+      return ApiResponse.ok(
+        res,
+        "If the account is waiting for verification, a new link was sent.",
+        result,
+      );
+    } catch (error) {
+      next(error);
+    }
+  };
+
   login = async (
     req: Request,
     res: Response,
@@ -79,7 +99,7 @@ export class StoreAuthController {
     next: NextFunction,
   ): Promise<Response | void> => {
     try {
-      await this.service.forgotPassword(req.body.email);
+      await this.service.forgotPassword(req.body.email, req.body.locale);
       return ApiResponse.ok(
         res,
         "If the email exists, a reset link was sent.",

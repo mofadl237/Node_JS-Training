@@ -83,6 +83,10 @@ export function buildStorePaths(): Record<string, TOpenApiSchema> {
       body: { $ref: "#/components/schemas/StoreVerifyEmailInput" },
       errors: ["ValidationError", "Unauthorized"],
     }),
+    "/store/auth/resend-verification": path("Store Auth", "Resend the email verification link", "storeResendVerification", { type: "object", nullable: true }, {
+      body: { $ref: "#/components/schemas/StoreForgotPasswordInput" },
+      errors: ["ValidationError"],
+    }),
     "/store/auth/login": path("Store Auth", "Login with email and password", "storeLogin", ref("StoreAuthSession"), {
       body: { $ref: "#/components/schemas/StoreLoginInput" },
       errors: ["ValidationError", "Unauthorized"],

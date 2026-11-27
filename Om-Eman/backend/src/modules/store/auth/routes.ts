@@ -8,6 +8,7 @@ import {
   forgotPasswordSchema,
   googleCredentialSchema,
   registerSchema,
+  resendVerificationSchema,
   resetPasswordSchema,
   verifyEmailSchema,
 } from "./validation.js";
@@ -32,6 +33,7 @@ const authLimiter = rateLimit({
 
 router.post("/register", authLimiter, validateBody(registerSchema), controller.register);
 router.post("/verify-email", authLimiter, validateBody(verifyEmailSchema), controller.verifyEmail);
+router.post("/resend-verification", authLimiter, validateBody(resendVerificationSchema), controller.resendVerification);
 router.post("/login", authLimiter, validateBody(customerLoginSchema), controller.login);
 router.post("/google", authLimiter, validateBody(googleCredentialSchema), controller.googleLogin);
 router.post("/forgot-password", authLimiter, validateBody(forgotPasswordSchema), controller.forgotPassword);

@@ -12,7 +12,20 @@ import { comparePassword, hashPassword } from "../../../utils/password.js";
 import { generateOpaqueToken, hashToken } from "../../../utils/secure-token.js";
 import { normalizePhone } from "../../../utils/phone.js";
 import { resolveCustomerForAuthIdentity } from "../../../services/customer-claim.service.js";
-import type { IMessageResponse, IStoreCustomer } from "./types.js";
+import {
+  buildResetEmail,
+  buildResetLink,
+  buildVerificationEmail,
+  buildVerifyLink,
+} from "./auth-email.js";
+import {
+  DEFAULT_AUTH_LOCALE,
+  type IMessageResponse,
+  type IStoreCustomer,
+  type TAuthLocale,
+} from "./types.js";
+
+const RESEND_COOLDOWN_MS = 60 * 1000;
 
 const SELECT_CUSTOMER = {
   id: true,
@@ -57,27 +70,11 @@ function toStoreCustomer(row: {
   return row;
 }
 
-async function sendVerificationEmail(to: string, token: string): Promise<boolean> {
-  return sendEmail({
-    to,
-    subject: "تأكيد البريد الإلكتروني - أم إيمان",
-    text: `مرحبًا، أكد بريدك الإلكتروني بزيارة الرابط التالي: /verify-email?token=${token}`,
-    html: `<p>مرحبًا،</p><p>أكد بريدك الإلكتروني بزيارة الرابط التالي:</p><p><a href="/verify-email?token=${token}">تأكيد البريد الإلكتروني</a></p>`,
-  });
-}
-
-async function sendResetEmail(to: string, token: string): Promise<void> {
-  await sendEmail({
-    to,
-    subject: "إعادة تعيين كلمة المرور - أم إيمان",
-    text: `لإعادة تعيين كلمة المرور استخدم الرابط التالي: /reset-password?token=${token}`,
-    html: `<p>لإعادة تعيين كلمة المرور استخدم الرابط التالي:</p><p><a href="/reset-password?token=${token}">إعادة تعيين كلمة المرور</a></p>`,
-  });
-}
-
 async function issueEmailVerification(
   customerId: string,
   email: string,
+  locale: TAuthLocale,
+  name?: string | null,
 ): Promise<string | null> {
   const token = generateOpaqueToken();
   await prisma.authVerificationToken.create({
@@ -90,8 +87,11 @@ async function issueEmailVerification(
       ),
     },
   });
-  const sent = await sendVerificationEmail(email, token);
-  return sent ? null : token;
+  const link = buildVerifyLink(locale, token);
+  const sent = await sendEmail(
+    buildVerificationEmail({ to: email, link, locale, name: name ?? undefined }),
+  );
+  return sent ? null : link;
 }
 
 export class StoreAuthService {
@@ -101,6 +101,7 @@ export class StoreAuthService {
     firstName?: string;
     lastName?: string;
     phone?: string;
+    locale?: TAuthLocale | undefined;
   }): Promise<IMessageResponse> {
     const existing = await prisma.customer.findFirst({
       where: { email: dto.email },
@@ -113,6 +114,13 @@ export class StoreAuthService {
     });
 
     if (existing && !existing.isGuest && existing.passwordHash) {
+      // Registered but never verified: send the verification link again
+      // instead of failing, so the customer is never stuck. The stored
+      // password is NOT replaced: anyone could register someone else's email
+      // and would otherwise take over the account once the owner verifies it.
+      if (existing.emailVerifiedAt === null) {
+        return this.resendVerification(dto.email, dto.locale);
+      }
       throw new ConflictError(
         "This email is already registered",
         "EMAIL_ALREADY_REGISTERED",
@@ -151,12 +159,64 @@ export class StoreAuthService {
       customerId = created.id;
     }
 
-    const devToken = await issueEmailVerification(customerId, dto.email);
+    const devLink = await issueEmailVerification(
+      customerId,
+      dto.email,
+      dto.locale ?? DEFAULT_AUTH_LOCALE,
+      dto.firstName,
+    );
 
-    // SMTP disabled: surface the link in development only so the flow works
-    // locally. In production EMAIL_ENABLED must be true.
-    return devToken && env.NODE_ENV !== "production"
-      ? { devVerificationLink: `/verify-email?token=${devToken}` }
+    // Email delivery failed or is disabled: surface the link in development
+    // only so the flow can still be completed locally.
+    return devLink && env.NODE_ENV !== "production"
+      ? { devVerificationLink: devLink }
+      : {};
+  }
+
+  // Always answers generically (no account enumeration). Throttled per
+  // customer so the endpoint cannot be used to flood someone's inbox.
+  async resendVerification(
+    email: string,
+    locale: TAuthLocale = DEFAULT_AUTH_LOCALE,
+  ): Promise<IMessageResponse> {
+    const customer = await prisma.customer.findFirst({
+      where: {
+        email,
+        isGuest: false,
+        emailVerifiedAt: null,
+        passwordHash: { not: null },
+        status: ECustomerStatus.ACTIVE,
+      },
+      select: { id: true, firstName: true },
+    });
+    if (!customer) return {};
+
+    const latest = await prisma.authVerificationToken.findFirst({
+      where: { customerId: customer.id, purpose: EVerificationPurpose.EMAIL_VERIFY },
+      orderBy: { createdAt: "desc" },
+      select: { createdAt: true },
+    });
+    if (latest && Date.now() - latest.createdAt.getTime() < RESEND_COOLDOWN_MS) {
+      return {};
+    }
+
+    await prisma.authVerificationToken.updateMany({
+      where: {
+        customerId: customer.id,
+        purpose: EVerificationPurpose.EMAIL_VERIFY,
+        usedAt: null,
+      },
+      data: { usedAt: new Date() },
+    });
+
+    const devLink = await issueEmailVerification(
+      customer.id,
+      email,
+      locale,
+      customer.firstName,
+    );
+    return devLink && env.NODE_ENV !== "production"
+      ? { devVerificationLink: devLink }
       : {};
   }
 
@@ -304,7 +364,10 @@ export class StoreAuthService {
 
   // Always answers generically: the response must not reveal whether the email
   // exists (account enumeration protection).
-  async forgotPassword(email: string): Promise<void> {
+  async forgotPassword(
+    email: string,
+    locale: TAuthLocale = DEFAULT_AUTH_LOCALE,
+  ): Promise<void> {
     const customer = await prisma.customer.findFirst({
       where: {
         email,
@@ -330,7 +393,9 @@ export class StoreAuthService {
       },
     });
 
-    await sendResetEmail(email, token);
+    await sendEmail(
+      buildResetEmail({ to: email, link: buildResetLink(locale, token), locale }),
+    );
   }
 
   async resetPassword(token: string, password: string): Promise<void> {

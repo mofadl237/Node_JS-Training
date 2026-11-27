@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+const localeSchema = z.enum(["ar", "en"]).optional();
+
 const phoneSchema = z
   .string()
   .trim()
@@ -18,6 +20,7 @@ export const registerSchema = z.object({
   firstName: z.string().trim().min(1).max(60).optional(),
   lastName: z.string().trim().max(60).optional(),
   phone: phoneSchema.optional(),
+  locale: localeSchema,
 });
 
 export const verifyEmailSchema = z.object({
@@ -43,7 +46,10 @@ export const forgotPasswordSchema = z.object({
     .trim()
     .email("email must be a valid email address")
     .toLowerCase(),
+  locale: localeSchema,
 });
+
+export const resendVerificationSchema = forgotPasswordSchema;
 
 export const resetPasswordSchema = z.object({
   token: z.string("token is required").min(20, "token is invalid"),

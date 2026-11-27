@@ -23,3 +23,7 @@ export interface IMessageResponse {
   // production (see store/auth/service.ts).
   devVerificationLink?: string;
 }
+
+export type TAuthLocale = "ar" | "en";
+
+export const DEFAULT_AUTH_LOCALE: TAuthLocale = "ar";
